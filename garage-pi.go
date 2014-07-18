@@ -1,7 +1,6 @@
 package main
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -16,8 +15,7 @@ var serverDir string
 
 func homepageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("homepage")
-	t, _ := template.ParseFiles("templates/homepage.html")
-	t.Execute(w, struct{}{})
+	http.ServeFile(w, r, "templates/homepage.html")
 }
 
 func toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,13 +33,11 @@ func executeCommand(executable string, arg ...string) string {
 func startCameraHandler(w http.ResponseWriter, r *http.Request) {
 	executeCommand("bash", serverDir+"start-camera.sh")
 	http.Redirect(w, r, "/", 303)
-
 }
 
 func stopCameraHandler(w http.ResponseWriter, r *http.Request) {
 	executeCommand("bash", serverDir+"stop-camera.sh")
 	http.Redirect(w, r, "/", 303)
-
 }
 
 func main() {
