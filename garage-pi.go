@@ -11,15 +11,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var serverDir string
-
 func homepageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("homepage")
 	http.ServeFile(w, r, "./templates/homepage.html")
 }
 
 func toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
-	executeCommand("bash", serverDir+"gpio-toggle.sh")
+	executeCommand("bash", "gpio-toggle.sh")
 	http.Redirect(w, r, "/", 303)
 }
 
@@ -31,18 +29,18 @@ func executeCommand(executable string, arg ...string) string {
 }
 
 func startCameraHandler(w http.ResponseWriter, r *http.Request) {
-	executeCommand("bash", serverDir+"start-camera.sh")
+	executeCommand("bash", "start-camera.sh")
 	http.Redirect(w, r, "/", 303)
 }
 
 func stopCameraHandler(w http.ResponseWriter, r *http.Request) {
-	executeCommand("bash", serverDir+"stop-camera.sh")
+	executeCommand("bash", "stop-camera.sh")
 	http.Redirect(w, r, "/", 303)
 }
 
 func main() {
 	serverDir := getServerDir()
-	log.Println("Using serverDir:" + serverDir)
+	log.Println("Running from: " + serverDir)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 

@@ -9,7 +9,8 @@ export SERVER_DIR=$GOPATH/src/github.com/robdimsdale/garage-pi
 case "$1" in 
   start)
     echo "Starting garage-pi"
-    garage-pi 1> "$SERVER_DIR/out.log" 2>"$SERVER_DIR/out.log" &
+    cd $SERVER_DIR
+    garage-pi 1>out.log 2>out.log &
     ;;
   stop)
     echo "Stopping garage-pi"
