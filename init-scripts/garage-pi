@@ -1,7 +1,7 @@
 #! /bin/bash
 # /etc/init.d/garage-pi
 
-export SERVER_DIR=$GOPATH/src/github/robdimsdale/garage-pi
+export SERVER_DIR=$GOPATH/src/github.com/robdimsdale/garage-pi
 
 case "$1" in 
   start)
