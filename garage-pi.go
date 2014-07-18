@@ -15,7 +15,7 @@ var serverDir string
 
 func homepageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("homepage")
-	http.ServeFile(w, r, "templates/homepage.html")
+	http.ServeFile(w, r, "./templates/homepage.html")
 }
 
 func toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
