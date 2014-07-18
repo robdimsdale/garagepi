@@ -39,7 +39,7 @@
         </div>
       </div>
       <div class="row">
-        <div id="webcam" class="col-xs-12"><noscript><img src="/?action=snapshot" /></noscript></div>
+        <div id="webcam" class="col-xs-12" style="width:640px;height:360px"><noscript><img src="/?action=snapshot" /></noscript></div>
 
           <script type="text/javascript">
 /* Copyright (C) 2007 Richard Atterer, richard(C)atterer.net
@@ -59,6 +59,9 @@ function createImageLayer() {
   img.onclick = imageOnclick;
   img.src = "https://" + window.location.hostname + ":9998" + "/?action=snapshot&n=" + (++imageNr);
   var webcam = document.getElementById("webcam");
+  
+  img.width = 320;
+  img.height = 180;
   webcam.insertBefore(img, webcam.firstChild);
 }
 
@@ -74,8 +77,7 @@ function imageOnload() {
 }
 
 function imageOnclick() { // Clicking on the image will pause the stream
-  paused = !paused;
-  if (!paused) createImageLayer();
+  window.open("https://" + window.location.hostname + ":9998" + "/javascript_simple.html");
 }
 
         </script>
