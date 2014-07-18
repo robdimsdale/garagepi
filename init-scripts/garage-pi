@@ -2,7 +2,7 @@
 # /etc/init.d/garage-pi
 
 GOPATH=/go
-PATH=$GOPATH/bin:PATH
+PATH=$GOPATH/bin:$PATH
 
 export SERVER_DIR=$GOPATH/src/github.com/robdimsdale/garage-pi
 
