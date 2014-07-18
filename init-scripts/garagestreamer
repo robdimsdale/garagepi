@@ -1,0 +1,21 @@
+#! /bin/sh
+# /etc/init.d/garagestreamer
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  start)
+    echo "Starting garagestreamer"
+    export LD_LIBRARY_PATH=/root/workspace/mjpg-streamer/mjpg-streamer-experimental
+    cd $LD_LIBRARY_PATH
+    ./mjpg_streamer -o "output_http.so -w ./www" -i "input_raspicam.so -x 1280 -y 720 -fps 15 -ex night -rot 270" & 1> /dev/null 2>&1 &
+     ;;
+  stop)
+    echo "Stopping garagestreamer"
+    killall mjpg_streamer
+    ;;
+  *)
+    echo "Usage: /etc/init.d/garagestreamer {start|stop}"
+    exit 1
+    ;;
+  esac
+exit 0
