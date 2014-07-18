@@ -1,16 +1,19 @@
 #! /bin/bash
 # /etc/init.d/garage-pi
 
+GOPATH=/go
+PATH=$GOPATH/bin:PATH
+
 export SERVER_DIR=$GOPATH/src/github.com/robdimsdale/garage-pi
 
 case "$1" in 
   start)
     echo "Starting garage-pi"
-    go run garage-pi 1> "$SERVER_DIR/out.log" 2>"$SERVER_DIR/err.log" &
+    garage-pi 1> "$SERVER_DIR/out.log" 2>"$SERVER_DIR/out.log" &
     ;;
   stop)
     echo "Stopping garage-pi"
-    killall go
+    killall garage-pi
     ;;
   *)
     echo "Usage: /etc/init.d/garage-pi {start|stop}"
