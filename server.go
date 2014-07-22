@@ -2,11 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
-	"os"
 	"os/exec"
-	"path/filepath"
 
+	"github.com/GeertJohan/go.rice"
 	"github.com/robdimsdale/garage-pi/garagepi"
 )
 
@@ -15,32 +13,18 @@ var defaultPort = "9999"
 type osHelperImpl struct {
 }
 
-func (h *osHelperImpl) Exec(executable string, arg ...string) string {
-	out, _ := exec.Command(executable, arg...).Output()
-	return string(out)
+func (h *osHelperImpl) Exec(executable string, arg ...string) (string, error) {
+	out, err := exec.Command(executable, arg...).Output()
+	return string(out), err
 }
 
 func main() {
-	serverDir := getServerDir()
-	log.Println("Running from: " + serverDir)
-
 	port := flag.String("port", defaultPort, "help message for flagname")
 	flag.Parse()
 
 	osHelper := new(osHelperImpl)
-	e := garagepi.NewExecutor(osHelper)
+	staticFilesystem := rice.MustFindBox("./assets/static").HTTPBox()
+	templatesFilesystem := rice.MustFindBox("./assets/templates").HTTPBox()
+	e := garagepi.NewExecutor(osHelper, staticFilesystem, templatesFilesystem)
 	e.ServeForever(*port)
-}
-
-func getServerDir() string {
-	osDir := os.Getenv("SERVER_DIR")
-	if osDir == "" {
-		log.Println("SERVER_DIR env variable not found")
-		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-		if err != nil {
-			log.Fatal(err)
-		}
-		osDir = dir
-	}
-	return osDir
 }

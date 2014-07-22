@@ -1,59 +1,80 @@
 package garagepi
 
 import (
+	"bytes"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
 
 type Executor struct {
-	rtr      *mux.Router
-	osHelper OsHelper
+	rtr                 *mux.Router
+	osHelper            OsHelper
+	staticFilesystem    http.FileSystem
+	templatesFilesystem http.FileSystem
 }
 
 type OsHelper interface {
-	Exec(executable string, arg ...string) string
+	Exec(executable string, arg ...string) (string, error)
 }
 
-// type osHelperImpl struct {
-// }
-
-func NewExecutor(helper OsHelper) *Executor {
+func NewExecutor(helper OsHelper, staticFilesystem http.FileSystem, templatesFilesystem http.FileSystem) *Executor {
 	e := new(Executor)
 	e.rtr = mux.NewRouter()
 	e.osHelper = helper
+	e.staticFilesystem = staticFilesystem
+	e.templatesFilesystem = templatesFilesystem
 	return e
 }
 
 func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("homepage")
-	http.ServeFile(w, r, "./templates/homepage.html")
+	buf := bytes.NewBuffer(nil)
+	f, err := e.templatesFilesystem.Open("homepage.html")
+	if err != nil {
+		panic(err)
+	}
+	_, err = io.Copy(buf, f)
+	if err != nil {
+		panic(err)
+	}
+	f.Close()
+	w.Write(buf.Bytes())
 }
 
 func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
-	e.executeCommand("bash", "gpio-toggle.sh")
+	e.executeCommand("gpio", "write", "0", "1")
+	e.executeCommand("sleep", "0.5s")
+	e.executeCommand("gpio", "write", "0", "0")
+
 	http.Redirect(w, r, "/", 303)
 }
 
 func (e *Executor) executeCommand(executable string, arg ...string) string {
 	logStatement := append([]string{executable}, arg...)
 	log.Println("executing", logStatement)
-	return e.osHelper.Exec(executable, arg...)
+	out, err := e.osHelper.Exec(executable, arg...)
+	if err != nil {
+		log.Println("ERROR:", err)
+	}
+	return out
 }
 
 func (e *Executor) startCameraHandler(w http.ResponseWriter, r *http.Request) {
-	e.executeCommand("bash", "start-camera.sh")
+	e.executeCommand("/etc/init.d/garagestreamer", "start")
 	http.Redirect(w, r, "/", 303)
 }
 
 func (e *Executor) stopCameraHandler(w http.ResponseWriter, r *http.Request) {
-	e.executeCommand("bash", "stop-camera.sh")
+	e.executeCommand("/etc/init.d/garagestreamer", "stop")
 	http.Redirect(w, r, "/", 303)
 }
 
 func (e *Executor) ServeForever(port string) {
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(e.staticFilesystem)))
 
 	e.rtr.HandleFunc("/", e.homepageHandler).Methods("GET")
 	e.rtr.HandleFunc("/toggle", e.toggleDoorHandler).Methods("POST")
@@ -63,4 +84,8 @@ func (e *Executor) ServeForever(port string) {
 	http.Handle("/", e.rtr)
 	log.Println("Listening on port " + port + "...")
 	http.ListenAndServe(":"+port, nil)
+}
+
+func (e *Executor) Kill() {
+	os.Exit(0)
 }
