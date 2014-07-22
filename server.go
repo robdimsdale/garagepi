@@ -14,7 +14,7 @@ type osHelperImpl struct {
 }
 
 func (h *osHelperImpl) Exec(executable string, arg ...string) (string, error) {
-	out, err := exec.Command(executable, arg...).Output()
+	out, err := exec.Command(executable, arg...).CombinedOutput()
 	return string(out), err
 }
 

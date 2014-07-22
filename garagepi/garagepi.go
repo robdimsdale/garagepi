@@ -48,9 +48,9 @@ func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("gpio", "write", "0", "1")
-	sleepTime := 0.5
-	log.Printf("sleeping for %.2f seconds", sleepTime)
-	time.Sleep(time.Duration(sleepTime) * time.Second)
+	sleepDuration, _ := time.ParseDuration("500ms")
+	log.Println("sleeping for", sleepDuration)
+	time.Sleep(sleepDuration)
 	e.executeCommand("gpio", "write", "0", "0")
 
 	http.Redirect(w, r, "/", 303)
