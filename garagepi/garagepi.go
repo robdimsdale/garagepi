@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -47,7 +48,9 @@ func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("gpio", "write", "0", "1")
-	e.executeCommand("sleep", "0.5s")
+	sleepTime := 0.5
+	log.Printf("sleeping for %.2f seconds", sleepTime)
+	time.Sleep(time.Duration(sleepTime) * time.Second)
 	e.executeCommand("gpio", "write", "0", "0")
 
 	http.Redirect(w, r, "/", 303)
