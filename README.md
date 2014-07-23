@@ -6,7 +6,7 @@ A typical use would be to view the interior of a garage and trigger the garage d
 
 Copyright (c) 2014, Robert Dimsdale. Licensed under [MIT License].
 
-Pre-requisites
+Prerequisites
 --------------
 
 Install [WiringPi] and [jacksonliam's experimental mjpg-streamer].
