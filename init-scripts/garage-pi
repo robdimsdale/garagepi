@@ -2,11 +2,12 @@
 # /etc/init.d/garage-pi
 
 OUT_LOG=/dev/null
+GOPATH=/go
 
 case "$1" in
   start)
     echo "Starting garage-pi"
-    garage-pi 1>$OUT_LOG 2>$OUT_LOG &
+    $GOPATH/bin/garage-pi 1>$OUT_LOG 2>$OUT_LOG &
     ;;
   stop)
     echo "Stopping garage-pi"
