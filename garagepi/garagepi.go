@@ -53,7 +53,7 @@ func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(sleepDuration)
 	e.executeCommand("gpio", "write", "0", "0")
 
-	http.Redirect(w, r, "/", 303)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (e *Executor) executeCommand(executable string, arg ...string) string {
@@ -68,12 +68,12 @@ func (e *Executor) executeCommand(executable string, arg ...string) string {
 
 func (e *Executor) startCameraHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("/etc/init.d/garagestreamer", "start")
-	http.Redirect(w, r, "/", 303)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (e *Executor) stopCameraHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("/etc/init.d/garagestreamer", "stop")
-	http.Redirect(w, r, "/", 303)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (e *Executor) ServeForever(port string) {
