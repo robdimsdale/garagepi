@@ -9,9 +9,12 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"io/ioutil"
 )
 
 type Executor struct {
+	webcamHost          string
+	webcamPort          string
 	rtr                 *mux.Router
 	osHelper            OsHelper
 	staticFilesystem    http.FileSystem
@@ -22,8 +25,16 @@ type OsHelper interface {
 	Exec(executable string, arg ...string) (string, error)
 }
 
-func NewExecutor(helper OsHelper, staticFilesystem http.FileSystem, templatesFilesystem http.FileSystem) *Executor {
+func NewExecutor(
+	helper OsHelper,
+	staticFilesystem http.FileSystem,
+	templatesFilesystem http.FileSystem,
+	webcamHost string,
+	webcamPort string) *Executor {
+
 	e := new(Executor)
+	e.webcamHost = webcamHost
+	e.webcamPort = webcamPort
 	e.rtr = mux.NewRouter()
 	e.osHelper = helper
 	e.staticFilesystem = staticFilesystem
@@ -44,6 +55,19 @@ func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	f.Close()
 	w.Write(buf.Bytes())
+}
+
+func (e *Executor) webcamHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get("http://" + e.webcamHost + ":" + e.webcamPort + "/?action=snapshot&n=" + r.Form.Get("n"))
+	if err != nil {
+		log.Println("Error getting image: " + err.Error())
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("Error closing image request: " + err.Error())
+	}
+	w.Write(body)
 }
 
 func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +104,7 @@ func (e *Executor) ServeForever(port string) {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(e.staticFilesystem)))
 
 	e.rtr.HandleFunc("/", e.homepageHandler).Methods("GET")
+	e.rtr.HandleFunc("/webcam", e.webcamHandler).Methods("GET")
 	e.rtr.HandleFunc("/toggle", e.toggleDoorHandler).Methods("POST")
 	e.rtr.HandleFunc("/start-camera", e.startCameraHandler).Methods("POST")
 	e.rtr.HandleFunc("/stop-camera", e.stopCameraHandler).Methods("POST")

@@ -8,7 +8,12 @@ import (
 	"github.com/robdimsdale/garage-pi/garagepi"
 )
 
-var defaultPort = "9999"
+var (
+	port = flag.String("port", "9999", "Port for server to bind to.")
+
+	webcamHost = flag.String("webcamHost", "localhost", "Host of webcam image.")
+	webcamPort = flag.String("webcamPort", "8080", "Port of webcam image.")
+)
 
 type osHelperImpl struct {
 }
@@ -19,12 +24,17 @@ func (h *osHelperImpl) Exec(executable string, arg ...string) (string, error) {
 }
 
 func main() {
-	port := flag.String("port", defaultPort, "help message for flagname")
+
 	flag.Parse()
 
 	osHelper := new(osHelperImpl)
 	staticFilesystem := rice.MustFindBox("./assets/static").HTTPBox()
 	templatesFilesystem := rice.MustFindBox("./assets/templates").HTTPBox()
-	e := garagepi.NewExecutor(osHelper, staticFilesystem, templatesFilesystem)
+	e := garagepi.NewExecutor(
+		osHelper,
+		staticFilesystem,
+		templatesFilesystem,
+		*webcamHost,
+		*webcamPort)
 	e.ServeForever(*port)
 }

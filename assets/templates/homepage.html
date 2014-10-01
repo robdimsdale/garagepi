@@ -46,7 +46,7 @@ function createImageLayer() {
   img.style.zIndex = -1;
   img.onload = imageOnload;
   img.onclick = imageOnclick;
-  img.src = "https://" + window.location.hostname + ":9998" + "/?action=snapshot&n=" + (++imageNr);
+  img.src = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/webcam?n=" + (++imageNr);
   var webcam = document.getElementById("webcam");
 
   img.width = 320;
