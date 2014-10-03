@@ -65,6 +65,9 @@ func (e *Executor) webcamHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get("http://" + e.webcamHost + ":" + e.webcamPort + "/?action=snapshot&n=" + r.Form.Get("n"))
 	if err != nil {
 		e.l.Log("Error getting image: " + err.Error())
+		if resp == nil {
+			return
+		}
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
