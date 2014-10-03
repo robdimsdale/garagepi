@@ -3,16 +3,18 @@ package garagepi
 import (
 	"bytes"
 	"io"
-	"log"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/gorilla/mux"
-	"io/ioutil"
+	"github.com/robdimsdale/garage-pi/logger"
+	"strings"
 )
 
 type Executor struct {
+	l                   logger.Logger
 	webcamHost          string
 	webcamPort          string
 	rtr                 *mux.Router
@@ -26,6 +28,7 @@ type OsHelper interface {
 }
 
 func NewExecutor(
+	l logger.Logger,
 	helper OsHelper,
 	staticFilesystem http.FileSystem,
 	templatesFilesystem http.FileSystem,
@@ -33,6 +36,7 @@ func NewExecutor(
 	webcamPort string) *Executor {
 
 	e := new(Executor)
+	e.l = l
 	e.webcamHost = webcamHost
 	e.webcamPort = webcamPort
 	e.rtr = mux.NewRouter()
@@ -43,7 +47,7 @@ func NewExecutor(
 }
 
 func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("homepage")
+	e.l.Log("homepage")
 	buf := bytes.NewBuffer(nil)
 	f, err := e.templatesFilesystem.Open("homepage.html")
 	if err != nil {
@@ -60,12 +64,12 @@ func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
 func (e *Executor) webcamHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get("http://" + e.webcamHost + ":" + e.webcamPort + "/?action=snapshot&n=" + r.Form.Get("n"))
 	if err != nil {
-		log.Println("Error getting image: " + err.Error())
+		e.l.Log("Error getting image: " + err.Error())
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Error closing image request: " + err.Error())
+		e.l.Log("Error closing image request: " + err.Error())
 	}
 	w.Write(body)
 }
@@ -73,7 +77,7 @@ func (e *Executor) webcamHandler(w http.ResponseWriter, r *http.Request) {
 func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("gpio", "write", "0", "1")
 	sleepDuration, _ := time.ParseDuration("500ms")
-	log.Println("sleeping for", sleepDuration)
+	e.l.Log("sleeping for " + sleepDuration.String())
 	time.Sleep(sleepDuration)
 	e.executeCommand("gpio", "write", "0", "0")
 
@@ -82,10 +86,10 @@ func (e *Executor) toggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 
 func (e *Executor) executeCommand(executable string, arg ...string) string {
 	logStatement := append([]string{executable}, arg...)
-	log.Println("executing", logStatement)
+	e.l.Log("executing: '" + strings.Join(logStatement, " ") + "'")
 	out, err := e.osHelper.Exec(executable, arg...)
 	if err != nil {
-		log.Println("ERROR:", err)
+		e.l.Log("ERROR: " + err.Error())
 	}
 	return out
 }
@@ -110,7 +114,7 @@ func (e *Executor) ServeForever(port string) {
 	e.rtr.HandleFunc("/stop-camera", e.stopCameraHandler).Methods("POST")
 
 	http.Handle("/", e.rtr)
-	log.Println("Listening on port " + port + "...")
+	e.l.Log("Listening on port " + port + "...")
 	http.ListenAndServe(":"+port, nil)
 }
 

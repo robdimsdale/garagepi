@@ -6,6 +6,7 @@ import (
 
 	"github.com/GeertJohan/go.rice"
 	"github.com/robdimsdale/garage-pi/garagepi"
+	"github.com/robdimsdale/garage-pi/logger"
 )
 
 var (
@@ -24,13 +25,17 @@ func (h *osHelperImpl) Exec(executable string, arg ...string) (string, error) {
 }
 
 func main() {
-
 	flag.Parse()
 
 	osHelper := new(osHelperImpl)
 	staticFilesystem := rice.MustFindBox("./assets/static").HTTPBox()
 	templatesFilesystem := rice.MustFindBox("./assets/templates").HTTPBox()
+
+	loggingOn := true
+	l := logger.NewLoggerImpl(loggingOn)
+
 	e := garagepi.NewExecutor(
+		l,
 		osHelper,
 		staticFilesystem,
 		templatesFilesystem,
