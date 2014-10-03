@@ -35,15 +35,15 @@ func NewExecutor(
 	webcamHost string,
 	webcamPort string) *Executor {
 
-	e := new(Executor)
-	e.l = l
-	e.webcamHost = webcamHost
-	e.webcamPort = webcamPort
-	e.rtr = mux.NewRouter()
-	e.osHelper = helper
-	e.staticFilesystem = staticFilesystem
-	e.templatesFilesystem = templatesFilesystem
-	return e
+	return &Executor{
+		l:                   l,
+		webcamHost:          webcamHost,
+		webcamPort:          webcamPort,
+		rtr:                 mux.NewRouter(),
+		osHelper:            helper,
+		staticFilesystem:    staticFilesystem,
+		templatesFilesystem: templatesFilesystem,
+	}
 }
 
 func (e *Executor) homepageHandler(w http.ResponseWriter, r *http.Request) {
