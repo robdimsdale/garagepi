@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"net/http"
-	"os/exec"
 
 	"github.com/GeertJohan/go.rice"
 	"github.com/gorilla/mux"
 	"github.com/robdimsdale/garage-pi/garagepi"
 	"github.com/robdimsdale/garage-pi/logger"
+	"github.com/robdimsdale/garage-pi/oshelper"
 )
 
 var (
@@ -18,18 +18,10 @@ var (
 	webcamPort = flag.String("webcamPort", "8080", "Port of webcam image.")
 )
 
-type osHelperImpl struct {
-}
-
-func (h *osHelperImpl) Exec(executable string, arg ...string) (string, error) {
-	out, err := exec.Command(executable, arg...).CombinedOutput()
-	return string(out), err
-}
-
 func main() {
 	flag.Parse()
 
-	osHelper := new(osHelperImpl)
+	osHelper := oshelper.NewOsHelperImpl()
 	staticFilesystem := rice.MustFindBox("./assets/static").HTTPBox()
 	templatesFilesystem := rice.MustFindBox("./assets/templates").HTTPBox()
 

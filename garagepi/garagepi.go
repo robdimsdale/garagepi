@@ -5,28 +5,25 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/robdimsdale/garage-pi/logger"
-	"strings"
+	"github.com/robdimsdale/garage-pi/oshelper"
 )
 
 type Executor struct {
 	l                   logger.Logger
 	webcamHost          string
 	webcamPort          string
-	osHelper            OsHelper
+	osHelper            oshelper.OsHelper
 	staticFilesystem    http.FileSystem
 	templatesFilesystem http.FileSystem
 }
 
-type OsHelper interface {
-	Exec(executable string, arg ...string) (string, error)
-}
-
 func NewExecutor(
 	l logger.Logger,
-	helper OsHelper,
+	helper oshelper.OsHelper,
 	staticFilesystem http.FileSystem,
 	templatesFilesystem http.FileSystem,
 	webcamHost string,
