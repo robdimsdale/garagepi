@@ -1,4 +1,6 @@
 language: go
+install:
+  - go get -v github.com/onsi/ginkgo/ginkgo
 script:  bin/test
 branches:
   only:
