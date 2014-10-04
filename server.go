@@ -4,7 +4,6 @@ import (
 	"flag"
 	"net/http"
 
-	"github.com/GeertJohan/go.rice"
 	"github.com/gorilla/mux"
 	"github.com/robdimsdale/garage-pi/garagepi"
 	"github.com/robdimsdale/garage-pi/logger"
@@ -21,24 +20,24 @@ var (
 func main() {
 	flag.Parse()
 
-	osHelper := oshelper.NewOsHelperImpl()
-	staticFilesystem := rice.MustFindBox("./assets/static").HTTPBox()
-	templatesFilesystem := rice.MustFindBox("./assets/templates").HTTPBox()
-
 	loggingOn := true
 	l := logger.NewLoggerImpl(loggingOn)
+
+	osHelper := oshelper.NewOsHelperImpl("../assets")
 
 	rtr := mux.NewRouter()
 
 	e := garagepi.NewExecutor(
 		l,
 		osHelper,
-		staticFilesystem,
-		templatesFilesystem,
 		*webcamHost,
 		*webcamPort)
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(staticFilesystem)))
+	staticFileSystem, err := osHelper.GetStaticFileSystem()
+	if err != nil {
+		panic(err)
+	}
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(staticFileSystem)))
 
 	rtr.HandleFunc("/", e.HomepageHandler).Methods("GET")
 	rtr.HandleFunc("/webcam", e.WebcamHandler).Methods("GET")

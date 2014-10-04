@@ -13,44 +13,42 @@ import (
 )
 
 type Executor struct {
-	l                   logger.Logger
-	webcamHost          string
-	webcamPort          string
-	osHelper            oshelper.OsHelper
-	staticFilesystem    http.FileSystem
-	templatesFilesystem http.FileSystem
+	l          logger.Logger
+	webcamHost string
+	webcamPort string
+	osHelper   oshelper.OsHelper
 }
 
 func NewExecutor(
 	l logger.Logger,
 	helper oshelper.OsHelper,
-	staticFilesystem http.FileSystem,
-	templatesFilesystem http.FileSystem,
 	webcamHost string,
 	webcamPort string) *Executor {
 
 	return &Executor{
-		l:                   l,
-		webcamHost:          webcamHost,
-		webcamPort:          webcamPort,
-		osHelper:            helper,
-		staticFilesystem:    staticFilesystem,
-		templatesFilesystem: templatesFilesystem,
+		l:          l,
+		webcamHost: webcamHost,
+		webcamPort: webcamPort,
+		osHelper:   helper,
+	}
+}
+
+func (e *Executor) panicOnErr(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
 
 func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 	e.l.Log("homepage")
+	f, err := e.osHelper.GetHomepageTemplate()
+	e.panicOnErr(err)
+	defer f.Close()
+
 	buf := bytes.NewBuffer(nil)
-	f, err := e.templatesFilesystem.Open("homepage.html")
-	if err != nil {
-		panic(err)
-	}
 	_, err = io.Copy(buf, f)
-	if err != nil {
-		panic(err)
-	}
-	f.Close()
+	e.panicOnErr(err)
+
 	w.Write(buf.Bytes())
 }
 
