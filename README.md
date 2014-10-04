@@ -1,5 +1,7 @@
 #Garage-pi
 
+[![Build Status](https://travis-ci.org/robdimsdale/garage-pi.svg?branch=master)](https://travis-ci.org/robdimsdale/garage-pi)
+
 A webserver written in golang to display output of Raspberry Pi camera module and trigger gpio.
 
 A typical use would be to view the interior of a garage and trigger the garage door opener via gpio (and a relay).
