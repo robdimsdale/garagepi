@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robdimsdale/garage-pi/garagepi"
+	"github.com/robdimsdale/garage-pi/httphelper"
 	"github.com/robdimsdale/garage-pi/logger"
 	"github.com/robdimsdale/garage-pi/oshelper"
 )
@@ -24,11 +25,13 @@ func main() {
 	l := logger.NewLoggerImpl(loggingOn)
 
 	osHelper := oshelper.NewOsHelperImpl(l, "../assets")
+	httpHelper := httphelper.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
 
 	e := garagepi.NewExecutor(
 		l,
+		httpHelper,
 		osHelper,
 		*webcamHost,
 		*webcamPort)

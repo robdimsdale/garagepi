@@ -8,28 +8,32 @@ import (
 	"strings"
 	"time"
 
+	"github.com/robdimsdale/garage-pi/httphelper"
 	"github.com/robdimsdale/garage-pi/logger"
 	"github.com/robdimsdale/garage-pi/oshelper"
 )
 
 type Executor struct {
-	l         logger.Logger
-	webcamUrl string
-	osHelper  oshelper.OsHelper
+	l          logger.Logger
+	osHelper   oshelper.OsHelper
+	httpHelper httphelper.HttpHelper
+	webcamUrl  string
 }
 
 func NewExecutor(
 	l logger.Logger,
-	helper oshelper.OsHelper,
+	httpHelper httphelper.HttpHelper,
+	osHelper oshelper.OsHelper,
 	webcamHost string,
 	webcamPort string) *Executor {
 
 	webcamUrl := "http://" + webcamHost + ":" + webcamPort + "/?action=snapshot&n="
 
 	return &Executor{
-		l:         l,
-		webcamUrl: webcamUrl,
-		osHelper:  helper,
+		httpHelper: httpHelper,
+		l:          l,
+		webcamUrl:  webcamUrl,
+		osHelper:   osHelper,
 	}
 }
 
@@ -53,7 +57,7 @@ func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(e.webcamUrl + r.Form.Get("n"))
+	resp, err := e.httpHelper.Get(e.webcamUrl + r.Form.Get("n"))
 	if err != nil {
 		e.l.Log("Error getting image: " + err.Error())
 		if resp == nil {
@@ -73,7 +77,7 @@ func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	e.osHelper.Sleep(500 * time.Millisecond)
 	e.executeCommand("gpio", "write", "0", "0")
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	e.httpHelper.RedirectToHomepage(w, r)
 }
 
 func (e *Executor) executeCommand(executable string, arg ...string) string {
@@ -87,10 +91,10 @@ func (e *Executor) executeCommand(executable string, arg ...string) string {
 
 func (e *Executor) StartCameraHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("/etc/init.d/garagestreamer", "start")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	e.httpHelper.RedirectToHomepage(w, r)
 }
 
 func (e *Executor) StopCameraHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("/etc/init.d/garagestreamer", "stop")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	e.httpHelper.RedirectToHomepage(w, r)
 }
