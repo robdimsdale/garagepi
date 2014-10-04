@@ -23,7 +23,7 @@ func main() {
 	loggingOn := true
 	l := logger.NewLoggerImpl(loggingOn)
 
-	osHelper := oshelper.NewOsHelperImpl("../assets")
+	osHelper := oshelper.NewOsHelperImpl(l, "../assets")
 
 	rtr := mux.NewRouter()
 

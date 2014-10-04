@@ -70,9 +70,7 @@ func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 
 func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	e.executeCommand("gpio", "write", "0", "1")
-	sleepDuration, _ := time.ParseDuration("500ms")
-	e.l.Log("sleeping for " + sleepDuration.String())
-	time.Sleep(sleepDuration)
+	e.osHelper.Sleep(500 * time.Millisecond)
 	e.executeCommand("gpio", "write", "0", "0")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
