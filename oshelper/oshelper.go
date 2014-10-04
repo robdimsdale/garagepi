@@ -1,6 +1,8 @@
 package oshelper
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"os/exec"
 	"time"
@@ -12,7 +14,7 @@ import (
 type OsHelper interface {
 	Exec(executable string, arg ...string) (string, error)
 	GetStaticFileSystem() (http.FileSystem, error)
-	GetHomepageTemplate() (http.File, error)
+	GetHomepageTemplateContents() ([]byte, error)
 	Sleep(d time.Duration)
 }
 
@@ -42,12 +44,20 @@ func (h *OsHelperImpl) GetStaticFileSystem() (http.FileSystem, error) {
 	return h.staticFileSystem, nil
 }
 
-func (h *OsHelperImpl) GetHomepageTemplate() (http.File, error) {
+func (h *OsHelperImpl) GetHomepageTemplateContents() ([]byte, error) {
 	fs, err := h.getTemplatesFileSystem()
 	if err != nil {
 		return nil, err
 	}
-	return fs.Open("homepage.html")
+	f, err := fs.Open("homepage.html")
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	buf := bytes.NewBuffer(nil)
+	_, err = io.Copy(buf, f)
+	return buf.Bytes(), err
 }
 
 func (h *OsHelperImpl) getTemplatesFileSystem() (http.FileSystem, error) {

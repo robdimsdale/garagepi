@@ -1,8 +1,6 @@
 package garagepi
 
 import (
-	"bytes"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -37,23 +35,14 @@ func NewExecutor(
 	}
 }
 
-func (e *Executor) panicOnErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 	e.l.Log("homepage")
-	f, err := e.osHelper.GetHomepageTemplate()
-	e.panicOnErr(err)
-	defer f.Close()
-
-	buf := bytes.NewBuffer(nil)
-	_, err = io.Copy(buf, f)
-	e.panicOnErr(err)
-
-	w.Write(buf.Bytes())
+	bytes, err := e.osHelper.GetHomepageTemplateContents()
+	if err != nil {
+		e.l.Log("Error reading homepage template: " + err.Error())
+		panic(err)
+	}
+	w.Write(bytes)
 }
 
 func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {

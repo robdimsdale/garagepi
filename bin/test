@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if ! which go 2>/dev/null; then
+  echo "Go is not installed."
+  exit 1
+fi
+
+go fmt ./...
+go build ./...
+
+go test -v ./garagepi
