@@ -84,8 +84,7 @@ func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) executeCommand(executable string, arg ...string) string {
-	logStatement := append([]string{executable}, arg...)
-	e.l.Log("executing: '" + strings.Join(logStatement, " ") + "'")
+	e.l.Log("executing: '" + executable + " " + strings.Join(arg, " ") + "'")
 	out, err := e.osHelper.Exec(executable, arg...)
 	if err != nil {
 		e.l.Log("ERROR: " + err.Error())
