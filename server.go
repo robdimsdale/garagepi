@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"net/http"
 	"os/exec"
 
 	"github.com/GeertJohan/go.rice"
+	"github.com/gorilla/mux"
 	"github.com/robdimsdale/garage-pi/garagepi"
 	"github.com/robdimsdale/garage-pi/logger"
 )
@@ -34,6 +36,8 @@ func main() {
 	loggingOn := true
 	l := logger.NewLoggerImpl(loggingOn)
 
+	rtr := mux.NewRouter()
+
 	e := garagepi.NewExecutor(
 		l,
 		osHelper,
@@ -41,5 +45,16 @@ func main() {
 		templatesFilesystem,
 		*webcamHost,
 		*webcamPort)
-	e.ServeForever(*port)
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(staticFilesystem)))
+
+	rtr.HandleFunc("/", e.HomepageHandler).Methods("GET")
+	rtr.HandleFunc("/webcam", e.WebcamHandler).Methods("GET")
+	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
+	rtr.HandleFunc("/start-camera", e.StartCameraHandler).Methods("POST")
+	rtr.HandleFunc("/stop-camera", e.StopCameraHandler).Methods("POST")
+
+	http.Handle("/", rtr)
+	l.Log("Listening on port " + *port + "...")
+	http.ListenAndServe(":"+*port, nil)
 }
