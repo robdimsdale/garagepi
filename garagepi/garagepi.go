@@ -11,6 +11,15 @@ import (
 	"github.com/robdimsdale/garage-pi/oshelper"
 )
 
+var (
+	SleepTime        = 500 * time.Millisecond
+	GpioPin          = "0"
+	GpioExecutable   = "gpio"
+	GpioWriteCommand = "write"
+	GpioLowState     = "0"
+	GpioHighState    = "1"
+)
+
 type Executor struct {
 	l          logger.Logger
 	osHelper   oshelper.OsHelper
@@ -62,20 +71,24 @@ func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
-	e.executeCommand("gpio", "write", "0", "1")
-	e.osHelper.Sleep(500 * time.Millisecond)
-	e.executeCommand("gpio", "write", "0", "0")
+	_, err := e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioHighState)
+	if err != nil {
+		e.l.Log("Error occured while executing " + GpioWriteCommand + " - skipping sleep and further executions")
+	} else {
+		e.osHelper.Sleep(SleepTime)
+		e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioLowState)
+	}
 
 	e.httpHelper.RedirectToHomepage(w, r)
 }
 
-func (e *Executor) executeCommand(executable string, arg ...string) string {
+func (e *Executor) executeCommand(executable string, arg ...string) (string, error) {
 	e.l.Log("executing: '" + executable + " " + strings.Join(arg, " ") + "'")
 	out, err := e.osHelper.Exec(executable, arg...)
 	if err != nil {
-		e.l.Log("ERROR: " + err.Error())
+		e.l.Log(err.Error())
 	}
-	return out
+	return out, err
 }
 
 func (e *Executor) StartCameraHandler(w http.ResponseWriter, r *http.Request) {
