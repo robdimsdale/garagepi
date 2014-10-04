@@ -13,10 +13,9 @@ import (
 )
 
 type Executor struct {
-	l          logger.Logger
-	webcamHost string
-	webcamPort string
-	osHelper   oshelper.OsHelper
+	l         logger.Logger
+	webcamUrl string
+	osHelper  oshelper.OsHelper
 }
 
 func NewExecutor(
@@ -25,11 +24,12 @@ func NewExecutor(
 	webcamHost string,
 	webcamPort string) *Executor {
 
+	webcamUrl := "http://" + webcamHost + ":" + webcamPort + "/?action=snapshot&n="
+
 	return &Executor{
-		l:          l,
-		webcamHost: webcamHost,
-		webcamPort: webcamPort,
-		osHelper:   helper,
+		l:         l,
+		webcamUrl: webcamUrl,
+		osHelper:  helper,
 	}
 }
 
@@ -53,7 +53,7 @@ func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("http://" + e.webcamHost + ":" + e.webcamPort + "/?action=snapshot&n=" + r.Form.Get("n"))
+	resp, err := http.Get(e.webcamUrl + r.Form.Get("n"))
 	if err != nil {
 		e.l.Log("Error getting image: " + err.Error())
 		if resp == nil {
