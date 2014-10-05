@@ -45,8 +45,6 @@ func main() {
 	rtr.HandleFunc("/", e.HomepageHandler).Methods("GET")
 	rtr.HandleFunc("/webcam", e.WebcamHandler).Methods("GET")
 	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
-	rtr.HandleFunc("/start-camera", e.StartCameraHandler).Methods("POST")
-	rtr.HandleFunc("/stop-camera", e.StopCameraHandler).Methods("POST")
 
 	http.Handle("/", rtr)
 	l.Log("Listening on port " + *port + "...")

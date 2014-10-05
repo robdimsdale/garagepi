@@ -90,13 +90,3 @@ func (e *Executor) executeCommand(executable string, arg ...string) (string, err
 	}
 	return out, err
 }
-
-func (e *Executor) StartCameraHandler(w http.ResponseWriter, r *http.Request) {
-	e.executeCommand("/etc/init.d/garagestreamer", "start")
-	e.httpHelper.RedirectToHomepage(w, r)
-}
-
-func (e *Executor) StopCameraHandler(w http.ResponseWriter, r *http.Request) {
-	e.executeCommand("/etc/init.d/garagestreamer", "stop")
-	e.httpHelper.RedirectToHomepage(w, r)
-}
