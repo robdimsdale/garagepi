@@ -17,6 +17,15 @@ go get github.com/GeertJohan/go.rice
 go get github.com/gorilla/mux
 ```
 
+###Installing
+```
+go install cmd/garagepi/main.go
+```
+If this results in an error `go install: no install location for .go files listed on command line (GOBIN not set)` then an alternative is:
+```
+go build -o $GOPATH/bin/garagepi cmd/garagepi/main.go
+```
+
 ###Init scripts
 Copy the init scripts to `/etc/init.d/` and set them to run automatically on boot with the following commands:
 
@@ -63,4 +72,3 @@ By default, the `garage-pi` webserver assumes the webcam is available on `localh
 [WiringPi]: https://github.com/WiringPi/WiringPi
 
 [experimental mjpg-streamer]: https://github.com/jacksonliam/mjpg-streamer
-
