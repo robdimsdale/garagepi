@@ -1,7 +1,8 @@
 language: go
 install:
+  - go get github.com/onsi/ginkgo/ginkgo
   - go get -v -t ./...
-script:  bin/test
+script: ginkgo -r -race --randomizeAllSpecs
 branches:
   only:
   - master
