@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	garagepi "github.com/robdimsdale/garage-pi"
+	"github.com/robdimsdale/garagepi"
 )
 
 var (
@@ -33,7 +33,7 @@ func main() {
 		*webcamHost,
 		*webcamPort)
 
-	staticFileSystem, err := garagepi.GetStaticFileSystem()
+	staticFileSystem, err := osHelper.GetStaticFileSystem()
 	if err != nil {
 		panic(err)
 	}
