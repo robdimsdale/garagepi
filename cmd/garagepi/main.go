@@ -21,7 +21,10 @@ func main() {
 	loggingOn := true
 	l := garagepi.NewLoggerImpl(loggingOn)
 
-	osHelper := garagepi.NewOsHelperImpl(l, "../assets")
+	// The location of the 'assets' directory
+	// is relative to where the compilation takes place
+	// This assumes compliation happens from the root directory
+	osHelper := garagepi.NewOsHelperImpl(l, "assets")
 	httpHelper := garagepi.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
