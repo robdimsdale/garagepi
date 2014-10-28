@@ -62,6 +62,7 @@ func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		e.l.Log("Error closing image request: " + err.Error())
+		return
 	}
 	w.Write(body)
 }

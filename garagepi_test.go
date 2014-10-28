@@ -97,6 +97,19 @@ var _ = Describe("Garagepi", func() {
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(0))
 			})
 		})
+
+		Context("When reading the webcam image fails with error", func() {
+			BeforeEach(func() {
+				dummyResponse := new(http.Response)
+				dummyResponse.Body = errCloser{bytes.NewReader([]byte{})}
+				fakeHttpHelper.GetReturns(dummyResponse, nil)
+			})
+
+			It("Should write nothing to the response writer and return", func() {
+				executor.WebcamHandler(fakeResponseWriter, dummyRequest)
+				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(0))
+			})
+		})
 	})
 
 	Describe("Door-toggle handling", func() {
@@ -196,5 +209,17 @@ type nopCloser struct {
 }
 
 func (n nopCloser) Close() error {
+	return nil
+}
+
+type errCloser struct {
+	io.Reader
+}
+
+func (e errCloser) Read(p []byte) (n int, err error) {
+	return 0, errors.New("ReadError")
+}
+
+func (e errCloser) Close() error {
 	return nil
 }
