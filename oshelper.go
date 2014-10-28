@@ -1,4 +1,4 @@
-package oshelper
+package garagepi
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/GeertJohan/go.rice"
-	"github.com/robdimsdale/garage-pi/logger"
 )
 
 type OsHelper interface {
@@ -19,13 +18,13 @@ type OsHelper interface {
 }
 
 type OsHelperImpl struct {
-	l                   logger.Logger
+	l                   Logger
 	staticFileSystem    http.FileSystem
 	templatesFileSystem http.FileSystem
 }
 
 func NewOsHelperImpl(
-	l logger.Logger,
+	l Logger,
 	assetsDir string,
 ) *OsHelperImpl {
 	return &OsHelperImpl{

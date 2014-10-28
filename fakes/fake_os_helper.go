@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/robdimsdale/garage-pi/oshelper"
+	"github.com/robdimsdale/garagepi"
 )
 
 type FakeOsHelper struct {
@@ -148,4 +148,4 @@ func (fake *FakeOsHelper) SleepArgsForCall(i int) time.Duration {
 	return fake.sleepArgsForCall[i].d
 }
 
-var _ oshelper.OsHelper = new(FakeOsHelper)
+var _ garagepi.OsHelper = new(FakeOsHelper)

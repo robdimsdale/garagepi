@@ -5,10 +5,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/robdimsdale/garage-pi/httphelper"
-	"github.com/robdimsdale/garage-pi/logger"
-	"github.com/robdimsdale/garage-pi/oshelper"
 )
 
 var (
@@ -21,16 +17,16 @@ var (
 )
 
 type Executor struct {
-	l          logger.Logger
-	osHelper   oshelper.OsHelper
-	httpHelper httphelper.HttpHelper
+	l          Logger
+	osHelper   OsHelper
+	httpHelper HttpHelper
 	webcamUrl  string
 }
 
 func NewExecutor(
-	l logger.Logger,
-	httpHelper httphelper.HttpHelper,
-	osHelper oshelper.OsHelper,
+	l Logger,
+	httpHelper HttpHelper,
+	osHelper OsHelper,
 	webcamHost string,
 	webcamPort string) *Executor {
 

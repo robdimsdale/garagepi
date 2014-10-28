@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/robdimsdale/garage-pi/logger"
+	"github.com/robdimsdale/garagepi"
 )
 
 type FakeLogger struct {
@@ -38,4 +38,4 @@ func (fake *FakeLogger) LogArgsForCall(i int) string {
 	return fake.logArgsForCall[i].message
 }
 
-var _ logger.Logger = new(FakeLogger)
+var _ garagepi.Logger = new(FakeLogger)

@@ -6,35 +6,33 @@ import (
 	"net/http"
 
 	"bytes"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/robdimsdale/garage-pi/garagepi"
-	garagepi_fakes "github.com/robdimsdale/garage-pi/garagepi/fakes"
-	httphelper_fakes "github.com/robdimsdale/garage-pi/httphelper/fakes"
-	logger_fakes "github.com/robdimsdale/garage-pi/logger/fakes"
-	oshelper_fakes "github.com/robdimsdale/garage-pi/oshelper/fakes"
+	"github.com/robdimsdale/garagepi"
+	garagepi_fakes "github.com/robdimsdale/garagepi/fakes"
 )
 
 var _ = Describe("Garagepi", func() {
-	var fakeLogger *logger_fakes.FakeLogger
-	var fakeHttpHelper *httphelper_fakes.FakeHttpHelper
-	var fakeOsHelper *oshelper_fakes.FakeOsHelper
+	var fakeLogger *garagepi_fakes.FakeLogger
+	var fakeHttpHelper *garagepi_fakes.FakeHttpHelper
+	var fakeOsHelper *garagepi_fakes.FakeOsHelper
 	var fakeResponseWriter *garagepi_fakes.FakeResponseWriter
 	var dummyRequest *http.Request
 
 	webcamHost := "webcamHost"
 	webcamPort := "webcamPort"
 
-	var executor *Executor
+	var executor *garagepi.Executor
 	BeforeEach(func() {
-		fakeLogger = new(logger_fakes.FakeLogger)
-		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
-		fakeOsHelper = new(oshelper_fakes.FakeOsHelper)
+		fakeLogger = new(garagepi_fakes.FakeLogger)
+		fakeHttpHelper = new(garagepi_fakes.FakeHttpHelper)
+		fakeOsHelper = new(garagepi_fakes.FakeOsHelper)
 
 		fakeResponseWriter = new(garagepi_fakes.FakeResponseWriter)
 		dummyRequest = new(http.Request)
 
-		executor = NewExecutor(
+		executor = garagepi.NewExecutor(
 			fakeLogger,
 			fakeHttpHelper,
 			fakeOsHelper,
@@ -109,7 +107,7 @@ var _ = Describe("Garagepi", func() {
 
 			for i := 0; i < fakeOsHelper.ExecCallCount(); i++ {
 				executable, curArgs := fakeOsHelper.ExecArgsForCall(i)
-				if executable != GpioExecutable {
+				if executable != garagepi.GpioExecutable {
 					continue
 				}
 				if gpioCalls == 0 {
@@ -124,8 +122,8 @@ var _ = Describe("Garagepi", func() {
 			}
 			Expect(gpioCalls).To(Equal(2))
 
-			Expect(args[0]).To(Equal([]string{GpioWriteCommand, GpioPin, GpioHighState}))
-			Expect(args[1]).To(Equal([]string{GpioWriteCommand, GpioPin, GpioLowState}))
+			Expect(args[0]).To(Equal([]string{garagepi.GpioWriteCommand, garagepi.GpioPin, garagepi.GpioHighState}))
+			Expect(args[1]).To(Equal([]string{garagepi.GpioWriteCommand, garagepi.GpioPin, garagepi.GpioLowState}))
 		}
 
 		verifyGpioWriteHighThenNoFurtherGpioCalls := func() {
@@ -135,7 +133,7 @@ var _ = Describe("Garagepi", func() {
 
 			for i := 0; i < fakeOsHelper.ExecCallCount(); i++ {
 				executable, curArgs := fakeOsHelper.ExecArgsForCall(i)
-				if executable != GpioExecutable {
+				if executable != garagepi.GpioExecutable {
 					continue
 				}
 				if gpioCalls == 0 {
@@ -146,7 +144,7 @@ var _ = Describe("Garagepi", func() {
 				}
 			}
 			Expect(gpioCalls).To(Equal(1))
-			Expect(args).To(Equal([]string{GpioWriteCommand, GpioPin, GpioHighState}))
+			Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, garagepi.GpioPin, garagepi.GpioHighState}))
 		}
 
 		verifyRedirectToHomepage := func() {
@@ -156,10 +154,10 @@ var _ = Describe("Garagepi", func() {
 			Expect(r).To(Equal(dummyRequest))
 		}
 
-		Context("When executing "+GpioWriteCommand+" commands return sucessfully", func() {
-			It("Should write "+GpioHighState+" to gpio "+GpioPin+", sleep, and write "+GpioLowState+" to gpio "+GpioPin, func() {
+		Context("When executing "+garagepi.GpioWriteCommand+" commands return sucessfully", func() {
+			It("Should write "+garagepi.GpioHighState+" to gpio "+garagepi.GpioPin+", sleep, and write "+garagepi.GpioLowState+" to gpio "+garagepi.GpioPin, func() {
 				executor.ToggleDoorHandler(fakeResponseWriter, dummyRequest)
-				Expect(fakeOsHelper.SleepArgsForCall(0)).To(Equal(SleepTime))
+				Expect(fakeOsHelper.SleepArgsForCall(0)).To(Equal(garagepi.SleepTime))
 				verifyGpioWriteHighFirstThenWriteLow()
 			})
 
@@ -169,11 +167,11 @@ var _ = Describe("Garagepi", func() {
 			})
 		})
 
-		Context("When executing the first "+GpioWriteCommand+" command returns with errors", func() {
+		Context("When executing the first "+garagepi.GpioWriteCommand+" command returns with errors", func() {
 			BeforeEach(func() {
 				fakeOsHelper.ExecStub = func(executable string, _ ...string) (string, error) {
-					if executable == GpioExecutable {
-						return "", errors.New(GpioExecutable + "error")
+					if executable == garagepi.GpioExecutable {
+						return "", errors.New(garagepi.GpioExecutable + "error")
 					}
 					return "", nil
 				}

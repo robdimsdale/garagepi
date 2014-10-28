@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/robdimsdale/garage-pi/httphelper"
+	"github.com/robdimsdale/garagepi"
 )
 
 type FakeHttpHelper struct {
@@ -83,4 +83,4 @@ func (fake *FakeHttpHelper) RedirectToHomepageArgsForCall(i int) (http.ResponseW
 	return fake.redirectToHomepageArgsForCall[i].w, fake.redirectToHomepageArgsForCall[i].r
 }
 
-var _ httphelper.HttpHelper = new(FakeHttpHelper)
+var _ garagepi.HttpHelper = new(FakeHttpHelper)

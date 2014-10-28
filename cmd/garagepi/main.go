@@ -5,10 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/robdimsdale/garage-pi/garagepi"
-	"github.com/robdimsdale/garage-pi/httphelper"
-	"github.com/robdimsdale/garage-pi/logger"
-	"github.com/robdimsdale/garage-pi/oshelper"
+	garagepi "github.com/robdimsdale/garage-pi"
 )
 
 var (
@@ -22,10 +19,10 @@ func main() {
 	flag.Parse()
 
 	loggingOn := true
-	l := logger.NewLoggerImpl(loggingOn)
+	l := garagepi.NewLoggerImpl(loggingOn)
 
-	osHelper := oshelper.NewOsHelperImpl(l, "../assets")
-	httpHelper := httphelper.NewHttpHelperImpl()
+	osHelper := garagepi.NewOsHelperImpl(l, "../assets")
+	httpHelper := garagepi.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
 
@@ -36,7 +33,7 @@ func main() {
 		*webcamHost,
 		*webcamPort)
 
-	staticFileSystem, err := osHelper.GetStaticFileSystem()
+	staticFileSystem, err := garagepi.GetStaticFileSystem()
 	if err != nil {
 		panic(err)
 	}
