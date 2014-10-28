@@ -13,24 +13,25 @@ var (
 
 	webcamHost = flag.String("webcamHost", "localhost", "Host of webcam image.")
 	webcamPort = flag.String("webcamPort", "8080", "Port of webcam image.")
+
+	loggingOn = flag.Bool("loggingOn", true, "Whether logging is enabled.")
 )
 
 func main() {
 	flag.Parse()
 
-	loggingOn := true
-	l := garagepi.NewLoggerImpl(loggingOn)
+	logger := garagepi.NewLoggerImpl(*loggingOn)
 
 	// The location of the 'assets' directory
 	// is relative to where the compilation takes place
 	// This assumes compliation happens from the root directory
-	osHelper := garagepi.NewOsHelperImpl(l, "assets")
+	osHelper := garagepi.NewOsHelperImpl(logger, "assets")
 	httpHelper := garagepi.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
 
 	e := garagepi.NewExecutor(
-		l,
+		logger,
 		httpHelper,
 		osHelper,
 		*webcamHost,
@@ -47,6 +48,6 @@ func main() {
 	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
 
 	http.Handle("/", rtr)
-	l.Log("Listening on port " + *port + "...")
+	logger.Log("Listening on port " + *port + "...")
 	http.ListenAndServe(":"+*port, nil)
 }
