@@ -1,6 +1,6 @@
 #Garage-pi
 
-[![Build Status](https://travis-ci.org/robdimsdale/garage-pi.svg?branch=master)](https://travis-ci.org/robdimsdale/garage-pi) [![Coverage Status](https://img.shields.io/coveralls/robdimsdale/garage-pi.svg)](https://coveralls.io/r/robdimsdale/garage-pi?branch=master)
+[![Build Status](https://travis-ci.org/robdimsdale/garagepi.svg?branch=master)](https://travis-ci.org/robdimsdale/garagepi) [![Coverage Status](https://img.shields.io/coveralls/robdimsdale/garagepi.svg)](https://coveralls.io/r/robdimsdale/garagepi?branch=master)
 
 A webserver written in golang to display output of Raspberry Pi camera module and trigger gpio.
 
