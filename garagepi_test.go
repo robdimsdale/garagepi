@@ -21,7 +21,7 @@ var _ = Describe("Garagepi", func() {
 	var dummyRequest *http.Request
 
 	webcamHost := "webcamHost"
-	webcamPort := "webcamPort"
+	webcamPort := uint(12345)
 
 	var executor *garagepi.Executor
 	BeforeEach(func() {
