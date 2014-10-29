@@ -26,7 +26,8 @@ func main() {
 	// The location of the 'assets' directory
 	// is relative to where the compilation takes place
 	// This assumes compliation happens from the root directory
-	osHelper := garagepi.NewOsHelperImpl(logger, "assets")
+	fsHelper := garagepi.NewFsHelperImpl("assets")
+	osHelper := garagepi.NewOsHelperImpl(logger)
 	httpHelper := garagepi.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
@@ -35,10 +36,11 @@ func main() {
 		logger,
 		httpHelper,
 		osHelper,
+		fsHelper,
 		*webcamHost,
 		*webcamPort)
 
-	staticFileSystem, err := osHelper.GetStaticFileSystem()
+	staticFileSystem, err := fsHelper.GetStaticFileSystem()
 	if err != nil {
 		panic(err)
 	}

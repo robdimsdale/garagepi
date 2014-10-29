@@ -18,16 +18,18 @@ var (
 )
 
 type Executor struct {
-	l          Logger
+	logger     Logger
 	osHelper   OsHelper
+	fsHelper   FsHelper
 	httpHelper HttpHelper
 	webcamUrl  string
 }
 
 func NewExecutor(
-	l Logger,
+	logger Logger,
 	httpHelper HttpHelper,
 	osHelper OsHelper,
+	fsHelper FsHelper,
 	webcamHost string,
 	webcamPort uint) *Executor {
 
@@ -35,17 +37,18 @@ func NewExecutor(
 
 	return &Executor{
 		httpHelper: httpHelper,
-		l:          l,
+		logger:     logger,
 		webcamUrl:  webcamUrl,
 		osHelper:   osHelper,
+		fsHelper:   fsHelper,
 	}
 }
 
 func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
-	e.l.Log("homepage")
-	bytes, err := e.osHelper.GetHomepageTemplateContents()
+	e.logger.Log("homepage")
+	bytes, err := e.fsHelper.GetHomepageTemplateContents()
 	if err != nil {
-		e.l.Log("Error reading homepage template: " + err.Error())
+		e.logger.Log("Error reading homepage template: " + err.Error())
 		panic(err)
 	}
 	w.Write(bytes)
@@ -54,7 +57,7 @@ func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := e.httpHelper.Get(e.webcamUrl + r.Form.Get("n"))
 	if err != nil {
-		e.l.Log("Error getting image: " + err.Error())
+		e.logger.Log("Error getting image: " + err.Error())
 		if resp == nil {
 			return
 		}
@@ -62,7 +65,7 @@ func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		e.l.Log("Error closing image request: " + err.Error())
+		e.logger.Log("Error closing image request: " + err.Error())
 		return
 	}
 	w.Write(body)
@@ -71,7 +74,7 @@ func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioHighState)
 	if err != nil {
-		e.l.Log("Error occured while executing " + GpioWriteCommand + " - skipping sleep and further executions")
+		e.logger.Log("Error occured while executing " + GpioWriteCommand + " - skipping sleep and further executions")
 	} else {
 		e.osHelper.Sleep(SleepTime)
 		e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioLowState)
@@ -81,10 +84,10 @@ func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) executeCommand(executable string, arg ...string) (string, error) {
-	e.l.Log("executing: '" + executable + " " + strings.Join(arg, " ") + "'")
+	e.logger.Log("executing: '" + executable + " " + strings.Join(arg, " ") + "'")
 	out, err := e.osHelper.Exec(executable, arg...)
 	if err != nil {
-		e.l.Log(err.Error())
+		e.logger.Log(err.Error())
 	}
 	return out, err
 }

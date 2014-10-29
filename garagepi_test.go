@@ -17,6 +17,7 @@ var _ = Describe("Garagepi", func() {
 	var fakeLogger *garagepi_fakes.FakeLogger
 	var fakeHttpHelper *garagepi_fakes.FakeHttpHelper
 	var fakeOsHelper *garagepi_fakes.FakeOsHelper
+	var fakeFsHelper *garagepi_fakes.FakeFsHelper
 	var fakeResponseWriter *garagepi_fakes.FakeResponseWriter
 	var dummyRequest *http.Request
 
@@ -28,6 +29,7 @@ var _ = Describe("Garagepi", func() {
 		fakeLogger = new(garagepi_fakes.FakeLogger)
 		fakeHttpHelper = new(garagepi_fakes.FakeHttpHelper)
 		fakeOsHelper = new(garagepi_fakes.FakeOsHelper)
+		fakeFsHelper = new(garagepi_fakes.FakeFsHelper)
 
 		fakeResponseWriter = new(garagepi_fakes.FakeResponseWriter)
 		dummyRequest = new(http.Request)
@@ -36,6 +38,7 @@ var _ = Describe("Garagepi", func() {
 			fakeLogger,
 			fakeHttpHelper,
 			fakeOsHelper,
+			fakeFsHelper,
 			webcamHost,
 			webcamPort,
 		)
@@ -46,12 +49,12 @@ var _ = Describe("Garagepi", func() {
 			contents := []byte("contents")
 
 			BeforeEach(func() {
-				fakeOsHelper.GetHomepageTemplateContentsReturns(contents, nil)
+				fakeFsHelper.GetHomepageTemplateContentsReturns(contents, nil)
 			})
 
 			It("Should write the contents of the homepage template to the response writer", func() {
 				executor.HomepageHandler(fakeResponseWriter, dummyRequest)
-				Expect(fakeOsHelper.GetHomepageTemplateContentsCallCount()).To(Equal(1))
+				Expect(fakeFsHelper.GetHomepageTemplateContentsCallCount()).To(Equal(1))
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(contents))
 			})
@@ -59,7 +62,7 @@ var _ = Describe("Garagepi", func() {
 
 		Context("When reading the homepage template fails with error", func() {
 			BeforeEach(func() {
-				fakeOsHelper.GetHomepageTemplateContentsReturns(nil, errors.New("Failed to read contents"))
+				fakeFsHelper.GetHomepageTemplateContentsReturns(nil, errors.New("Failed to read contents"))
 			})
 
 			execution := func() {
