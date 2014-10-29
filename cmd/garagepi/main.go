@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -48,6 +49,6 @@ func main() {
 	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
 
 	http.Handle("/", rtr)
-	logger.Log("Listening on port " + *port + "...")
+	fmt.Printf("Listening on port %s...\n", *port)
 	http.ListenAndServe(":"+*port, nil)
 }
