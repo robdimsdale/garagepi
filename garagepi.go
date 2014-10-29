@@ -1,6 +1,7 @@
 package garagepi
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -28,9 +29,9 @@ func NewExecutor(
 	httpHelper HttpHelper,
 	osHelper OsHelper,
 	webcamHost string,
-	webcamPort string) *Executor {
+	webcamPort uint) *Executor {
 
-	webcamUrl := "http://" + webcamHost + ":" + webcamPort + "/?action=snapshot&n="
+	webcamUrl := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", webcamHost, webcamPort)
 
 	return &Executor{
 		httpHelper: httpHelper,

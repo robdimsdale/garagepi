@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	port = flag.String("port", "9999", "Port for server to bind to.")
+	port = flag.Uint("port", 9999, "Port for server to bind to.")
 
 	webcamHost = flag.String("webcamHost", "localhost", "Host of webcam image.")
-	webcamPort = flag.String("webcamPort", "8080", "Port of webcam image.")
+	webcamPort = flag.Uint("webcamPort", 8080, "Port of webcam image.")
 
 	loggingOn = flag.Bool("loggingOn", true, "Whether logging is enabled.")
 )
@@ -49,6 +49,6 @@ func main() {
 	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
 
 	http.Handle("/", rtr)
-	fmt.Printf("Listening on port %s...\n", *port)
-	http.ListenAndServe(":"+*port, nil)
+	fmt.Printf("Listening on port %d...\n", *port)
+	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 }
