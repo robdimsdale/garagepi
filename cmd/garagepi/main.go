@@ -16,6 +16,9 @@ var (
 	webcamPort = flag.Uint("webcamPort", 8080, "Port of webcam image.")
 
 	loggingOn = flag.Bool("loggingOn", true, "Whether logging is enabled.")
+
+	gpioDoorPin  = flag.Uint("gpioDoorPin", 0, "Gpio pin of door.")
+	gpioLightPin = flag.Uint("gpioLightPin", 8, "Gpio pin of light.")
 )
 
 func main() {
@@ -32,13 +35,18 @@ func main() {
 
 	rtr := mux.NewRouter()
 
+	config := garagepi.ExecutorConfig{
+		WebcamHost:   *webcamHost,
+		WebcamPort:   *webcamPort,
+		GpioDoorPin:  *gpioDoorPin,
+		GpioLightPin: *gpioLightPin,
+	}
 	e := garagepi.NewExecutor(
 		logger,
-		httpHelper,
 		osHelper,
 		fsHelper,
-		*webcamHost,
-		*webcamPort)
+		httpHelper,
+		config)
 
 	staticFileSystem, err := fsHelper.GetStaticFileSystem()
 	if err != nil {

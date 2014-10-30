@@ -4,45 +4,58 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
 
 var (
 	SleepTime        = 500 * time.Millisecond
-	GpioPin          = "0"
-	GpioLightPin     = "8"
 	GpioExecutable   = "gpio"
 	GpioWriteCommand = "write"
 	GpioLowState     = "0"
 	GpioHighState    = "1"
 )
 
+type ExecutorConfig struct {
+	WebcamHost   string
+	WebcamPort   uint
+	GpioDoorPin  uint
+	GpioLightPin uint
+}
+
 type Executor struct {
-	logger     Logger
-	osHelper   OsHelper
-	fsHelper   FsHelper
-	httpHelper HttpHelper
-	webcamUrl  string
+	logger       Logger
+	osHelper     OsHelper
+	fsHelper     FsHelper
+	httpHelper   HttpHelper
+	webcamUrl    string
+	gpioDoorPin  uint
+	gpioLightPin uint
 }
 
 func NewExecutor(
 	logger Logger,
-	httpHelper HttpHelper,
 	osHelper OsHelper,
 	fsHelper FsHelper,
-	webcamHost string,
-	webcamPort uint) *Executor {
+	httpHelper HttpHelper,
+	config ExecutorConfig) *Executor {
 
-	webcamUrl := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", webcamHost, webcamPort)
+	webcamUrl := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", config.WebcamHost, config.WebcamPort)
 
 	return &Executor{
-		httpHelper: httpHelper,
-		logger:     logger,
-		webcamUrl:  webcamUrl,
-		osHelper:   osHelper,
-		fsHelper:   fsHelper,
+		httpHelper:   httpHelper,
+		logger:       logger,
+		webcamUrl:    webcamUrl,
+		osHelper:     osHelper,
+		fsHelper:     fsHelper,
+		gpioDoorPin:  config.GpioDoorPin,
+		gpioLightPin: config.GpioLightPin,
 	}
+}
+
+func tostr(u uint) string {
+	return strconv.FormatUint(uint64(u), 10)
 }
 
 func (e *Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,12 +86,12 @@ func (e *Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioHighState)
+	_, err := e.executeCommand(GpioExecutable, GpioWriteCommand, tostr(e.gpioDoorPin), GpioHighState)
 	if err != nil {
 		e.logger.Log("Error occured while executing " + GpioWriteCommand + " - skipping sleep and further executions")
 	} else {
 		e.osHelper.Sleep(SleepTime)
-		e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioLowState)
+		e.executeCommand(GpioExecutable, GpioWriteCommand, tostr(e.gpioDoorPin), GpioLowState)
 	}
 
 	e.httpHelper.RedirectToHomepage(w, r)
@@ -96,10 +109,10 @@ func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
 
 	if lightOn {
 		e.logger.Log("Turning light on")
-		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, GpioLightPin, GpioHighState)
+		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, tostr(e.gpioLightPin), GpioHighState)
 	} else {
 		e.logger.Log("Turning light off")
-		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, GpioLightPin, GpioLowState)
+		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, tostr(e.gpioLightPin), GpioLowState)
 	}
 
 	if err != nil {
