@@ -11,6 +11,7 @@ import (
 var (
 	SleepTime        = 500 * time.Millisecond
 	GpioPin          = "0"
+	GpioLightPin     = "8"
 	GpioExecutable   = "gpio"
 	GpioWriteCommand = "write"
 	GpioLowState     = "0"
@@ -78,6 +79,29 @@ func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		e.osHelper.Sleep(SleepTime)
 		e.executeCommand(GpioExecutable, GpioWriteCommand, GpioPin, GpioLowState)
+	}
+
+	e.httpHelper.RedirectToHomepage(w, r)
+}
+
+func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
+	lightOn := true
+	err := r.ParseForm()
+	if err != nil {
+		e.logger.Log("Error parsing form - assuming light should be turned on.")
+	}
+	if r.Form.Get("state") == "off" {
+		lightOn = false
+	}
+
+	if lightOn {
+		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, GpioLightPin, GpioHighState)
+	} else {
+		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, GpioLightPin, GpioLowState)
+	}
+
+	if err != nil {
+		e.logger.Log("Error occured while executing " + GpioWriteCommand + " - skipping sleep and further executions")
 	}
 
 	e.httpHelper.RedirectToHomepage(w, r)
