@@ -1,0 +1,24 @@
+#! /bin/bash
+# /etc/init.d/garagepi
+
+OUT_LOG=/dev/null
+GARAGEPI_BINARY=/go/bin/garagepi
+MY_PORT=9999
+WEBCAM_HOST=localhost
+WEBCAM_PORT=8080
+
+case "$1" in
+  start)
+    echo "Starting garagepi"
+    $GARAGEPI_BINARY --port=$MY_PORT --webcamHost=$WEBCAM_HOST --webcamPort=$WEBCAM_PORT 1>$OUT_LOG 2>$OUT_LOG &
+    ;;
+  stop)
+    echo "Stopping garagepi"
+    killall garagepi
+    ;;
+  *)
+    echo "Usage: /etc/init.d/garagepi {start|stop}"
+    exit 1
+    ;;
+  esac
+exit 0
