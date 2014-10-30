@@ -42,12 +42,14 @@ var _ = Describe("Garagepi", func() {
 
 	gpioDoorPin := uint(0)
 	gpioLightPin := uint(8)
+	gpioExecutable := "gpio"
 
 	executorConfig := garagepi.ExecutorConfig{
-		WebcamHost:   webcamHost,
-		WebcamPort:   webcamPort,
-		GpioDoorPin:  gpioDoorPin,
-		GpioLightPin: gpioLightPin,
+		WebcamHost:     webcamHost,
+		WebcamPort:     webcamPort,
+		GpioDoorPin:    gpioDoorPin,
+		GpioLightPin:   gpioLightPin,
+		GpioExecutable: gpioExecutable,
 	}
 
 	var executor *garagepi.Executor
@@ -163,8 +165,8 @@ var _ = Describe("Garagepi", func() {
 			}
 			Expect(gpioCalls).To(Equal(2))
 
-			Expect(args[0]).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioDoorPin), garagepi.GpioHighState}))
-			Expect(args[1]).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioDoorPin), garagepi.GpioLowState}))
+			Expect(args[0]).To(Equal([]string{gpioExecutable, tostr(gpioDoorPin), garagepi.GpioHighState}))
+			Expect(args[1]).To(Equal([]string{gpioExecutable, tostr(gpioDoorPin), garagepi.GpioLowState}))
 		}
 
 		verifyGpioWriteHighThenNoFurtherGpioCalls := func() {
@@ -185,10 +187,10 @@ var _ = Describe("Garagepi", func() {
 				}
 			}
 			Expect(gpioCalls).To(Equal(1))
-			Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioDoorPin), garagepi.GpioHighState}))
+			Expect(args).To(Equal([]string{gpioExecutable, tostr(gpioDoorPin), garagepi.GpioHighState}))
 		}
 
-		Context("When executing "+garagepi.GpioWriteCommand+" commands return sucessfully", func() {
+		Context("When executing "+gpioExecutable+" commands return sucessfully", func() {
 			It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioDoorPin)+", sleep, and write "+garagepi.GpioLowState+" to gpio "+tostr(gpioDoorPin), func() {
 				executor.ToggleDoorHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeOsHelper.SleepArgsForCall(0)).To(Equal(garagepi.SleepTime))
@@ -201,7 +203,7 @@ var _ = Describe("Garagepi", func() {
 			})
 		})
 
-		Context("When executing the first "+garagepi.GpioWriteCommand+" command returns with errors", func() {
+		Context("When executing the first "+gpioExecutable+" command returns with errors", func() {
 			BeforeEach(func() {
 				fakeOsHelper.ExecStub = func(executable string, _ ...string) (string, error) {
 					if executable == garagepi.GpioExecutable {
@@ -247,7 +249,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal(garagepi.GpioExecutable))
-					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
+					Expect(args).To(Equal([]string{gpioExecutable, tostr(gpioLightPin), garagepi.GpioHighState}))
 				})
 
 				It("Should redirect to homepage", func() {
@@ -262,7 +264,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal("gpio"))
-					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
+					Expect(args).To(Equal([]string{gpioExecutable, tostr(gpioLightPin), garagepi.GpioHighState}))
 				})
 
 				It("Should redirect to homepage", func() {
@@ -293,7 +295,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal(garagepi.GpioExecutable))
-					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
+					Expect(args).To(Equal([]string{gpioExecutable, tostr(gpioLightPin), garagepi.GpioLowState}))
 				})
 
 				It("Should redirect to homepage", func() {
@@ -308,7 +310,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal("gpio"))
-					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
+					Expect(args).To(Equal([]string{gpioExecutable, tostr(gpioLightPin), garagepi.GpioLowState}))
 				})
 
 				It("Should redirect to homepage", func() {
