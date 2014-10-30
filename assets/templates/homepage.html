@@ -60,9 +60,21 @@ function imageOnload() {
       </script>
       </div> <!-- row -->
       <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-5 col-lg-4">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
             <form action="toggle" method="post">
-                <button id="btnToggleDoor" type="submit" class="btn btn-default btn-block">Toggle Door</button>
+                <button type="submit" class="btn btn-default btn-block btn-action">Toggle Door</button>
+            </form>
+        </div>
+      </div> <!-- row -->
+      <div class="row">
+        <div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
+            <form action="light?state=on" method="post">
+                <button type="submit" class="btn btn-default btn-block btn-action">Light On</button>
+            </form>
+        </div>
+        <div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
+            <form action="light?state=off" method="post">
+                <button type="submit" class="btn btn-default btn-block btn-action">Light Off</button>
             </form>
         </div>
       </div> <!-- row -->

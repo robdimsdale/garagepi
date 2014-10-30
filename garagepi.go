@@ -95,13 +95,15 @@ func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if lightOn {
+		e.logger.Log("Turning light on")
 		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, GpioLightPin, GpioHighState)
 	} else {
+		e.logger.Log("Turning light off")
 		_, err = e.executeCommand(GpioExecutable, GpioWriteCommand, GpioLightPin, GpioLowState)
 	}
 
 	if err != nil {
-		e.logger.Log("Error occured while executing " + GpioWriteCommand + " - skipping sleep and further executions")
+		e.logger.Log("Error occured while executing " + GpioExecutable + " " + GpioWriteCommand)
 	}
 
 	e.httpHelper.RedirectToHomepage(w, r)
