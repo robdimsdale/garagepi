@@ -91,12 +91,15 @@ func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioDoorPin), GpioHighState)
 	if err != nil {
 		e.logger.Log("Error occured while executing " + e.gpioExecutable + " - skipping sleep and further executions")
+		w.Write([]byte("error - door not toggled"))
+		return
 	} else {
 		e.osHelper.Sleep(SleepTime)
 		e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioDoorPin), GpioLowState)
+		w.Write([]byte("door toggled"))
+		return
 	}
 
-	e.httpHelper.RedirectToHomepage(w, r)
 }
 
 func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
@@ -112,16 +115,27 @@ func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
 	if lightOn {
 		e.logger.Log("Turning light on")
 		_, err = e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioLightPin), GpioHighState)
+		if err != nil {
+			e.handleLightError(w)
+		} else {
+			w.Write([]byte("light on"))
+		}
+		return
 	} else {
 		e.logger.Log("Turning light off")
 		_, err = e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioLightPin), GpioLowState)
+		if err != nil {
+			e.handleLightError(w)
+		} else {
+			w.Write([]byte("light off"))
+		}
+		return
 	}
+}
 
-	if err != nil {
-		e.logger.Log("Error occured while executing " + e.gpioExecutable + " " + GpioWriteCommand)
-	}
-
-	e.httpHelper.RedirectToHomepage(w, r)
+func (e Executor) handleLightError(w http.ResponseWriter) {
+	e.logger.Log("Error occured while executing " + e.gpioExecutable + " " + GpioWriteCommand)
+	w.Write([]byte("error - light state unchanged"))
 }
 
 func (e *Executor) executeCommand(executable string, arg ...string) (string, error) {

@@ -197,9 +197,10 @@ var _ = Describe("Garagepi", func() {
 				verifyGpioWriteHighFirstThenWriteLow()
 			})
 
-			It("Should redirect to homepage", func() {
+			It("Should return 'door toggled'", func() {
 				executor.ToggleDoorHandler(fakeResponseWriter, dummyRequest)
-				verifyRedirectToHomepage()
+				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("door toggled")))
 			})
 		})
 
@@ -219,14 +220,15 @@ var _ = Describe("Garagepi", func() {
 				verifyGpioWriteHighThenNoFurtherGpioCalls()
 			})
 
-			It("Should redirect to homepage", func() {
+			It("Should return 'error - door not toggled'", func() {
 				executor.ToggleDoorHandler(fakeResponseWriter, dummyRequest)
-				verifyRedirectToHomepage()
+				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - door not toggled")))
 			})
 		})
 	})
 
-	Describe("Light-toggle handling", func() {
+	Describe("Light handling", func() {
 		Describe("Turning light on", func() {
 			BeforeEach(func() {
 				u, err := url.Parse("/?light=on")
@@ -252,13 +254,14 @@ var _ = Describe("Garagepi", func() {
 					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
 				})
 
-				It("Should redirect to homepage", func() {
+				It("Should return 'error - light state unchanged'", func() {
 					executor.LightHandler(fakeResponseWriter, dummyRequest)
-					verifyRedirectToHomepage()
+					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state unchanged")))
 				})
 			})
 
-			Context("When turning on light commands return sucessfully", func() {
+			Context("When turning on light command returns sucessfully", func() {
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 					executor.LightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
@@ -267,9 +270,10 @@ var _ = Describe("Garagepi", func() {
 					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
 				})
 
-				It("Should redirect to homepage", func() {
+				It("Should return 'light on'", func() {
 					executor.LightHandler(fakeResponseWriter, dummyRequest)
-					verifyRedirectToHomepage()
+					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light on")))
 				})
 			})
 		})
@@ -280,7 +284,7 @@ var _ = Describe("Garagepi", func() {
 				dummyRequest.URL = u
 			})
 
-			Context("When turning on light command returns with error", func() {
+			Context("When turning off light command returns with error", func() {
 				BeforeEach(func() {
 
 					fakeOsHelper.ExecStub = func(executable string, _ ...string) (string, error) {
@@ -298,13 +302,14 @@ var _ = Describe("Garagepi", func() {
 					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
 				})
 
-				It("Should redirect to homepage", func() {
+				It("Should return 'light state unchanged'", func() {
 					executor.LightHandler(fakeResponseWriter, dummyRequest)
-					verifyRedirectToHomepage()
+					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state unchanged")))
 				})
 			})
 
-			Context("When turning on light commands return sucessfully", func() {
+			Context("When turning off light command return sucessfully", func() {
 				It("Should write "+garagepi.GpioLowState+" to gpio "+tostr(gpioLightPin), func() {
 					executor.LightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
@@ -313,9 +318,10 @@ var _ = Describe("Garagepi", func() {
 					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
 				})
 
-				It("Should redirect to homepage", func() {
+				It("Should return 'light off'", func() {
 					executor.LightHandler(fakeResponseWriter, dummyRequest)
-					verifyRedirectToHomepage()
+					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light off")))
 				})
 			})
 		})
