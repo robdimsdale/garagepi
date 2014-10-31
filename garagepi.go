@@ -103,14 +103,28 @@ func (e *Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
-	lightOn := true
+	lightOn := true // All errors result in light being turned on
 	err := r.ParseForm()
 	if err != nil {
 		e.logger.Log("Error parsing form - assuming light should be turned on.")
 	}
-	if r.Form.Get("state") == "off" {
+
+	state := r.Form.Get("state")
+
+	switch state {
+	case "":
+		e.logger.Log("No state provided - assuming light should be turned on.")
+		break
+	case "off":
 		lightOn = false
+		break
+	case "on":
+		// Do nothing - lightOn is already set to true
+		break
+	default:
+		e.logger.Log("Invalid state provided '(" + state + ")' - assuming light should be turned on.")
 	}
+
 
 	if lightOn {
 		e.logger.Log("Turning light on")
@@ -120,7 +134,6 @@ func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Write([]byte("light on"))
 		}
-		return
 	} else {
 		e.logger.Log("Turning light off")
 		_, err = e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioLightPin), GpioLowState)
@@ -129,7 +142,6 @@ func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Write([]byte("light off"))
 		}
-		return
 	}
 }
 
