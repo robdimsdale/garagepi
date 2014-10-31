@@ -231,7 +231,7 @@ var _ = Describe("Garagepi", func() {
 	Describe("Light handling", func() {
 		Describe("Posting to /light without state information", func() {
 			BeforeEach(func() {
-				u, err := url.Parse("/?light")
+				u, err := url.Parse("/?state")
 				Expect(err).ShouldNot(HaveOccurred())
 				dummyRequest.URL = u
 			})
@@ -252,7 +252,7 @@ var _ = Describe("Garagepi", func() {
 
 		Describe("Posting to /light with incorrect state information", func() {
 			BeforeEach(func() {
-				u, err := url.Parse("/?light=somefakevalue")
+				u, err := url.Parse("/?state=somefakevalue")
 				Expect(err).ShouldNot(HaveOccurred())
 				dummyRequest.URL = u
 			})
@@ -273,7 +273,7 @@ var _ = Describe("Garagepi", func() {
 
 		Describe("Turning light on", func() {
 			BeforeEach(func() {
-				u, err := url.Parse("/?light=on")
+				u, err := url.Parse("/?state=on")
 				Expect(err).ShouldNot(HaveOccurred())
 				dummyRequest.URL = u
 			})

@@ -125,7 +125,6 @@ func (e *Executor) LightHandler(w http.ResponseWriter, r *http.Request) {
 		e.logger.Log("Invalid state provided '(" + state + ")' - assuming light should be turned on.")
 	}
 
-
 	if lightOn {
 		e.logger.Log("Turning light on")
 		_, err = e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioLightPin), GpioHighState)
