@@ -229,7 +229,7 @@ var _ = Describe("Garagepi", func() {
 				dummyRequest.URL = u
 			})
 			It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
-				executor.LightHandler(fakeResponseWriter, dummyRequest)
+				executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 				executable, args := fakeOsHelper.ExecArgsForCall(0)
 				Expect(executable).To(Equal("gpio"))
@@ -237,7 +237,7 @@ var _ = Describe("Garagepi", func() {
 			})
 
 			It("Should return 'light on'", func() {
-				executor.LightHandler(fakeResponseWriter, dummyRequest)
+				executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light on")))
 			})
@@ -250,7 +250,7 @@ var _ = Describe("Garagepi", func() {
 				dummyRequest.URL = u
 			})
 			It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
-				executor.LightHandler(fakeResponseWriter, dummyRequest)
+				executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 				executable, args := fakeOsHelper.ExecArgsForCall(0)
 				Expect(executable).To(Equal("gpio"))
@@ -258,7 +258,7 @@ var _ = Describe("Garagepi", func() {
 			})
 
 			It("Should return 'light on'", func() {
-				executor.LightHandler(fakeResponseWriter, dummyRequest)
+				executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light on")))
 			})
@@ -282,7 +282,7 @@ var _ = Describe("Garagepi", func() {
 					}
 				})
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal(gpioExecutable))
@@ -290,7 +290,7 @@ var _ = Describe("Garagepi", func() {
 				})
 
 				It("Should return 'error - light state unchanged'", func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state unchanged")))
 				})
@@ -298,7 +298,7 @@ var _ = Describe("Garagepi", func() {
 
 			Context("When turning on light command returns sucessfully", func() {
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal("gpio"))
@@ -306,7 +306,7 @@ var _ = Describe("Garagepi", func() {
 				})
 
 				It("Should return 'light on'", func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light on")))
 				})
@@ -330,7 +330,7 @@ var _ = Describe("Garagepi", func() {
 					}
 				})
 				It("Should write "+garagepi.GpioLowState+" to gpio "+tostr(gpioLightPin), func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal(gpioExecutable))
@@ -338,7 +338,7 @@ var _ = Describe("Garagepi", func() {
 				})
 
 				It("Should return 'light state unchanged'", func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state unchanged")))
 				})
@@ -346,7 +346,7 @@ var _ = Describe("Garagepi", func() {
 
 			Context("When turning off light command return sucessfully", func() {
 				It("Should write "+garagepi.GpioLowState+" to gpio "+tostr(gpioLightPin), func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
 					executable, args := fakeOsHelper.ExecArgsForCall(0)
 					Expect(executable).To(Equal("gpio"))
@@ -354,7 +354,7 @@ var _ = Describe("Garagepi", func() {
 				})
 
 				It("Should return 'light off'", func() {
-					executor.LightHandler(fakeResponseWriter, dummyRequest)
+					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light off")))
 				})
