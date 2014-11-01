@@ -201,7 +201,7 @@ func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
 		w.Write([]byte("error - light state unchanged"))
 	} else {
 		e.logger.Log(fmt.Sprintf("Light state: %s", state))
-		w.Write([]byte(fmt.Sprintf("light %s", state)))
+		w.Write([]byte(fmt.Sprintf("light state: %s", state)))
 	}
 }
 
@@ -214,7 +214,7 @@ func (e Executor) turnLightOff(w http.ResponseWriter) {
 }
 
 func (e Executor) executeCommand(executable string, arg ...string) (string, error) {
-	e.logger.Log(fmt.Sprintf("executing: '%s %s'", executable, strings.Join(arg, " ")))
+	e.logger.Log(fmt.Sprintf("Executing: '%s %s'", executable, strings.Join(arg, " ")))
 	out, err := e.osHelper.Exec(executable, arg...)
 	if err != nil {
 		e.logger.Log(err.Error())

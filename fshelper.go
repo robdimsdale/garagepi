@@ -2,10 +2,14 @@ package garagepi
 
 import (
 	"bytes"
-	"io"
+	"html/template"
 	"net/http"
 
 	"github.com/GeertJohan/go.rice"
+)
+
+var (
+	homepageTemplate *template.Template
 )
 
 type FsHelper interface {
@@ -14,16 +18,16 @@ type FsHelper interface {
 }
 
 type FsHelperImpl struct {
-	staticFileSystem    http.FileSystem
-	templatesFileSystem http.FileSystem
+	staticFileSystem http.FileSystem
+	templatesBox     *rice.Box
 }
 
 func NewFsHelperImpl(
 	assetsDir string,
 ) *FsHelperImpl {
 	return &FsHelperImpl{
-		templatesFileSystem: rice.MustFindBox(assetsDir + "/templates").HTTPBox(),
-		staticFileSystem:    rice.MustFindBox(assetsDir + "/static").HTTPBox(),
+		templatesBox:     rice.MustFindBox(assetsDir + "/templates"),
+		staticFileSystem: rice.MustFindBox(assetsDir + "/static").HTTPBox(),
 	}
 }
 
@@ -32,21 +36,32 @@ func (h *FsHelperImpl) GetStaticFileSystem() (http.FileSystem, error) {
 }
 
 func (h *FsHelperImpl) GetHomepageTemplateContents() ([]byte, error) {
-	fs, err := h.getTemplatesFileSystem()
-	if err != nil {
-		return nil, err
+	if homepageTemplate == nil {
+		err := h.loadHomepageTemplate()
+		if err != nil {
+			return nil, err
+		}
 	}
-	f, err := fs.Open("homepage.html")
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
 
 	buf := bytes.NewBuffer(nil)
-	_, err = io.Copy(buf, f)
-	return buf.Bytes(), err
+	homepageTemplate.Execute(buf, map[string]string{"Message": "Hello, world!"})
+
+	return buf.Bytes(), nil
 }
 
-func (h *FsHelperImpl) getTemplatesFileSystem() (http.FileSystem, error) {
-	return h.templatesFileSystem, nil
+func (h *FsHelperImpl) loadHomepageTemplate() error {
+	templateString, err := h.templatesBox.String("homepage.html")
+	if err != nil {
+		return err
+	}
+
+	// parse and execute the template
+	tmplMessage, err := template.New("message").Parse(templateString)
+	if err != nil {
+		return err
+	}
+
+	homepageTemplate = tmplMessage
+
+	return nil
 }
