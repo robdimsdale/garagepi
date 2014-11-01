@@ -242,6 +242,17 @@ var _ = Describe("Garagepi", func() {
 				})
 			})
 
+			Context("When reading light state contains leading/trailing whitespace", func() {
+				BeforeEach(func() {
+					fakeOsHelper.ExecReturns("\t0\n", nil)
+				})
+				It("Strips whitespace", func() {
+					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
+					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light state: off")))
+				})
+			})
+
 			Context("When reading light state returns 0", func() {
 				BeforeEach(func() {
 					fakeOsHelper.ExecReturns("0", nil)

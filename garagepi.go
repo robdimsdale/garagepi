@@ -112,6 +112,7 @@ func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
 
 	e.logger.Log("Reading light state")
 	discovered, err := e.executeCommand(e.gpioExecutable, args...)
+	discovered = strings.TrimSpace(discovered)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - light state unknown", e.gpioExecutable, strings.Join(args, " ")))
 		w.Write([]byte("error - light state: unknown"))
