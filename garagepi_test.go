@@ -28,13 +28,6 @@ func tostr(u uint) string {
 	return strconv.FormatUint(uint64(u), 10)
 }
 
-func verifyRedirectToHomepage() {
-	Expect(fakeHttpHelper.RedirectToHomepageCallCount()).To(Equal(1))
-	w, r := fakeHttpHelper.RedirectToHomepageArgsForCall(0)
-	Expect(w).To(Equal(fakeResponseWriter))
-	Expect(r).To(Equal(dummyRequest))
-}
-
 var _ = Describe("Garagepi", func() {
 
 	webcamHost := "webcamHost"
