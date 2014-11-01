@@ -118,8 +118,10 @@ func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		state, err := stateNumberToOnOffString(discovered)
 		if err != nil {
+			e.logger.Log(fmt.Sprintf("Error reading light state: %v", err))
 			w.Write([]byte("error - light state: unknown"))
 		} else {
+			e.logger.Log(fmt.Sprintf("Light state: %s", state))
 			w.Write([]byte(fmt.Sprintf("light state: %s", state)))
 		}
 	}
@@ -191,12 +193,13 @@ func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
 		args = []string{GpioWriteCommand, tostr(e.gpioLightPin), GpioLowState}
 	}
 
-	e.logger.Log(fmt.Sprintf("Turning light %s", state))
+	e.logger.Log(fmt.Sprintf("Setting light state to %s", state))
 	_, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error executing: '%s %s'", e.gpioExecutable, strings.Join(args, " ")))
 		w.Write([]byte("error - light state unchanged"))
 	} else {
+		e.logger.Log(fmt.Sprintf("Light state: %s", state))
 		w.Write([]byte(fmt.Sprintf("light %s", state)))
 	}
 }
