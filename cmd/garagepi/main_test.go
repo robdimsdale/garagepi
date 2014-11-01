@@ -27,6 +27,32 @@ func startMainWithArgs(args ...string) *gexec.Session {
 	return session
 }
 
+func validateSuccessAnyLengthBody(resp *http.Response, err error) {
+	Expect(err).NotTo(HaveOccurred())
+	Expect(resp.StatusCode).To(Equal(http.StatusOK))
+
+	validateBody(resp, true)
+}
+
+func validateSuccessNonZeroLengthBody(resp *http.Response, err error) {
+	Expect(err).NotTo(HaveOccurred())
+	Expect(resp.StatusCode).To(Equal(http.StatusOK))
+
+	validateBody(resp, false)
+}
+
+func validateBody(resp *http.Response, anySize bool) {
+	body, err := ioutil.ReadAll(resp.Body)
+	Expect(err).NotTo(HaveOccurred())
+
+	if anySize {
+		Expect(len(body)).Should(BeNumerically(">=", 0))
+	} else {
+
+		Expect(len(body)).Should(BeNumerically(">", 0))
+	}
+}
+
 var _ = Describe("GaragepiExecutable", func() {
 	BeforeEach(func() {
 		startMainWithArgs()
@@ -37,13 +63,7 @@ var _ = Describe("GaragepiExecutable", func() {
 	})
 
 	It("Accepts GET requests to /", func() {
-		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d", port))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
-		body, err := ioutil.ReadAll(resp.Body)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(len(body)).Should(BeNumerically(">", 0))
+		validateSuccessNonZeroLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d", port)))
 	})
 
 	It("Returns 404 to GET requests to /toggle", func() {
@@ -53,39 +73,18 @@ var _ = Describe("GaragepiExecutable", func() {
 	})
 
 	It("Accepts POST requests to /toggle", func() {
-		resp, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/toggle", port), "", strings.NewReader(""))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
-		body, err := ioutil.ReadAll(resp.Body)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(len(body)).Should(BeNumerically(">", 0))
+		validateSuccessNonZeroLengthBody(http.Post(fmt.Sprintf("http://127.0.0.1:%d/toggle", port), "", strings.NewReader("")))
 	})
 
-	It("Returns 404 to GET requests to /light", func() {
-		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/light", port))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
+	It("Accepts GET requests to /light", func() {
+		validateSuccessNonZeroLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d/light", port)))
 	})
 
 	It("Accepts POST requests to /light", func() {
-		resp, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/light", port), "", strings.NewReader(""))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
-		body, err := ioutil.ReadAll(resp.Body)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(len(body)).Should(BeNumerically(">", 0))
+		validateSuccessNonZeroLengthBody(http.Post(fmt.Sprintf("http://127.0.0.1:%d/light", port), "", strings.NewReader("")))
 	})
 
 	It("Accepts GET requests to /webcam", func() {
-		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/webcam", port))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
-		body, err := ioutil.ReadAll(resp.Body)
-		Expect(err).NotTo(HaveOccurred())
-		// body will be 0 bytes if upstream webcam server doesn't exist
-		Expect(len(body)).Should(BeNumerically(">=", 0))
+		validateSuccessAnyLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d/webcam", port)))
 	})
 })

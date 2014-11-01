@@ -59,6 +59,7 @@ func main() {
 	rtr.HandleFunc("/", e.HomepageHandler).Methods("GET")
 	rtr.HandleFunc("/webcam", e.WebcamHandler).Methods("GET")
 	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
+	rtr.HandleFunc("/light", e.GetLightHandler).Methods("Get")
 	rtr.HandleFunc("/light", e.SetLightHandler).Methods("POST")
 
 	http.Handle("/", rtr)

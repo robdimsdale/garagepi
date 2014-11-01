@@ -1,6 +1,7 @@
 package garagepi
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 var (
 	SleepTime        = 500 * time.Millisecond
+	GpioReadCommand  = "read"
 	GpioWriteCommand = "write"
 	GpioLowState     = "0"
 	GpioHighState    = "1"
@@ -105,6 +107,46 @@ func (e Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
+	args := []string{GpioReadCommand, tostr(e.gpioLightPin)}
+
+	e.logger.Log("Reading light state")
+	discovered, err := e.executeCommand(e.gpioExecutable, args...)
+	if err != nil {
+		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - light state unknown", e.gpioExecutable, strings.Join(args, " ")))
+		w.Write([]byte("error - light state: unknown"))
+	} else {
+		state, err := stateNumberToOnOffString(discovered)
+		if err != nil {
+			w.Write([]byte("error - light state: unknown"))
+		} else {
+			w.Write([]byte(fmt.Sprintf("light state: %s", state)))
+		}
+	}
+}
+
+func stateNumberToOnOffString(number string) (string, error) {
+	switch number {
+	case GpioLowState:
+		return "off", nil
+	case GpioHighState:
+		return "on", nil
+	default:
+		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", number))
+	}
+}
+
+func onOffStringToStateNumber(onOff string) (string, error) {
+	switch onOff {
+	case "on":
+		return GpioHighState, nil
+	case "off":
+		return GpioLowState, nil
+	default:
+		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", onOff))
+	}
+}
+
 func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -114,19 +156,25 @@ func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	state := r.Form.Get("state")
-	switch state {
-	case "":
+
+	if state == "" {
 		e.logger.Log("No state provided - assuming light should be turned on.")
 		e.turnLightOn(w)
 		return
-	case "off":
-		e.turnLightOff(w)
-		return
-	case "on":
+	}
+
+	gpioState, err := onOffStringToStateNumber(state)
+	if err != nil {
+		e.logger.Log(fmt.Sprintf("Invalid state provided (%s) - assuming light should be turned on.", state))
 		e.turnLightOn(w)
 		return
-	default:
-		e.logger.Log(fmt.Sprintf("Invalid state provided (%s) - assuming light should be turned on.", state))
+	}
+
+	switch gpioState {
+	case GpioLowState:
+		e.turnLightOff(w)
+		return
+	case GpioHighState:
 		e.turnLightOn(w)
 		return
 	}
