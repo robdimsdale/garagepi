@@ -45,7 +45,7 @@ func (h *FsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
 }
 
 func (h *FsHelperImpl) loadHomepageTemplate() error {
-	templateString, err := h.templatesBox.String("homepage.html")
+	templateString, err := h.templatesBox.String("homepage.html.tmpl")
 	if err != nil {
 		return err
 	}
