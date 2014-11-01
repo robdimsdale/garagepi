@@ -2,6 +2,7 @@
 package fakes
 
 import (
+	"html/template"
 	"net/http"
 	"sync"
 
@@ -16,11 +17,11 @@ type FakeFsHelper struct {
 		result1 http.FileSystem
 		result2 error
 	}
-	GetHomepageTemplateContentsStub        func() ([]byte, error)
-	getHomepageTemplateContentsMutex       sync.RWMutex
-	getHomepageTemplateContentsArgsForCall []struct{}
-	getHomepageTemplateContentsReturns     struct {
-		result1 []byte
+	GetHomepageTemplateStub        func() (*template.Template, error)
+	getHomepageTemplateMutex       sync.RWMutex
+	getHomepageTemplateArgsForCall []struct{}
+	getHomepageTemplateReturns     struct {
+		result1 *template.Template
 		result2 error
 	}
 }
@@ -50,27 +51,27 @@ func (fake *FakeFsHelper) GetStaticFileSystemReturns(result1 http.FileSystem, re
 	}{result1, result2}
 }
 
-func (fake *FakeFsHelper) GetHomepageTemplateContents() ([]byte, error) {
-	fake.getHomepageTemplateContentsMutex.Lock()
-	fake.getHomepageTemplateContentsArgsForCall = append(fake.getHomepageTemplateContentsArgsForCall, struct{}{})
-	fake.getHomepageTemplateContentsMutex.Unlock()
-	if fake.GetHomepageTemplateContentsStub != nil {
-		return fake.GetHomepageTemplateContentsStub()
+func (fake *FakeFsHelper) GetHomepageTemplate() (*template.Template, error) {
+	fake.getHomepageTemplateMutex.Lock()
+	fake.getHomepageTemplateArgsForCall = append(fake.getHomepageTemplateArgsForCall, struct{}{})
+	fake.getHomepageTemplateMutex.Unlock()
+	if fake.GetHomepageTemplateStub != nil {
+		return fake.GetHomepageTemplateStub()
 	} else {
-		return fake.getHomepageTemplateContentsReturns.result1, fake.getHomepageTemplateContentsReturns.result2
+		return fake.getHomepageTemplateReturns.result1, fake.getHomepageTemplateReturns.result2
 	}
 }
 
-func (fake *FakeFsHelper) GetHomepageTemplateContentsCallCount() int {
-	fake.getHomepageTemplateContentsMutex.RLock()
-	defer fake.getHomepageTemplateContentsMutex.RUnlock()
-	return len(fake.getHomepageTemplateContentsArgsForCall)
+func (fake *FakeFsHelper) GetHomepageTemplateCallCount() int {
+	fake.getHomepageTemplateMutex.RLock()
+	defer fake.getHomepageTemplateMutex.RUnlock()
+	return len(fake.getHomepageTemplateArgsForCall)
 }
 
-func (fake *FakeFsHelper) GetHomepageTemplateContentsReturns(result1 []byte, result2 error) {
-	fake.GetHomepageTemplateContentsStub = nil
-	fake.getHomepageTemplateContentsReturns = struct {
-		result1 []byte
+func (fake *FakeFsHelper) GetHomepageTemplateReturns(result1 *template.Template, result2 error) {
+	fake.GetHomepageTemplateStub = nil
+	fake.getHomepageTemplateReturns = struct {
+		result1 *template.Template
 		result2 error
 	}{result1, result2}
 }

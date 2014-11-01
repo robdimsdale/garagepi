@@ -64,12 +64,13 @@ func tostr(u uint) string {
 
 func (e Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 	e.logger.Log("homepage")
-	bytes, err := e.fsHelper.GetHomepageTemplateContents()
+
+	t, err := e.fsHelper.GetHomepageTemplate()
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error reading homepage template: %v", err))
 		panic(err)
 	}
-	w.Write(bytes)
+	t.Execute(w, nil)
 }
 
 func (e Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {

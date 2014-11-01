@@ -2,6 +2,7 @@ package garagepi_test
 
 import (
 	"errors"
+	"html/template"
 	"io"
 	"net/http"
 	"net/url"
@@ -66,23 +67,25 @@ var _ = Describe("Garagepi", func() {
 
 	Describe("Homepage Handling", func() {
 		Context("When reading the homepage template is successful", func() {
-			contents := []byte("contents")
 
+			contents := "templateContents"
 			BeforeEach(func() {
-				fakeFsHelper.GetHomepageTemplateContentsReturns(contents, nil)
+				t, err := template.New("template").Parse(contents)
+				Expect(err).NotTo(HaveOccurred())
+				fakeFsHelper.GetHomepageTemplateReturns(t, nil)
 			})
 
 			It("Should write the contents of the homepage template to the response writer", func() {
 				executor.HomepageHandler(fakeResponseWriter, dummyRequest)
-				Expect(fakeFsHelper.GetHomepageTemplateContentsCallCount()).To(Equal(1))
+				Expect(fakeFsHelper.GetHomepageTemplateCallCount()).To(Equal(1))
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
-				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(contents))
+				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte(contents)))
 			})
 		})
 
 		Context("When reading the homepage template fails with error", func() {
 			BeforeEach(func() {
-				fakeFsHelper.GetHomepageTemplateContentsReturns(nil, errors.New("Failed to read contents"))
+				fakeFsHelper.GetHomepageTemplateReturns(nil, errors.New("Failed to read contents"))
 			})
 
 			execution := func() {

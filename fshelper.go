@@ -1,7 +1,6 @@
 package garagepi
 
 import (
-	"bytes"
 	"html/template"
 	"net/http"
 
@@ -14,7 +13,7 @@ var (
 
 type FsHelper interface {
 	GetStaticFileSystem() (http.FileSystem, error)
-	GetHomepageTemplateContents() ([]byte, error)
+	GetHomepageTemplate() (*template.Template, error)
 }
 
 type FsHelperImpl struct {
@@ -35,18 +34,14 @@ func (h *FsHelperImpl) GetStaticFileSystem() (http.FileSystem, error) {
 	return h.staticFileSystem, nil
 }
 
-func (h *FsHelperImpl) GetHomepageTemplateContents() ([]byte, error) {
+func (h *FsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
 	if homepageTemplate == nil {
 		err := h.loadHomepageTemplate()
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	buf := bytes.NewBuffer(nil)
-	homepageTemplate.Execute(buf, map[string]string{"Message": "Hello, world!"})
-
-	return buf.Bytes(), nil
+	return homepageTemplate, nil
 }
 
 func (h *FsHelperImpl) loadHomepageTemplate() error {
