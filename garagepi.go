@@ -1,9 +1,7 @@
 package garagepi
 
 import (
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -63,155 +61,23 @@ func tostr(u uint) string {
 }
 
 func (e Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
-	e.logger.Log("homepage")
-
-	t, err := e.fsHelper.GetHomepageTemplate()
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error reading homepage template: %v", err))
-		panic(err)
-	}
-	t.Execute(w, nil)
+	e.handleHomepage(w, r)
 }
 
 func (e Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := e.httpHelper.Get(e.webcamUrl + r.Form.Get("n"))
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error getting image: %v", err))
-		if resp == nil {
-			e.logger.Log("No image to return")
-			return
-		}
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error closing image request: %v", err))
-		return
-	}
-	w.Write(body)
+	e.handleWebcam(w, r)
 }
 
 func (e Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
-	args := []string{GpioWriteCommand, tostr(e.gpioDoorPin), GpioHighState}
-	e.logger.Log("Toggling door")
-	_, err := e.executeCommand(e.gpioExecutable, args...)
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - door not toggled (skipping sleep and further executions)", e.gpioExecutable, strings.Join(args, " ")))
-		w.Write([]byte("error - door not toggled"))
-		return
-	} else {
-		e.osHelper.Sleep(SleepTime)
-		e.executeCommand(e.gpioExecutable, GpioWriteCommand, tostr(e.gpioDoorPin), GpioLowState)
-		e.logger.Log("door toggled")
-		w.Write([]byte("door toggled"))
-		return
-	}
+	e.handleDoorToggle(w, r)
 }
 
 func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
-	args := []string{GpioReadCommand, tostr(e.gpioLightPin)}
-
-	e.logger.Log("Reading light state")
-	discovered, err := e.executeCommand(e.gpioExecutable, args...)
-	discovered = strings.TrimSpace(discovered)
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - light state unknown", e.gpioExecutable, strings.Join(args, " ")))
-		w.Write([]byte("error - light state: unknown"))
-	} else {
-		state, err := stateNumberToOnOffString(discovered)
-		if err != nil {
-			e.logger.Log(fmt.Sprintf("Error reading light state: %v", err))
-			w.Write([]byte("error - light state: unknown"))
-		} else {
-			e.logger.Log(fmt.Sprintf("Light state: %s", state))
-			w.Write([]byte(fmt.Sprintf("light state: %s", state)))
-		}
-	}
-}
-
-func stateNumberToOnOffString(number string) (string, error) {
-	switch number {
-	case GpioLowState:
-		return "off", nil
-	case GpioHighState:
-		return "on", nil
-	default:
-		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", number))
-	}
-}
-
-func onOffStringToStateNumber(onOff string) (string, error) {
-	switch onOff {
-	case "on":
-		return GpioHighState, nil
-	case "off":
-		return GpioLowState, nil
-	default:
-		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", onOff))
-	}
+	e.handleLightGet(w, r)
 }
 
 func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		e.logger.Log("Error parsing form - assuming light should be turned on.")
-		e.turnLightOn(w)
-		return
-	}
-
-	state := r.Form.Get("state")
-
-	if state == "" {
-		e.logger.Log("No state provided - assuming light should be turned on.")
-		e.turnLightOn(w)
-		return
-	}
-
-	gpioState, err := onOffStringToStateNumber(state)
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Invalid state provided (%s) - assuming light should be turned on.", state))
-		e.turnLightOn(w)
-		return
-	}
-
-	switch gpioState {
-	case GpioLowState:
-		e.turnLightOff(w)
-		return
-	case GpioHighState:
-		e.turnLightOn(w)
-		return
-	}
-}
-
-func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
-	var state string
-	var args []string
-	if stateOn {
-		state = "on"
-		args = []string{GpioWriteCommand, tostr(e.gpioLightPin), GpioHighState}
-	} else {
-		state = "off"
-		args = []string{GpioWriteCommand, tostr(e.gpioLightPin), GpioLowState}
-	}
-
-	e.logger.Log(fmt.Sprintf("Setting light state to %s", state))
-	_, err := e.executeCommand(e.gpioExecutable, args...)
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error executing: '%s %s'", e.gpioExecutable, strings.Join(args, " ")))
-		w.Write([]byte("error - light state unchanged"))
-	} else {
-		e.logger.Log(fmt.Sprintf("Light state: %s", state))
-		w.Write([]byte(fmt.Sprintf("light state: %s", state)))
-	}
-}
-
-func (e Executor) turnLightOn(w http.ResponseWriter) {
-	e.setLightState(w, true)
-}
-
-func (e Executor) turnLightOff(w http.ResponseWriter) {
-	e.setLightState(w, false)
+	e.handleLightState(w, r)
 }
 
 func (e Executor) executeCommand(executable string, arg ...string) (string, error) {
