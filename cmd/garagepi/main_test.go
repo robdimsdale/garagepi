@@ -66,7 +66,7 @@ var _ = Describe("GaragepiExecutable", func() {
 		validateSuccessNonZeroLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d", port)))
 	})
 
-	It("Returns 404 to GET requests to /toggle", func() {
+	It("Rejects GET requests to /toggle with 404", func() {
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/toggle", port))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
@@ -87,6 +87,8 @@ var _ = Describe("GaragepiExecutable", func() {
 	})
 
 	It("Accepts GET requests to /webcam", func() {
-		validateSuccessAnyLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d/webcam", port)))
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/webcam", port))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 	})
 })

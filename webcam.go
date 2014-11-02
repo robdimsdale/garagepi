@@ -12,6 +12,7 @@ func (e *Executor) handleWebcam(w http.ResponseWriter, r *http.Request) {
 		e.logger.Log(fmt.Sprintf("Error getting image: %v", err))
 		if resp == nil {
 			e.logger.Log("No image to return")
+			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
 	}
@@ -19,6 +20,7 @@ func (e *Executor) handleWebcam(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error closing image request: %v", err))
+		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
 	w.Write(body)

@@ -121,6 +121,12 @@ var _ = Describe("Garagepi", func() {
 				executor.WebcamHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(0))
 			})
+
+			It("Should respond with HTTP status code 503", func() {
+				executor.WebcamHandler(fakeResponseWriter, dummyRequest)
+				Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
+				Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
+			})
 		})
 
 		Context("When reading the webcam image fails with error", func() {
@@ -133,6 +139,12 @@ var _ = Describe("Garagepi", func() {
 			It("Should write nothing to the response writer and return", func() {
 				executor.WebcamHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(0))
+			})
+
+			It("Should respond with HTTP status code 503", func() {
+				executor.WebcamHandler(fakeResponseWriter, dummyRequest)
+				Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
+				Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
 			})
 		})
 	})
