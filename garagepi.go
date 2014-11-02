@@ -73,6 +73,7 @@ func tostr(u uint) string {
 }
 
 func (e Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
+	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
 	e.handleHomepage(w, r)
 }
 
@@ -81,14 +82,17 @@ func (e Executor) WebcamHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e Executor) ToggleDoorHandler(w http.ResponseWriter, r *http.Request) {
+	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
 	e.handleDoorToggle(w, r)
 }
 
 func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
+	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
 	e.handleLightGet(w, r)
 }
 
 func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
+	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
 	e.handleLightState(w, r)
 }
 

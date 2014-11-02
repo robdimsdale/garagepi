@@ -65,14 +65,19 @@ function imageOnload() {
           <button id="btnDoorToggle" type="submit" class="btn btn-default btn-block btn-action">Toggle Door</button>
         </div>
       </div> <!-- row -->
+      {{ if .StateKnown}}
       <div class="row">
+        {{ if .LightOn }}
         <div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
-            <button id="btnLightOn" type="submit" class="btn btn-default btn-block btn-action">Light On</button>
+            <button id="btnLightOff" type="submit" class="btn btn-default btn-block btn-action">Light Off</button>
         </div>
+        {{ else }}
         <div class="col-xs-6 col-sm-3 col-md-2 col-lg-2">
-          <button id="btnLightOff" type="submit" class="btn btn-default btn-block btn-action">Light Off</button>
+          <button id="btnLightOn" type="submit" class="btn btn-default btn-block btn-action">Light On</button>
         </div>
+        {{end}}
       </div> <!-- row -->
+      {{end}}
     </div> <!-- container -->
   </body>
 </html>
