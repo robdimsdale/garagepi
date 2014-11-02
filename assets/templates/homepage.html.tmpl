@@ -68,7 +68,7 @@ function imageOnload() {
       {{ if .StateKnown }}
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
-            <button id="btnLight" class="btn btn-default btn-block btn-action">Turn Light {{if .LightOn}}Off{{ else }}On{{end}}</button>
+            <button id="btnLight" class="btn btn-default btn-block btn-action">Turn {{if .LightOn}}Off{{ else }}On{{end}} Light</button>
         </div>
       </div> <!-- row -->
       {{ end }}

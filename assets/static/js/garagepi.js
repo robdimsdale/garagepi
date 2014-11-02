@@ -4,7 +4,7 @@ $(document).ready(function(){
 
   var $btnLight = $("#btnLight");
 
-  var lightOn = ($btnLight.text() == "Turn Light Off");
+  var lightOn = ($btnLight.text() == "Turn Off Light");
 
   function toggleGarageDoor() {
     $.post("/toggle");
@@ -23,9 +23,9 @@ $(document).ready(function(){
     lightOn = data.LightOn;
 
     if (lightOn) {
-      $btnLight.text("Turn Light Off");
+      $btnLight.text("Turn Off Light");
     } else {
-      $btnLight.text("Turn Light On");
+      $btnLight.text("Turn On Light");
     }
 
     if (!data.StateKnown) {
