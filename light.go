@@ -1,6 +1,7 @@
 package garagepi
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -29,7 +30,8 @@ func (e Executor) handleLightGet(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
 
-	w.Write([]byte(fmt.Sprintf("light state: %s", ls.StateString())))
+	b, _ := json.Marshal(ls)
+	w.Write(b)
 }
 
 func (e Executor) discoverLightState() (*LightState, error) {
@@ -38,14 +40,14 @@ func (e Executor) discoverLightState() (*LightState, error) {
 	state, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - light state unknown", e.gpioExecutable, strings.Join(args, " ")))
-		return &LightState{StateKnown: false}, err
+		return &LightState{StateKnown: false, LightOn: false}, err
 	}
 	state = strings.TrimSpace(state)
 
 	lightOn, err := strconv.ParseBool(state)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error parsing light state: %v", err))
-		return &LightState{StateKnown: false}, err
+		return &LightState{StateKnown: false, LightOn: false}, err
 	}
 
 	ls := &LightState{
