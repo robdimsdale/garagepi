@@ -238,9 +238,13 @@ var _ = Describe("Garagepi", func() {
 
 	Describe("Light handling", func() {
 		Describe("Reading state", func() {
-			var expectedLightState garagepi.LightState
+			expectedLightState := garagepi.LightState{
+				StateKnown: false,
+				LightOn:    false,
+			}
 			var expectedReturn []byte
 			var err error
+
 			Context("When reading light state returns with error", func() {
 				BeforeEach(func() {
 					fakeOsHelper.ExecReturns("", errors.New(garagepi.GpioReadCommand+" "+gpioExecutable+"error"))
