@@ -2,6 +2,16 @@
 
 $(document).ready(function(){
 
+  var $btnLight = $("#btnLight");
+
+  var lightText = $btnLight.text();
+  var lightOn;
+  if (lightText = "Light On") {
+    lightOn = true;
+  } else {
+    lightOn = false;
+  }
+
   function toggleGarageDoor() {
     $.post("/toggle");
   }
@@ -15,14 +25,18 @@ $(document).ready(function(){
   }
 
   $("#btnDoorToggle").on("click", function( event ) {
-    toggleGarageDoor()
+    toggleGarageDoor();
   });
 
-  $("#btnLightOn").on("click", function( event ) {
-    turnLightOn()
-  });
-
-  $("#btnLightOff").on("click", function( event ) {
-    turnLightOff()
+  $btnLight.on("click", function( event ) {
+    if (lightOn) {
+      turnLightOff();
+      lightOn = false;
+      $btnLight.text("Light On")
+    } else {
+      turnLightOn();
+      lightOn = true;
+      $btnLight.text("Light Off")
+    }
   });
 });
