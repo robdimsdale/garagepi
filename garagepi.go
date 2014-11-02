@@ -93,7 +93,7 @@ func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
 
 func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
 	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
-	e.handleLightState(w, r)
+	e.handleLightSet(w, r)
 }
 
 func (e Executor) executeCommand(executable string, arg ...string) (string, error) {

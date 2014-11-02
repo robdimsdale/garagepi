@@ -11,6 +11,7 @@ import (
 type LightState struct {
 	StateKnown bool
 	LightOn    bool
+	ErrorMsg   string
 }
 
 func (l LightState) StateString() string {
@@ -58,7 +59,7 @@ func (e Executor) discoverLightState() (*LightState, error) {
 	return ls, nil
 }
 
-func (e Executor) handleLightState(w http.ResponseWriter, r *http.Request) {
+func (e Executor) handleLightSet(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		e.logger.Log("Error parsing form - assuming light should be turned on.")
@@ -114,9 +115,20 @@ func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
 	_, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error executing: '%s %s'", e.gpioExecutable, strings.Join(args, " ")))
-		w.Write([]byte("error - light state unchanged"))
+		ls := LightState{
+			StateKnown: false,
+			LightOn:    false,
+			ErrorMsg:   err.Error(),
+		}
+		b, _ := json.Marshal(ls)
+		w.Write(b)
 	} else {
 		e.logger.Log(fmt.Sprintf("Light state: %s", state))
-		w.Write([]byte(fmt.Sprintf("light state: %s", state)))
+		ls := LightState{
+			StateKnown: true,
+			LightOn:    stateOn,
+		}
+		b, _ := json.Marshal(ls)
+		w.Write(b)
 	}
 }
