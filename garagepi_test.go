@@ -257,13 +257,13 @@ var _ = Describe("Garagepi", func() {
 					Expect(args).To(Equal([]string{garagepi.GpioReadCommand, tostr(gpioLightPin)}))
 				})
 
-				It("Returns unknown light state", func() {
+				It("Should return unknown light state", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(expectedReturn))
 				})
 
-				It("Responds with HTTP status code 503", func() {
+				It("Should respond with HTTP status code 503", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
@@ -279,7 +279,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-				It("Strips whitespace", func() {
+				It("Should strip whitespace", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(expectedReturn))
@@ -294,7 +294,7 @@ var _ = Describe("Garagepi", func() {
 					expectedReturn, err = json.Marshal(expectedLightState)
 				})
 
-				It("Returns light state off", func() {
+				It("Should return light state off", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(expectedReturn))
@@ -309,7 +309,7 @@ var _ = Describe("Garagepi", func() {
 					expectedReturn, err = json.Marshal(expectedLightState)
 				})
 
-				It("Returns light state on", func() {
+				It("Should return light state on", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(expectedReturn))
@@ -323,13 +323,13 @@ var _ = Describe("Garagepi", func() {
 					expectedReturn, err = json.Marshal(expectedLightState)
 				})
 
-				It("Responds with HTTP status code 503", func() {
+				It("Should respond with HTTP status code 503", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
 				})
 
-				It("Returns unknown light state", func() {
+				It("Should return unknown light state", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal(expectedReturn))

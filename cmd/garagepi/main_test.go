@@ -62,31 +62,31 @@ var _ = Describe("GaragepiExecutable", func() {
 		session.Terminate()
 	})
 
-	It("Accepts GET requests to /", func() {
+	It("Should accept GET requests to /", func() {
 		validateSuccessNonZeroLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d", port)))
 	})
 
-	It("Rejects GET requests to /toggle with 404", func() {
+	It("Should reject GET requests to /toggle with 404", func() {
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/toggle", port))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
 	})
 
-	It("Accepts POST requests to /toggle", func() {
+	It("Should accept POST requests to /toggle", func() {
 		validateSuccessNonZeroLengthBody(http.Post(fmt.Sprintf("http://127.0.0.1:%d/toggle", port), "", strings.NewReader("")))
 	})
 
-	It("Accepts GET requests to /light", func() {
+	It("Should accept GET requests to /light", func() {
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/light", port))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 	})
 
-	It("Accepts POST requests to /light", func() {
+	It("Should accept POST requests to /light", func() {
 		validateSuccessNonZeroLengthBody(http.Post(fmt.Sprintf("http://127.0.0.1:%d/light", port), "", strings.NewReader("")))
 	})
 
-	It("Accepts GET requests to /webcam", func() {
+	It("Should accept GET requests to /webcam", func() {
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/webcam", port))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
