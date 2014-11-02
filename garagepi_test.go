@@ -238,12 +238,16 @@ var _ = Describe("Garagepi", func() {
 
 	Describe("Light handling", func() {
 		Describe("Reading state", func() {
-			expectedLightState := garagepi.LightState{
-				StateKnown: false,
-				LightOn:    false,
-			}
+			var expectedLightState garagepi.LightState
 			var expectedReturn []byte
 			var err error
+
+			BeforeEach(func() {
+				expectedLightState = garagepi.LightState{
+					StateKnown: false,
+					LightOn:    false,
+				}
+			})
 
 			Context("When reading light state returns with error", func() {
 				BeforeEach(func() {
@@ -296,6 +300,7 @@ var _ = Describe("Garagepi", func() {
 					expectedLightState.StateKnown = true
 					expectedLightState.LightOn = false
 					expectedReturn, err = json.Marshal(expectedLightState)
+					Expect(err).NotTo(HaveOccurred())
 				})
 
 				It("Should return light state off", func() {
@@ -311,6 +316,7 @@ var _ = Describe("Garagepi", func() {
 					expectedLightState.StateKnown = true
 					expectedLightState.LightOn = true
 					expectedReturn, err = json.Marshal(expectedLightState)
+					Expect(err).NotTo(HaveOccurred())
 				})
 
 				It("Should return light state on", func() {
@@ -325,6 +331,7 @@ var _ = Describe("Garagepi", func() {
 					fakeOsHelper.ExecReturns("2", nil)
 					expectedLightState.StateKnown = false
 					expectedReturn, err = json.Marshal(expectedLightState)
+					Expect(err).NotTo(HaveOccurred())
 				})
 
 				It("Should respond with HTTP status code 503", func() {
