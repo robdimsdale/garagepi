@@ -1,53 +1,59 @@
 package garagepi
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-func (e Executor) handleLightGet(w http.ResponseWriter, r *http.Request) {
-	args := []string{GpioReadCommand, tostr(e.gpioLightPin)}
+type LightState struct {
+	StateKnown bool
+	LightOn    bool
+}
 
+func (l LightState) StateString() string {
+	if !l.StateKnown {
+		return "unknown"
+	}
+	if l.LightOn {
+		return "on"
+	} else {
+		return "off"
+	}
+}
+
+func (e Executor) handleLightGet(w http.ResponseWriter, r *http.Request) {
+	ls, err := e.discoverLightState()
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}
+
+	w.Write([]byte(fmt.Sprintf("light state: %s", ls.StateString())))
+}
+
+func (e Executor) discoverLightState() (*LightState, error) {
+	args := []string{GpioReadCommand, tostr(e.gpioLightPin)}
 	e.logger.Log("Reading light state")
-	discovered, err := e.executeCommand(e.gpioExecutable, args...)
-	discovered = strings.TrimSpace(discovered)
+	state, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - light state unknown", e.gpioExecutable, strings.Join(args, " ")))
-		w.Write([]byte("error - light state: unknown"))
-	} else {
-		state, err := stateNumberToOnOffString(discovered)
-		if err != nil {
-			e.logger.Log(fmt.Sprintf("Error reading light state: %v", err))
-			w.Write([]byte("error - light state: unknown"))
-		} else {
-			e.logger.Log(fmt.Sprintf("Light state: %s", state))
-			w.Write([]byte(fmt.Sprintf("light state: %s", state)))
-		}
+		return &LightState{StateKnown: false}, err
 	}
-}
+	state = strings.TrimSpace(state)
 
-func stateNumberToOnOffString(number string) (string, error) {
-	switch number {
-	case GpioLowState:
-		return "off", nil
-	case GpioHighState:
-		return "on", nil
-	default:
-		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", number))
+	lightOn, err := strconv.ParseBool(state)
+	if err != nil {
+		e.logger.Log(fmt.Sprintf("Error parsing light state: %v", err))
+		return &LightState{StateKnown: false}, err
 	}
-}
 
-func onOffStringToStateNumber(onOff string) (string, error) {
-	switch onOff {
-	case "on":
-		return GpioHighState, nil
-	case "off":
-		return GpioLowState, nil
-	default:
-		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", onOff))
+	ls := &LightState{
+		StateKnown: true,
+		LightOn:    lightOn,
 	}
+	e.logger.Log(fmt.Sprintf("Light state: %s", ls.StateString()))
+	return ls, nil
 }
 
 func (e Executor) handleLightState(w http.ResponseWriter, r *http.Request) {

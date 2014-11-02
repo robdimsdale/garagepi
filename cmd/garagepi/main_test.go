@@ -77,7 +77,9 @@ var _ = Describe("GaragepiExecutable", func() {
 	})
 
 	It("Accepts GET requests to /light", func() {
-		validateSuccessNonZeroLengthBody(http.Get(fmt.Sprintf("http://127.0.0.1:%d/light", port)))
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/light", port))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 	})
 
 	It("Accepts POST requests to /light", func() {

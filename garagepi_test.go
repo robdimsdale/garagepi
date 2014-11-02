@@ -67,7 +67,6 @@ var _ = Describe("Garagepi", func() {
 
 	Describe("Homepage Handling", func() {
 		Context("When reading the homepage template is successful", func() {
-
 			contents := "templateContents"
 			BeforeEach(func() {
 				t, err := template.New("template").Parse(contents)
@@ -238,10 +237,11 @@ var _ = Describe("Garagepi", func() {
 					Expect(executable).To(Equal("gpio"))
 					Expect(args).To(Equal([]string{garagepi.GpioReadCommand, tostr(gpioLightPin)}))
 				})
-				It("Returns 'unknown'", func() {
+
+				It("Returns 'light state: unknown'", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
-					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state: unknown")))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light state: unknown")))
 				})
 			})
 
@@ -249,6 +249,7 @@ var _ = Describe("Garagepi", func() {
 				BeforeEach(func() {
 					fakeOsHelper.ExecReturns("\t0\n", nil)
 				})
+
 				It("Strips whitespace", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
@@ -260,6 +261,7 @@ var _ = Describe("Garagepi", func() {
 				BeforeEach(func() {
 					fakeOsHelper.ExecReturns("0", nil)
 				})
+
 				It("Returns 'light state: off'", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
@@ -271,6 +273,7 @@ var _ = Describe("Garagepi", func() {
 				BeforeEach(func() {
 					fakeOsHelper.ExecReturns("1", nil)
 				})
+
 				It("Returns 'light state: on'", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
@@ -282,10 +285,17 @@ var _ = Describe("Garagepi", func() {
 				BeforeEach(func() {
 					fakeOsHelper.ExecReturns("2", nil)
 				})
-				It("Returns 'error - light state: unknown'", func() {
+
+				It("Responds with HTTP status code 503", func() {
+					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
+					Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
+					Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
+				})
+
+				It("Returns 'light state: unknown'", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
-					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state: unknown")))
+					Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("light state: unknown")))
 				})
 			})
 		})
@@ -297,6 +307,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(err).ShouldNot(HaveOccurred())
 					dummyRequest.URL = u
 				})
+
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
@@ -318,6 +329,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(err).ShouldNot(HaveOccurred())
 					dummyRequest.URL = u
 				})
+
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
@@ -344,6 +356,7 @@ var _ = Describe("Garagepi", func() {
 					BeforeEach(func() {
 						fakeOsHelper.ExecReturns("", errors.New(garagepi.GpioWriteCommand+" "+gpioExecutable+"error"))
 					})
+
 					It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 						Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
@@ -386,6 +399,7 @@ var _ = Describe("Garagepi", func() {
 					BeforeEach(func() {
 						fakeOsHelper.ExecReturns("", errors.New(gpioExecutable+" "+garagepi.GpioWriteCommand+"error"))
 					})
+
 					It("Should write "+garagepi.GpioLowState+" to gpio "+tostr(gpioLightPin), func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 						Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
@@ -394,7 +408,7 @@ var _ = Describe("Garagepi", func() {
 						Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
 					})
 
-					It("Should return 'light state unchanged'", func() {
+					It("Should return 'error - light state unchanged'", func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 						Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
 						Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte("error - light state unchanged")))
