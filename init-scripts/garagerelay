@@ -6,8 +6,10 @@ case "$1" in
     echo "Starting Relay"
     # Turn 0 off
     /usr/local/bin/gpio write 0 0
+    /usr/local/bin/gpio write 8 0
     #Start Gpio
     /usr/local/bin/gpio mode 0 out
+    /usr/local/bin/gpio mode 8 out
   ;;
   stop)
     echo "Stopping gpio"
