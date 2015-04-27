@@ -6,12 +6,15 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/robdimsdale/garagepi"
+	"github.com/robdimsdale/garagepi/door"
 	"github.com/robdimsdale/garagepi/fshelper"
 	"github.com/robdimsdale/garagepi/gpio"
+	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
+	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
+	"github.com/robdimsdale/garagepi/webcam"
 )
 
 var (
@@ -42,22 +45,35 @@ func main() {
 
 	rtr := mux.NewRouter()
 
-	config := garagepi.ExecutorConfig{
-		WebcamHost:     *webcamHost,
-		WebcamPort:     *webcamPort,
-		GpioDoorPin:    *gpioDoorPin,
-		GpioLightPin:   *gpioLightPin,
-		GpioExecutable: *gpioExecutable,
-	}
-
-	gpio := gpio.NewGpio(osHelper, logger, config.GpioExecutable)
-	e := garagepi.NewExecutor(
+	wh := webcam.NewHandler(
 		logger,
-		osHelper,
-		fsHelper,
+		httpHelper,
+		*webcamHost,
+		*webcamPort,
+	)
+
+	gpio := gpio.NewGpio(osHelper, logger, *gpioExecutable)
+
+	lh := light.NewHandler(
+		logger,
 		httpHelper,
 		gpio,
-		config)
+		*gpioLightPin,
+	)
+
+	hh := homepage.NewHandler(
+		logger,
+		httpHelper,
+		fsHelper,
+		lh,
+	)
+
+	dh := door.NewHandler(
+		logger,
+		httpHelper,
+		osHelper,
+		gpio,
+		*gpioDoorPin)
 
 	staticFileSystem, err := fsHelper.GetStaticFileSystem()
 	if err != nil {
@@ -65,11 +81,11 @@ func main() {
 	}
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(staticFileSystem)))
 
-	rtr.HandleFunc("/", e.HomepageHandler).Methods("GET")
-	rtr.HandleFunc("/webcam", e.WebcamHandler).Methods("GET")
-	rtr.HandleFunc("/toggle", e.ToggleDoorHandler).Methods("POST")
-	rtr.HandleFunc("/light", e.GetLightHandler).Methods("GET")
-	rtr.HandleFunc("/light", e.SetLightHandler).Methods("POST")
+	rtr.HandleFunc("/", hh.Handle).Methods("GET")
+	rtr.HandleFunc("/webcam", wh.Handle).Methods("GET")
+	rtr.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")
+	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
+	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
 
 	http.Handle("/", rtr)
 	fmt.Printf("Listening on port %d...\n", *port)

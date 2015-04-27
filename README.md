@@ -19,11 +19,11 @@ go get github.com/gorilla/mux
 
 ###Installing
 ```
-go install cmd/garagepi/main.go
+go install main.go
 ```
 If this results in an error `go install: no install location for .go files listed on command line (GOBIN not set)` then an alternative is:
 ```
-go build -o $GOPATH/bin/garagepi cmd/garagepi/main.go
+go build -o $GOPATH/bin/garagepi main.go
 ```
 
 ###Init scripts

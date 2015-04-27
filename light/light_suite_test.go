@@ -1,4 +1,4 @@
-package garagepi_test
+package light_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGaragepi(t *testing.T) {
+func TestLight(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Garagepi Suite")
+	RunSpecs(t, "Light Suite")
 }

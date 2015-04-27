@@ -20,7 +20,7 @@ var (
 
 var _ = BeforeSuite(func() {
 	var err error
-	garagepiBinPath, err = gexec.Build("github.com/robdimsdale/garagepi/cmd/garagepi", "-race")
+	garagepiBinPath, err = gexec.Build("github.com/robdimsdale/garagepi", "-race")
 	Expect(err).ShouldNot(HaveOccurred())
 
 	port = uint(9990 + GinkgoParallelNode())
