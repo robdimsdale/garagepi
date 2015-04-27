@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/robdimsdale/garagepi/fshelper"
@@ -106,7 +105,6 @@ func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e Executor) executeCommand(executable string, arg ...string) (string, error) {
-	e.logger.Log(fmt.Sprintf("Executing: '%s %s'", executable, strings.Join(arg, " ")))
 	out, err := e.osHelper.Exec(executable, arg...)
 	if err != nil {
 		e.logger.Log(err.Error())

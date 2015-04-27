@@ -40,7 +40,7 @@ func (e Executor) discoverLightState() (*LightState, error) {
 	e.logger.Log("Reading light state")
 	state, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - light state unknown", e.gpioExecutable, strings.Join(args, " ")))
+		e.logger.Log(fmt.Sprintf("Error reading light state: %v", err))
 		return &LightState{StateKnown: false, LightOn: false}, err
 	}
 	state = strings.TrimSpace(state)
@@ -114,7 +114,7 @@ func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
 	e.logger.Log(fmt.Sprintf("Setting light state to %s", state))
 	_, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error executing: '%s %s'", e.gpioExecutable, strings.Join(args, " ")))
+		e.logger.Log(fmt.Sprintf("Error setting light state: %v", err))
 		ls := LightState{
 			StateKnown: false,
 			LightOn:    false,

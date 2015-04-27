@@ -50,7 +50,7 @@ func main() {
 		GpioExecutable: *gpioExecutable,
 	}
 
-	gpio := gpio.NewGpio(osHelper, config.GpioExecutable)
+	gpio := gpio.NewGpio(osHelper, logger, config.GpioExecutable)
 	e := garagepi.NewExecutor(
 		logger,
 		osHelper,

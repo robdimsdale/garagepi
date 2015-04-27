@@ -1,7 +1,9 @@
 package oshelper
 
 import (
+	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/robdimsdale/garagepi/logger"
@@ -25,7 +27,11 @@ func NewOsHelperImpl(
 }
 
 func (h *OsHelperImpl) Exec(executable string, arg ...string) (string, error) {
+	h.logger.Log(fmt.Sprintf("Executing: '%s %s'", executable, strings.Join(arg, " ")))
 	out, err := exec.Command(executable, arg...).CombinedOutput()
+	if err != nil {
+		h.logger.Log(fmt.Sprintf("Error executing: '%s %s'", executable, strings.Join(arg, " ")))
+	}
 	return string(out), err
 }
 

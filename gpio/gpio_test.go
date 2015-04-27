@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/robdimsdale/garagepi"
 	"github.com/robdimsdale/garagepi/gpio"
+	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	oshelper_fakes "github.com/robdimsdale/garagepi/oshelper/fakes"
 )
 
@@ -18,13 +19,16 @@ const (
 
 var (
 	fakeOsHelper *oshelper_fakes.FakeOsHelper
+	fakeLogger   *logger_fakes.FakeLogger
 	g            gpio.Gpio
 )
 
 var _ = Describe("Gpio", func() {
 	BeforeEach(func() {
 		fakeOsHelper = &oshelper_fakes.FakeOsHelper{}
-		g = gpio.NewGpio(fakeOsHelper, gpioExecutable)
+		fakeLogger = &logger_fakes.FakeLogger{}
+
+		g = gpio.NewGpio(fakeOsHelper, fakeLogger, gpioExecutable)
 	})
 
 	Describe("Read", func() {

@@ -3,6 +3,7 @@ package gpio
 import (
 	"strconv"
 
+	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 )
 
@@ -16,15 +17,18 @@ type Gpio interface {
 
 type gpio struct {
 	osHelper       oshelper.OsHelper
+	logger         logger.Logger
 	gpioExecutable string
 }
 
 func NewGpio(
 	osHelper oshelper.OsHelper,
+	logger logger.Logger,
 	gpioExecutable string,
 ) Gpio {
 	return &gpio{
 		osHelper:       osHelper,
+		logger:         logger,
 		gpioExecutable: gpioExecutable,
 	}
 }

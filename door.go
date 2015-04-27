@@ -3,7 +3,6 @@ package garagepi
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 func (e Executor) handleDoorToggle(w http.ResponseWriter, r *http.Request) {
@@ -11,7 +10,7 @@ func (e Executor) handleDoorToggle(w http.ResponseWriter, r *http.Request) {
 	e.logger.Log("Toggling door")
 	_, err := e.executeCommand(e.gpioExecutable, args...)
 	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error executing: '%s %s' - door not toggled (skipping sleep and further executions)", e.gpioExecutable, strings.Join(args, " ")))
+		e.logger.Log(fmt.Sprintf("Error toggling door (skipping sleep and further executions): %v", err))
 		w.Write([]byte("error - door not toggled"))
 		return
 	} else {
