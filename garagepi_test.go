@@ -223,7 +223,7 @@ var _ = Describe("Garagepi", func() {
 		Describe("Reading state", func() {
 			Context("When reading light state returns with error", func() {
 				BeforeEach(func() {
-					fakeOsHelper.ExecReturns("", errors.New(garagepi.GpioReadCommand+" "+gpioExecutable+"error"))
+					fakeGpio.ReadReturns("", errors.New(garagepi.GpioReadCommand+" "+gpioExecutable+"error"))
 					expectedLightState.StateKnown = false
 					expectedReturn, err = json.Marshal(expectedLightState)
 					Expect(err).NotTo(HaveOccurred())
@@ -231,10 +231,8 @@ var _ = Describe("Garagepi", func() {
 
 				It("Should read from gpio "+tostr(gpioLightPin), func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
-					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-					executable, args := fakeOsHelper.ExecArgsForCall(0)
-					Expect(executable).To(Equal("gpio"))
-					Expect(args).To(Equal([]string{garagepi.GpioReadCommand, tostr(gpioLightPin)}))
+					Expect(fakeGpio.ReadCallCount()).To(Equal(1))
+					Expect(fakeGpio.ReadArgsForCall(0)).To(Equal(gpioLightPin))
 				})
 
 				It("Should return unknown light state", func() {
@@ -252,7 +250,7 @@ var _ = Describe("Garagepi", func() {
 
 			Context("When reading light state contains leading/trailing whitespace", func() {
 				BeforeEach(func() {
-					fakeOsHelper.ExecReturns("\t0\n", nil)
+					fakeGpio.ReadReturns("\t0\n", nil)
 					expectedLightState.StateKnown = true
 					expectedLightState.LightOn = false
 					expectedReturn, err = json.Marshal(expectedLightState)
@@ -268,7 +266,7 @@ var _ = Describe("Garagepi", func() {
 
 			Context("When reading light state returns 0", func() {
 				BeforeEach(func() {
-					fakeOsHelper.ExecReturns("0", nil)
+					fakeGpio.ReadReturns("0", nil)
 					expectedLightState.StateKnown = true
 					expectedLightState.LightOn = false
 					expectedReturn, err = json.Marshal(expectedLightState)
@@ -284,7 +282,7 @@ var _ = Describe("Garagepi", func() {
 
 			Context("When reading light state returns 1", func() {
 				BeforeEach(func() {
-					fakeOsHelper.ExecReturns("1", nil)
+					fakeGpio.ReadReturns("1", nil)
 					expectedLightState.StateKnown = true
 					expectedLightState.LightOn = true
 					expectedReturn, err = json.Marshal(expectedLightState)
@@ -300,7 +298,7 @@ var _ = Describe("Garagepi", func() {
 
 			Context("When reading light state returns unrecognized number", func() {
 				BeforeEach(func() {
-					fakeOsHelper.ExecReturns("2", nil)
+					fakeGpio.ReadReturns("2", nil)
 					expectedLightState.StateKnown = false
 					expectedReturn, err = json.Marshal(expectedLightState)
 					Expect(err).NotTo(HaveOccurred())
@@ -335,10 +333,12 @@ var _ = Describe("Garagepi", func() {
 
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
-					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-					executable, args := fakeOsHelper.ExecArgsForCall(0)
-					Expect(executable).To(Equal("gpio"))
-					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
+
+					Expect(fakeGpio.WriteCallCount()).To(Equal(1))
+
+					actualGpioPin, actualGpioState := fakeGpio.WriteArgsForCall(0)
+					Expect(actualGpioPin).To(Equal(gpioLightPin))
+					Expect(actualGpioState).To(Equal(garagepi.GpioHighState))
 				})
 
 				It("Should return light state on", func() {
@@ -362,10 +362,12 @@ var _ = Describe("Garagepi", func() {
 
 				It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
-					Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-					executable, args := fakeOsHelper.ExecArgsForCall(0)
-					Expect(executable).To(Equal("gpio"))
-					Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
+
+					Expect(fakeGpio.WriteCallCount()).To(Equal(1))
+
+					actualGpioPin, actualGpioState := fakeGpio.WriteArgsForCall(0)
+					Expect(actualGpioPin).To(Equal(gpioLightPin))
+					Expect(actualGpioState).To(Equal(garagepi.GpioHighState))
 				})
 
 				It("Should return light state on", func() {
@@ -390,7 +392,7 @@ var _ = Describe("Garagepi", func() {
 				Context("When turning on light commands returns with error", func() {
 					BeforeEach(func() {
 						expectedError := errors.New(fmt.Sprintf("%s %s error", gpioExecutable, garagepi.GpioWriteCommand))
-						fakeOsHelper.ExecReturns("", expectedError)
+						fakeGpio.WriteReturns(expectedError)
 
 						expectedLightState.StateKnown = false
 						expectedLightState.LightOn = false
@@ -401,10 +403,12 @@ var _ = Describe("Garagepi", func() {
 
 					It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
-						Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-						executable, args := fakeOsHelper.ExecArgsForCall(0)
-						Expect(executable).To(Equal(gpioExecutable))
-						Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
+
+						Expect(fakeGpio.WriteCallCount()).To(Equal(1))
+
+						actualGpioPin, actualGpioState := fakeGpio.WriteArgsForCall(0)
+						Expect(actualGpioPin).To(Equal(gpioLightPin))
+						Expect(actualGpioState).To(Equal(garagepi.GpioHighState))
 					})
 
 					It("Should return light state unknown", func() {
@@ -417,10 +421,12 @@ var _ = Describe("Garagepi", func() {
 				Context("When turning on light command returns sucessfully", func() {
 					It("Should write "+garagepi.GpioHighState+" to gpio "+tostr(gpioLightPin), func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
-						Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-						executable, args := fakeOsHelper.ExecArgsForCall(0)
-						Expect(executable).To(Equal("gpio"))
-						Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioHighState}))
+
+						Expect(fakeGpio.WriteCallCount()).To(Equal(1))
+
+						actualGpioPin, actualGpioState := fakeGpio.WriteArgsForCall(0)
+						Expect(actualGpioPin).To(Equal(gpioLightPin))
+						Expect(actualGpioState).To(Equal(garagepi.GpioHighState))
 					})
 
 					It("Should return light state on", func() {
@@ -445,7 +451,7 @@ var _ = Describe("Garagepi", func() {
 				Context("When turning off light command returns with error", func() {
 					BeforeEach(func() {
 						expectedError := errors.New(fmt.Sprintf("%s %s error", gpioExecutable, garagepi.GpioWriteCommand))
-						fakeOsHelper.ExecReturns("", expectedError)
+						fakeGpio.WriteReturns(expectedError)
 
 						expectedLightState.StateKnown = false
 						expectedLightState.LightOn = false
@@ -456,10 +462,12 @@ var _ = Describe("Garagepi", func() {
 
 					It("Should write "+garagepi.GpioLowState+" to gpio "+tostr(gpioLightPin), func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
-						Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-						executable, args := fakeOsHelper.ExecArgsForCall(0)
-						Expect(executable).To(Equal(gpioExecutable))
-						Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
+
+						Expect(fakeGpio.WriteCallCount()).To(Equal(1))
+
+						actualGpioPin, actualGpioState := fakeGpio.WriteArgsForCall(0)
+						Expect(actualGpioPin).To(Equal(gpioLightPin))
+						Expect(actualGpioState).To(Equal(garagepi.GpioLowState))
 					})
 
 					It("Should return light state unknown", func() {
@@ -472,10 +480,12 @@ var _ = Describe("Garagepi", func() {
 				Context("When turning off light command return sucessfully", func() {
 					It("Should write "+garagepi.GpioLowState+" to gpio "+tostr(gpioLightPin), func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
-						Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
-						executable, args := fakeOsHelper.ExecArgsForCall(0)
-						Expect(executable).To(Equal("gpio"))
-						Expect(args).To(Equal([]string{garagepi.GpioWriteCommand, tostr(gpioLightPin), garagepi.GpioLowState}))
+
+						Expect(fakeGpio.WriteCallCount()).To(Equal(1))
+
+						actualGpioPin, actualGpioState := fakeGpio.WriteArgsForCall(0)
+						Expect(actualGpioPin).To(Equal(gpioLightPin))
+						Expect(actualGpioState).To(Equal(garagepi.GpioLowState))
 					})
 
 					It("Should return light state off", func() {

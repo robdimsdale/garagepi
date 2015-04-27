@@ -36,9 +36,8 @@ func (e Executor) handleLightGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e Executor) discoverLightState() (*LightState, error) {
-	args := []string{GpioReadCommand, tostr(e.gpioLightPin)}
 	e.logger.Log("Reading light state")
-	state, err := e.executeCommand(e.gpioExecutable, args...)
+	state, err := e.g.Read(e.gpioLightPin)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error reading light state: %v", err))
 		return &LightState{StateKnown: false, LightOn: false}, err
@@ -102,17 +101,19 @@ func (e Executor) turnLightOff(w http.ResponseWriter) {
 
 func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
 	var state string
-	var args []string
+	var gpioState string
+	var err error
+
 	if stateOn {
 		state = "on"
-		args = []string{GpioWriteCommand, tostr(e.gpioLightPin), GpioHighState}
+		gpioState = GpioHighState
 	} else {
 		state = "off"
-		args = []string{GpioWriteCommand, tostr(e.gpioLightPin), GpioLowState}
+		gpioState = GpioLowState
 	}
 
-	e.logger.Log(fmt.Sprintf("Setting light state to %s", state))
-	_, err := e.executeCommand(e.gpioExecutable, args...)
+	e.logger.Log(fmt.Sprintf("Turning light %s", state))
+	err = e.g.Write(e.gpioLightPin, gpioState)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error setting light state: %v", err))
 		ls := LightState{
@@ -123,7 +124,7 @@ func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
 		b, _ := json.Marshal(ls)
 		w.Write(b)
 	} else {
-		e.logger.Log(fmt.Sprintf("Light state: %s", state))
+		e.logger.Log(fmt.Sprintf("Light is turned %s", state))
 		ls := LightState{
 			StateKnown: true,
 			LightOn:    stateOn,
