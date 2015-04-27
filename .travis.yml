@@ -1,8 +1,15 @@
 language: go
+
 install:
-  - go get github.com/onsi/ginkgo/ginkgo
-  - go get -v -t ./...
-script: ginkgo -r -race --randomizeAllSpecs
+  - go get -v -t -d ./...
+  - go build -v
+  - go install github.com/onsi/ginkgo/ginkgo
+
+script:
+  - go tool vet $(ls -d */ | grep -v Godeps)
+  - go tool vet *.go
+  - ginkgo -r -race --randomizeAllSpecs
+
 branches:
   only:
   - master
