@@ -1,4 +1,4 @@
-package garagepi_test
+package httphelper_test
 
 import (
 	"io/ioutil"
@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/robdimsdale/garagepi"
+	"github.com/robdimsdale/garagepi/httphelper"
 )
 
 var (
@@ -14,9 +14,9 @@ var (
 )
 
 var _ = Describe("HttpHelper", func() {
-	var httpHelper garagepi.HttpHelper
+	var httpHelper httphelper.HttpHelper
 	BeforeEach(func() {
-		httpHelper = garagepi.NewHttpHelperImpl()
+		httpHelper = httphelper.NewHttpHelperImpl()
 	})
 	Describe("Get", func() {
 		It("Gets successfully", func() {

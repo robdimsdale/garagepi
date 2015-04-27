@@ -35,7 +35,9 @@ func (g gpio) Read(pin uint) (string, error) {
 }
 
 func (g gpio) Write(pin uint, state string) error {
-	return nil
+	args := []string{gpioWriteCommand, tostr(pin), state}
+	_, err := g.osHelper.Exec(g.gpioExecutable, args...)
+	return err
 }
 
 func tostr(u uint) string {

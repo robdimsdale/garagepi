@@ -18,13 +18,14 @@ import (
 	garagepi_fakes "github.com/robdimsdale/garagepi/fakes"
 	fshelper_fakes "github.com/robdimsdale/garagepi/fshelper/fakes"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
+	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	oshelper_fakes "github.com/robdimsdale/garagepi/oshelper/fakes"
 )
 
 var (
 	fakeLogger         *logger_fakes.FakeLogger
-	fakeHttpHelper     *garagepi_fakes.FakeHttpHelper
+	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
 	fakeOsHelper       *oshelper_fakes.FakeOsHelper
 	fakeFsHelper       *fshelper_fakes.FakeFsHelper
 	fakeResponseWriter *garagepi_fakes.FakeResponseWriter
@@ -56,7 +57,7 @@ var _ = Describe("Garagepi", func() {
 	var executor *garagepi.Executor
 	BeforeEach(func() {
 		fakeLogger = new(logger_fakes.FakeLogger)
-		fakeHttpHelper = new(garagepi_fakes.FakeHttpHelper)
+		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
 		fakeOsHelper = new(oshelper_fakes.FakeOsHelper)
 		fakeFsHelper = new(fshelper_fakes.FakeFsHelper)
 		fakeGpio = new(gpio_fakes.FakeGpio)

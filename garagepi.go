@@ -10,6 +10,7 @@ import (
 
 	"github.com/robdimsdale/garagepi/fshelper"
 	"github.com/robdimsdale/garagepi/gpio"
+	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 )
@@ -34,7 +35,7 @@ type Executor struct {
 	logger         logger.Logger
 	osHelper       oshelper.OsHelper
 	fsHelper       fshelper.FsHelper
-	httpHelper     HttpHelper
+	httpHelper     httphelper.HttpHelper
 	g              gpio.Gpio
 	webcamUrl      string
 	gpioDoorPin    uint
@@ -46,7 +47,7 @@ func NewExecutor(
 	logger logger.Logger,
 	osHelper oshelper.OsHelper,
 	fsHelper fshelper.FsHelper,
-	httpHelper HttpHelper,
+	httpHelper httphelper.HttpHelper,
 	g gpio.Gpio,
 	config ExecutorConfig) *Executor {
 

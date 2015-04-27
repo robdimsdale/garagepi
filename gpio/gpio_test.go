@@ -13,6 +13,7 @@ import (
 const (
 	gpioPin        = uint(1)
 	gpioExecutable = "gpio"
+	state          = "on"
 )
 
 var (
@@ -40,6 +41,7 @@ var _ = Describe("Gpio", func() {
 				Expect(err).To(Equal(expectedErr))
 			})
 		})
+
 		Context("when osHelper returns sucessfully", func() {
 			var expectedOutput string
 
@@ -66,4 +68,46 @@ var _ = Describe("Gpio", func() {
 			})
 		})
 	})
+
+	Describe("Write", func() {
+		Context("when osHelper returns an error", func() {
+			var expectedErr error
+
+			BeforeEach(func() {
+				expectedErr = errors.New("exec error")
+				fakeOsHelper.ExecReturns("", expectedErr)
+			})
+
+			It("forwards the error", func() {
+				err := g.Write(gpioPin, state)
+				Expect(err).To(Equal(expectedErr))
+			})
+		})
+		Context("when osHelper returns sucessfully", func() {
+			var expectedOutput string
+
+			BeforeEach(func() {
+				expectedOutput = "exec output"
+				fakeOsHelper.ExecReturns(expectedOutput, nil)
+			})
+
+			It("returns without error", func() {
+				expectedArgs := []string{
+					garagepi.GpioWriteCommand,
+					"1",
+					state,
+				}
+
+				err := g.Write(gpioPin, state)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
+
+				executable, args := fakeOsHelper.ExecArgsForCall(0)
+				Expect(executable).To(Equal(gpioExecutable))
+				Expect(args).To(Equal(expectedArgs))
+			})
+		})
+	})
+
 })

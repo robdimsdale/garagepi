@@ -1,4 +1,4 @@
-package garagepi
+package httphelper
 
 import "net/http"
 

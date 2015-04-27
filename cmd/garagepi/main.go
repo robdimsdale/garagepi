@@ -9,6 +9,7 @@ import (
 	"github.com/robdimsdale/garagepi"
 	"github.com/robdimsdale/garagepi/fshelper"
 	"github.com/robdimsdale/garagepi/gpio"
+	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 )
@@ -37,7 +38,7 @@ func main() {
 	// It is also apparently relative to the fshelper package.
 	fsHelper := fshelper.NewFsHelperImpl("../assets")
 	osHelper := oshelper.NewOsHelperImpl(logger)
-	httpHelper := garagepi.NewHttpHelperImpl()
+	httpHelper := httphelper.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
 
