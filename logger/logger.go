@@ -1,4 +1,4 @@
-package garagepi
+package logger
 
 import (
 	"log"

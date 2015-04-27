@@ -1,4 +1,4 @@
-package garagepi_test
+package oshelper_test
 
 import (
 	"time"
@@ -6,16 +6,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/robdimsdale/garagepi"
-	fakes "github.com/robdimsdale/garagepi/fakes"
+	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
+	"github.com/robdimsdale/garagepi/oshelper"
 )
 
 var _ = Describe("OsHelper", func() {
-	var osHelper garagepi.OsHelper
+	var osHelper oshelper.OsHelper
 
 	BeforeEach(func() {
-		fakeLogger := &fakes.FakeLogger{}
-		osHelper = garagepi.NewOsHelperImpl(fakeLogger)
+		fakeLogger := &logger_fakes.FakeLogger{}
+		osHelper = oshelper.NewOsHelperImpl(fakeLogger)
 	})
 
 	Describe("Exec", func() {

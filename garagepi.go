@@ -7,6 +7,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/robdimsdale/garagepi/fshelper"
+	"github.com/robdimsdale/garagepi/gpio"
+	"github.com/robdimsdale/garagepi/logger"
+	"github.com/robdimsdale/garagepi/oshelper"
 )
 
 var (
@@ -26,10 +31,11 @@ type ExecutorConfig struct {
 }
 
 type Executor struct {
-	logger         Logger
-	osHelper       OsHelper
-	fsHelper       FsHelper
+	logger         logger.Logger
+	osHelper       oshelper.OsHelper
+	fsHelper       fshelper.FsHelper
 	httpHelper     HttpHelper
+	g              gpio.Gpio
 	webcamUrl      string
 	gpioDoorPin    uint
 	gpioLightPin   uint
@@ -37,10 +43,11 @@ type Executor struct {
 }
 
 func NewExecutor(
-	logger Logger,
-	osHelper OsHelper,
-	fsHelper FsHelper,
+	logger logger.Logger,
+	osHelper oshelper.OsHelper,
+	fsHelper fshelper.FsHelper,
 	httpHelper HttpHelper,
+	g gpio.Gpio,
 	config ExecutorConfig) *Executor {
 
 	webcamUrl := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", config.WebcamHost, config.WebcamPort)
@@ -51,6 +58,7 @@ func NewExecutor(
 		webcamUrl:      webcamUrl,
 		osHelper:       osHelper,
 		fsHelper:       fsHelper,
+		g:              g,
 		gpioDoorPin:    config.GpioDoorPin,
 		gpioLightPin:   config.GpioLightPin,
 		gpioExecutable: config.GpioExecutable,

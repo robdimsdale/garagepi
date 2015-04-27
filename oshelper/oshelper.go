@@ -1,8 +1,10 @@
-package garagepi
+package oshelper
 
 import (
 	"os/exec"
 	"time"
+
+	"github.com/robdimsdale/garagepi/logger"
 )
 
 type OsHelper interface {
@@ -11,11 +13,11 @@ type OsHelper interface {
 }
 
 type OsHelperImpl struct {
-	logger Logger
+	logger logger.Logger
 }
 
 func NewOsHelperImpl(
-	logger Logger,
+	logger logger.Logger,
 ) *OsHelperImpl {
 	return &OsHelperImpl{
 		logger: logger,

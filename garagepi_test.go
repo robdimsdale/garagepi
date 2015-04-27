@@ -16,14 +16,19 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/robdimsdale/garagepi"
 	garagepi_fakes "github.com/robdimsdale/garagepi/fakes"
+	fshelper_fakes "github.com/robdimsdale/garagepi/fshelper/fakes"
+	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
+	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
+	oshelper_fakes "github.com/robdimsdale/garagepi/oshelper/fakes"
 )
 
 var (
-	fakeLogger         *garagepi_fakes.FakeLogger
+	fakeLogger         *logger_fakes.FakeLogger
 	fakeHttpHelper     *garagepi_fakes.FakeHttpHelper
-	fakeOsHelper       *garagepi_fakes.FakeOsHelper
-	fakeFsHelper       *garagepi_fakes.FakeFsHelper
+	fakeOsHelper       *oshelper_fakes.FakeOsHelper
+	fakeFsHelper       *fshelper_fakes.FakeFsHelper
 	fakeResponseWriter *garagepi_fakes.FakeResponseWriter
+	fakeGpio           *gpio_fakes.FakeGpio
 	dummyRequest       *http.Request
 )
 
@@ -50,10 +55,11 @@ var _ = Describe("Garagepi", func() {
 
 	var executor *garagepi.Executor
 	BeforeEach(func() {
-		fakeLogger = new(garagepi_fakes.FakeLogger)
+		fakeLogger = new(logger_fakes.FakeLogger)
 		fakeHttpHelper = new(garagepi_fakes.FakeHttpHelper)
-		fakeOsHelper = new(garagepi_fakes.FakeOsHelper)
-		fakeFsHelper = new(garagepi_fakes.FakeFsHelper)
+		fakeOsHelper = new(oshelper_fakes.FakeOsHelper)
+		fakeFsHelper = new(fshelper_fakes.FakeFsHelper)
+		fakeGpio = new(gpio_fakes.FakeGpio)
 
 		fakeResponseWriter = new(garagepi_fakes.FakeResponseWriter)
 		dummyRequest = new(http.Request)
@@ -63,6 +69,7 @@ var _ = Describe("Garagepi", func() {
 			fakeOsHelper,
 			fakeFsHelper,
 			fakeHttpHelper,
+			fakeGpio,
 			executorConfig,
 		)
 	})

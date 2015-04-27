@@ -1,4 +1,4 @@
-package garagepi
+package fshelper
 
 import (
 	"html/template"

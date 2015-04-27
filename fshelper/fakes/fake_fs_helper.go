@@ -6,21 +6,21 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/robdimsdale/garagepi"
+	"github.com/robdimsdale/garagepi/fshelper"
 )
 
 type FakeFsHelper struct {
 	GetStaticFileSystemStub        func() (http.FileSystem, error)
 	getStaticFileSystemMutex       sync.RWMutex
 	getStaticFileSystemArgsForCall []struct{}
-	getStaticFileSystemReturns     struct {
+	getStaticFileSystemReturns struct {
 		result1 http.FileSystem
 		result2 error
 	}
 	GetHomepageTemplateStub        func() (*template.Template, error)
 	getHomepageTemplateMutex       sync.RWMutex
 	getHomepageTemplateArgsForCall []struct{}
-	getHomepageTemplateReturns     struct {
+	getHomepageTemplateReturns struct {
 		result1 *template.Template
 		result2 error
 	}
@@ -76,4 +76,4 @@ func (fake *FakeFsHelper) GetHomepageTemplateReturns(result1 *template.Template,
 	}{result1, result2}
 }
 
-var _ garagepi.FsHelper = new(FakeFsHelper)
+var _ fshelper.FsHelper = new(FakeFsHelper)

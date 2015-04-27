@@ -7,6 +7,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robdimsdale/garagepi"
+	"github.com/robdimsdale/garagepi/fshelper"
+	"github.com/robdimsdale/garagepi/gpio"
+	"github.com/robdimsdale/garagepi/logger"
+	"github.com/robdimsdale/garagepi/oshelper"
 )
 
 var (
@@ -25,13 +29,14 @@ var (
 func main() {
 	flag.Parse()
 
-	logger := garagepi.NewLoggerImpl(*loggingOn)
+	logger := logger.NewLoggerImpl(*loggingOn)
 
 	// The location of the 'assets' directory
 	// is relative to where the compilation takes place
 	// This assumes compliation happens from the root directory
-	fsHelper := garagepi.NewFsHelperImpl("assets")
-	osHelper := garagepi.NewOsHelperImpl(logger)
+	// It is also apparently relative to the fshelper package.
+	fsHelper := fshelper.NewFsHelperImpl("../assets")
+	osHelper := oshelper.NewOsHelperImpl(logger)
 	httpHelper := garagepi.NewHttpHelperImpl()
 
 	rtr := mux.NewRouter()
@@ -43,11 +48,14 @@ func main() {
 		GpioLightPin:   *gpioLightPin,
 		GpioExecutable: *gpioExecutable,
 	}
+
+	gpio := gpio.NewGpio(osHelper, config.GpioExecutable)
 	e := garagepi.NewExecutor(
 		logger,
 		osHelper,
 		fsHelper,
 		httpHelper,
+		gpio,
 		config)
 
 	staticFileSystem, err := fsHelper.GetStaticFileSystem()
