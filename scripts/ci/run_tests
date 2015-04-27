@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -eux
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives two directories below the base directory.
+BASE_DIR="$( cd ${MY_DIR}/../.. && pwd )"
+
+# And that scripts/ lives one directory below the base directory.
+SCRIPTS_DIR="$( cd ${BASE_DIR}/scripts/ && pwd )"
+
+pushd ${BASE_DIR}
+  go get -v -t -d ./...
+  go build -v
+  go install github.com/onsi/ginkgo/ginkgo
+popd
+
+${SCRIPTS_DIR}/run_tests

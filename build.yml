@@ -1,0 +1,10 @@
+---
+platform: linux
+   
+image: docker:///cloudfoundry/cf-mysql-ci
+   
+inputs:
+  - name: garagepi
+
+run:
+  path: garagepi/scripts/ci/run_tests 
