@@ -8,7 +8,15 @@ case "$1" in
     echo "Starting garagestreamer"
     export LD_LIBRARY_PATH=/root/workspace/mjpg-streamer/mjpg-streamer-experimental
     cd $LD_LIBRARY_PATH
-    ./mjpg_streamer -o "output_http.so -w ./www" -i "input_raspicam.so -x 1280 -y 720 -fps 15 -ex night -rot 270" & 1> $OUT_LOG 2>$OUT_LOG &
+    ./mjpg_streamer \
+      -o "output_http.so \
+      -w ./www" \
+      -i "input_raspicam.so \
+      -x 1280 \
+      -y 720 \
+      -fps 15 \
+      -ex night \
+      -rot 270" & 1> $OUT_LOG 2>$OUT_LOG &
      ;;
   stop)
     echo "Stopping garagestreamer"

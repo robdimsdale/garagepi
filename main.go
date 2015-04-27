@@ -25,9 +25,8 @@ var (
 
 	loggingOn = flag.Bool("loggingOn", true, "Whether logging is enabled.")
 
-	gpioExecutable = flag.String("gpioExecutable", "gpio", "Executable of gpio application.")
-	gpioDoorPin    = flag.Uint("gpioDoorPin", 0, "Gpio pin of door.")
-	gpioLightPin   = flag.Uint("gpioLightPin", 8, "Gpio pin of light.")
+	gpioDoorPin  = flag.Uint("gpioDoorPin", 17, "Gpio pin of door.")
+	gpioLightPin = flag.Uint("gpioLightPin", 2, "Gpio pin of light.")
 )
 
 func main() {
@@ -52,7 +51,7 @@ func main() {
 		*webcamPort,
 	)
 
-	gpio := gpio.NewGpio(osHelper, logger, *gpioExecutable)
+	gpio := gpio.NewGpio(osHelper, logger)
 
 	lh := light.NewHandler(
 		logger,

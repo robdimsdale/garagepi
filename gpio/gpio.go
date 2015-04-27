@@ -1,16 +1,13 @@
 package gpio
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
+	"github.com/stianeikeland/go-rpio"
 )
-
-const gpioReadCommand = "read"
-const gpioWriteCommand = "write"
-const gpioLowState = "0"
-const gpioHighState = "1"
 
 type Gpio interface {
 	Read(pin uint) (string, error)
@@ -19,38 +16,65 @@ type Gpio interface {
 }
 
 type gpio struct {
-	osHelper       oshelper.OsHelper
-	logger         logger.Logger
-	gpioExecutable string
+	osHelper oshelper.OsHelper
+	logger   logger.Logger
 }
 
 func NewGpio(
 	osHelper oshelper.OsHelper,
 	logger logger.Logger,
-	gpioExecutable string,
 ) Gpio {
 	return &gpio{
-		osHelper:       osHelper,
-		logger:         logger,
-		gpioExecutable: gpioExecutable,
+		osHelper: osHelper,
+		logger:   logger,
 	}
 }
 
 func (g gpio) Read(pin uint) (string, error) {
-	args := []string{gpioReadCommand, tostr(pin)}
-	return g.osHelper.Exec(g.gpioExecutable, args...)
+	g.logger.Log(fmt.Sprintf("Reading from pin: %d", pin))
+
+	rpin := rpio.Pin(pin)
+
+	err := rpio.Open()
+	if err != nil {
+		return "", err
+	}
+	defer rpio.Close()
+
+	state := rpin.Read()
+	return fmt.Sprintf("%v", state), err
 }
 
 func (g gpio) WriteLow(pin uint) error {
-	args := []string{gpioWriteCommand, tostr(pin), gpioLowState}
-	_, err := g.osHelper.Exec(g.gpioExecutable, args...)
-	return err
+	g.logger.Log(fmt.Sprintf("Writing low to pin: %d", pin))
+
+	rpin := rpio.Pin(pin)
+
+	err := rpio.Open()
+	if err != nil {
+		return err
+	}
+	defer rpio.Close()
+
+	rpin.Output()
+	rpin.Low()
+	return nil
 }
 
 func (g gpio) WriteHigh(pin uint) error {
-	args := []string{gpioWriteCommand, tostr(pin), gpioHighState}
-	_, err := g.osHelper.Exec(g.gpioExecutable, args...)
-	return err
+	g.logger.Log(fmt.Sprintf("Writing high to pin: %d", pin))
+
+	rpin := rpio.Pin(pin)
+
+	err := rpio.Open()
+	if err != nil {
+		return err
+	}
+	defer rpio.Close()
+
+	rpin.Output()
+	rpin.High()
+	return nil
 }
 
 func tostr(u uint) string {

@@ -18,14 +18,6 @@ var _ = Describe("OsHelper", func() {
 		osHelper = oshelper.NewOsHelperImpl(fakeLogger)
 	})
 
-	Describe("Exec", func() {
-		It("Executes 'echo hello world' successfully", func() {
-			resp, err := osHelper.Exec("echo", "hello", "world")
-			Expect(err).NotTo(HaveOccurred())
-			Expect(resp).To(Equal("hello world\n"))
-		})
-	})
-
 	Describe("Sleep", func() {
 		It("Sleeps for at least the time provided", func() {
 			start := time.Now()
