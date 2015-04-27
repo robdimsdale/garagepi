@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"bytes"
 
@@ -32,10 +31,6 @@ var (
 	fakeGpio           *gpio_fakes.FakeGpio
 	dummyRequest       *http.Request
 )
-
-func tostr(u uint) string {
-	return strconv.FormatUint(uint64(u), 10)
-}
 
 var _ = Describe("Garagepi", func() {
 
@@ -162,7 +157,7 @@ var _ = Describe("Garagepi", func() {
 	Describe("Door-toggle handling", func() {
 
 		Context("When toggling and sleeping return sucessfully", func() {
-			It("Should write high to gpio "+tostr(gpioDoorPin)+", sleep, and write low to gpio "+tostr(gpioDoorPin), func() {
+			It("Should write high to door pin, sleep, and write low to door pin", func() {
 				executor.ToggleDoorHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeOsHelper.SleepArgsForCall(0)).To(Equal(garagepi.SleepTime))
 
@@ -227,7 +222,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-				It("Should read from gpio "+tostr(gpioLightPin), func() {
+				It("Should read from light pin", func() {
 					executor.GetLightHandler(fakeResponseWriter, dummyRequest)
 					Expect(fakeGpio.ReadCallCount()).To(Equal(1))
 					Expect(fakeGpio.ReadArgsForCall(0)).To(Equal(gpioLightPin))
@@ -329,7 +324,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-				It("Should write high to gpio "+tostr(gpioLightPin), func() {
+				It("Should write high to light pin", func() {
 					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 
 					Expect(fakeGpio.WriteHighCallCount()).To(Equal(1))
@@ -357,7 +352,7 @@ var _ = Describe("Garagepi", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-				It("Should write high to gpio "+tostr(gpioLightPin), func() {
+				It("Should write high to light pin", func() {
 					executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 
 					Expect(fakeGpio.WriteHighCallCount()).To(Equal(1))
@@ -397,7 +392,7 @@ var _ = Describe("Garagepi", func() {
 						Expect(err).NotTo(HaveOccurred())
 					})
 
-					It("Should write high to gpio "+tostr(gpioLightPin), func() {
+					It("Should write high to light pin", func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 
 						Expect(fakeGpio.WriteHighCallCount()).To(Equal(1))
@@ -414,7 +409,7 @@ var _ = Describe("Garagepi", func() {
 				})
 
 				Context("When turning on light command returns sucessfully", func() {
-					It("Should write high to gpio "+tostr(gpioLightPin), func() {
+					It("Should write high to light pin", func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 
 						Expect(fakeGpio.WriteHighCallCount()).To(Equal(1))
@@ -454,7 +449,7 @@ var _ = Describe("Garagepi", func() {
 						Expect(err).NotTo(HaveOccurred())
 					})
 
-					It("Should write low to gpio "+tostr(gpioLightPin), func() {
+					It("Should write low to light pin", func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 
 						Expect(fakeGpio.WriteLowCallCount()).To(Equal(1))
@@ -471,7 +466,7 @@ var _ = Describe("Garagepi", func() {
 				})
 
 				Context("When turning off light command return sucessfully", func() {
-					It("Should write low to gpio "+tostr(gpioLightPin), func() {
+					It("Should write low to light pin", func() {
 						executor.SetLightHandler(fakeResponseWriter, dummyRequest)
 
 						Expect(fakeGpio.WriteLowCallCount()).To(Equal(1))

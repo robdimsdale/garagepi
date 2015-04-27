@@ -3,7 +3,6 @@ package garagepi
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/robdimsdale/garagepi/fshelper"
@@ -60,10 +59,6 @@ func NewExecutor(
 	}
 }
 
-func tostr(u uint) string {
-	return strconv.FormatUint(uint64(u), 10)
-}
-
 func (e Executor) HomepageHandler(w http.ResponseWriter, r *http.Request) {
 	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
 	e.handleHomepage(w, r)
@@ -86,12 +81,4 @@ func (e Executor) GetLightHandler(w http.ResponseWriter, r *http.Request) {
 func (e Executor) SetLightHandler(w http.ResponseWriter, r *http.Request) {
 	e.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
 	e.handleLightSet(w, r)
-}
-
-func (e Executor) executeCommand(executable string, arg ...string) (string, error) {
-	out, err := e.osHelper.Exec(executable, arg...)
-	if err != nil {
-		e.logger.Log(err.Error())
-	}
-	return out, err
 }
