@@ -62,7 +62,10 @@ func (e Executor) handleLightSet(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		e.logger.Log("Error parsing form - assuming light should be turned on.")
-		e.turnLightOn(w)
+
+		ls := e.turnLightOn()
+		renderLightState(ls, w)
+
 		return
 	}
 
@@ -70,66 +73,72 @@ func (e Executor) handleLightSet(w http.ResponseWriter, r *http.Request) {
 
 	if state == "" {
 		e.logger.Log("No state provided - assuming light should be turned on.")
-		e.turnLightOn(w)
+		ls := e.turnLightOn()
+		renderLightState(ls, w)
 		return
 	}
 
 	gpioState, err := onOffStringToStateNumber(state)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Invalid state provided (%s) - assuming light should be turned on.", state))
-		e.turnLightOn(w)
+		ls := e.turnLightOn()
+		renderLightState(ls, w)
 		return
 	}
 
 	switch gpioState {
 	case GpioLowState:
-		e.turnLightOff(w)
+		ls := e.turnLightOff()
+		renderLightState(ls, w)
 		return
 	case GpioHighState:
-		e.turnLightOn(w)
+		ls := e.turnLightOn()
+		renderLightState(ls, w)
 		return
 	}
 }
 
-func (e Executor) turnLightOn(w http.ResponseWriter) {
-	e.setLightState(w, true)
+func renderLightState(ls LightState, w http.ResponseWriter) {
+	b, _ := json.Marshal(ls)
+	w.Write(b)
 }
 
-func (e Executor) turnLightOff(w http.ResponseWriter) {
-	e.setLightState(w, false)
-}
+func (e Executor) turnLightOn() LightState {
+	e.logger.Log(fmt.Sprintf("Turning light on"))
+	err := e.g.WriteHigh(e.gpioLightPin)
 
-func (e Executor) setLightState(w http.ResponseWriter, stateOn bool) {
-	var state string
-	var gpioState string
-	var err error
-
-	if stateOn {
-		state = "on"
-		gpioState = GpioHighState
-	} else {
-		state = "off"
-		gpioState = GpioLowState
-	}
-
-	e.logger.Log(fmt.Sprintf("Turning light %s", state))
-	err = e.g.Write(e.gpioLightPin, gpioState)
 	if err != nil {
-		e.logger.Log(fmt.Sprintf("Error setting light state: %v", err))
-		ls := LightState{
+		e.logger.Log(fmt.Sprintf("Error turning light on: %v", err))
+		return LightState{
 			StateKnown: false,
 			LightOn:    false,
 			ErrorMsg:   err.Error(),
 		}
-		b, _ := json.Marshal(ls)
-		w.Write(b)
-	} else {
-		e.logger.Log(fmt.Sprintf("Light is turned %s", state))
-		ls := LightState{
-			StateKnown: true,
-			LightOn:    stateOn,
+	}
+
+	e.logger.Log(fmt.Sprintf("Light is turned on"))
+	return LightState{
+		StateKnown: true,
+		LightOn:    true,
+	}
+}
+
+func (e Executor) turnLightOff() LightState {
+	e.logger.Log(fmt.Sprintf("Turning light off"))
+	err := e.g.WriteLow(e.gpioLightPin)
+
+	if err != nil {
+		e.logger.Log(fmt.Sprintf("Error turning light off: %v", err))
+		return LightState{
+			StateKnown: false,
+			LightOn:    false,
+			ErrorMsg:   err.Error(),
 		}
-		b, _ := json.Marshal(ls)
-		w.Write(b)
+	}
+
+	e.logger.Log(fmt.Sprintf("Light is turned off"))
+	return LightState{
+		StateKnown: true,
+		LightOn:    false,
 	}
 }

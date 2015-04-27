@@ -17,13 +17,20 @@ type FakeGpio struct {
 		result1 string
 		result2 error
 	}
-	WriteStub        func(pin uint, state string) error
-	writeMutex       sync.RWMutex
-	writeArgsForCall []struct {
-		pin   uint
-		state string
+	WriteLowStub        func(pin uint) error
+	writeLowMutex       sync.RWMutex
+	writeLowArgsForCall []struct {
+		pin uint
 	}
-	writeReturns struct {
+	writeLowReturns struct {
+		result1 error
+	}
+	WriteHighStub        func(pin uint) error
+	writeHighMutex       sync.RWMutex
+	writeHighArgsForCall []struct {
+		pin uint
+	}
+	writeHighReturns struct {
 		result1 error
 	}
 }
@@ -61,35 +68,66 @@ func (fake *FakeGpio) ReadReturns(result1 string, result2 error) {
 	}{result1, result2}
 }
 
-func (fake *FakeGpio) Write(pin uint, state string) error {
-	fake.writeMutex.Lock()
-	fake.writeArgsForCall = append(fake.writeArgsForCall, struct {
-		pin   uint
-		state string
-	}{pin, state})
-	fake.writeMutex.Unlock()
-	if fake.WriteStub != nil {
-		return fake.WriteStub(pin, state)
+func (fake *FakeGpio) WriteLow(pin uint) error {
+	fake.writeLowMutex.Lock()
+	fake.writeLowArgsForCall = append(fake.writeLowArgsForCall, struct {
+		pin uint
+	}{pin})
+	fake.writeLowMutex.Unlock()
+	if fake.WriteLowStub != nil {
+		return fake.WriteLowStub(pin)
 	} else {
-		return fake.writeReturns.result1
+		return fake.writeLowReturns.result1
 	}
 }
 
-func (fake *FakeGpio) WriteCallCount() int {
-	fake.writeMutex.RLock()
-	defer fake.writeMutex.RUnlock()
-	return len(fake.writeArgsForCall)
+func (fake *FakeGpio) WriteLowCallCount() int {
+	fake.writeLowMutex.RLock()
+	defer fake.writeLowMutex.RUnlock()
+	return len(fake.writeLowArgsForCall)
 }
 
-func (fake *FakeGpio) WriteArgsForCall(i int) (uint, string) {
-	fake.writeMutex.RLock()
-	defer fake.writeMutex.RUnlock()
-	return fake.writeArgsForCall[i].pin, fake.writeArgsForCall[i].state
+func (fake *FakeGpio) WriteLowArgsForCall(i int) uint {
+	fake.writeLowMutex.RLock()
+	defer fake.writeLowMutex.RUnlock()
+	return fake.writeLowArgsForCall[i].pin
 }
 
-func (fake *FakeGpio) WriteReturns(result1 error) {
-	fake.WriteStub = nil
-	fake.writeReturns = struct {
+func (fake *FakeGpio) WriteLowReturns(result1 error) {
+	fake.WriteLowStub = nil
+	fake.writeLowReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeGpio) WriteHigh(pin uint) error {
+	fake.writeHighMutex.Lock()
+	fake.writeHighArgsForCall = append(fake.writeHighArgsForCall, struct {
+		pin uint
+	}{pin})
+	fake.writeHighMutex.Unlock()
+	if fake.WriteHighStub != nil {
+		return fake.WriteHighStub(pin)
+	} else {
+		return fake.writeHighReturns.result1
+	}
+}
+
+func (fake *FakeGpio) WriteHighCallCount() int {
+	fake.writeHighMutex.RLock()
+	defer fake.writeHighMutex.RUnlock()
+	return len(fake.writeHighArgsForCall)
+}
+
+func (fake *FakeGpio) WriteHighArgsForCall(i int) uint {
+	fake.writeHighMutex.RLock()
+	defer fake.writeHighMutex.RUnlock()
+	return fake.writeHighArgsForCall[i].pin
+}
+
+func (fake *FakeGpio) WriteHighReturns(result1 error) {
+	fake.WriteHighStub = nil
+	fake.writeHighReturns = struct {
 		result1 error
 	}{result1}
 }

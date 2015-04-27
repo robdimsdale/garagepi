@@ -9,10 +9,13 @@ import (
 
 const gpioReadCommand = "read"
 const gpioWriteCommand = "write"
+const gpioLowState = "0"
+const gpioHighState = "1"
 
 type Gpio interface {
 	Read(pin uint) (string, error)
-	Write(pin uint, state string) error
+	WriteLow(pin uint) error
+	WriteHigh(pin uint) error
 }
 
 type gpio struct {
@@ -38,8 +41,14 @@ func (g gpio) Read(pin uint) (string, error) {
 	return g.osHelper.Exec(g.gpioExecutable, args...)
 }
 
-func (g gpio) Write(pin uint, state string) error {
-	args := []string{gpioWriteCommand, tostr(pin), state}
+func (g gpio) WriteLow(pin uint) error {
+	args := []string{gpioWriteCommand, tostr(pin), gpioLowState}
+	_, err := g.osHelper.Exec(g.gpioExecutable, args...)
+	return err
+}
+
+func (g gpio) WriteHigh(pin uint) error {
+	args := []string{gpioWriteCommand, tostr(pin), gpioHighState}
 	_, err := g.osHelper.Exec(g.gpioExecutable, args...)
 	return err
 }

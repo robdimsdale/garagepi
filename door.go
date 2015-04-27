@@ -7,7 +7,7 @@ import (
 
 func (e Executor) handleDoorToggle(w http.ResponseWriter, r *http.Request) {
 	e.logger.Log("Toggling door")
-	err := e.g.Write(e.gpioDoorPin, GpioHighState)
+	err := e.g.WriteHigh(e.gpioDoorPin)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error toggling door (skipping sleep and further executions): %v", err))
 		w.Write([]byte("error - door not toggled"))
@@ -15,7 +15,7 @@ func (e Executor) handleDoorToggle(w http.ResponseWriter, r *http.Request) {
 	} else {
 		e.osHelper.Sleep(SleepTime)
 
-		err := e.g.Write(e.gpioDoorPin, GpioLowState)
+		err := e.g.WriteLow(e.gpioDoorPin)
 		if err != nil {
 			e.logger.Log(fmt.Sprintf("Error toggling door: %v", err))
 		}

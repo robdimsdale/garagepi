@@ -12,9 +12,12 @@ import (
 )
 
 const (
-	gpioPin        = uint(1)
 	gpioExecutable = "gpio"
-	state          = "on"
+	gpioHighState  = "1"
+	gpioLowState   = "0"
+
+	gpioPin         = uint(1)
+	gpioPinAsString = "1"
 )
 
 var (
@@ -57,7 +60,7 @@ var _ = Describe("Gpio", func() {
 			It("returns the output without error", func() {
 				expectedArgs := []string{
 					garagepi.GpioReadCommand,
-					"1",
+					gpioPinAsString,
 				}
 
 				output, err := g.Read(gpioPin)
@@ -73,7 +76,7 @@ var _ = Describe("Gpio", func() {
 		})
 	})
 
-	Describe("Write", func() {
+	Describe("WriteLow", func() {
 		Context("when osHelper returns an error", func() {
 			var expectedErr error
 
@@ -83,10 +86,11 @@ var _ = Describe("Gpio", func() {
 			})
 
 			It("forwards the error", func() {
-				err := g.Write(gpioPin, state)
+				err := g.WriteLow(gpioPin)
 				Expect(err).To(Equal(expectedErr))
 			})
 		})
+
 		Context("when osHelper returns sucessfully", func() {
 			var expectedOutput string
 
@@ -98,11 +102,53 @@ var _ = Describe("Gpio", func() {
 			It("returns without error", func() {
 				expectedArgs := []string{
 					garagepi.GpioWriteCommand,
-					"1",
-					state,
+					gpioPinAsString,
+					gpioLowState,
 				}
 
-				err := g.Write(gpioPin, state)
+				err := g.WriteLow(gpioPin)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
+
+				executable, args := fakeOsHelper.ExecArgsForCall(0)
+				Expect(executable).To(Equal(gpioExecutable))
+				Expect(args).To(Equal(expectedArgs))
+			})
+		})
+	})
+
+	Describe("WriteHigh", func() {
+		Context("when osHelper returns an error", func() {
+			var expectedErr error
+
+			BeforeEach(func() {
+				expectedErr = errors.New("exec error")
+				fakeOsHelper.ExecReturns("", expectedErr)
+			})
+
+			It("forwards the error", func() {
+				err := g.WriteHigh(gpioPin)
+				Expect(err).To(Equal(expectedErr))
+			})
+		})
+
+		Context("when osHelper returns sucessfully", func() {
+			var expectedOutput string
+
+			BeforeEach(func() {
+				expectedOutput = "exec output"
+				fakeOsHelper.ExecReturns(expectedOutput, nil)
+			})
+
+			It("returns without error", func() {
+				expectedArgs := []string{
+					garagepi.GpioWriteCommand,
+					gpioPinAsString,
+					gpioHighState,
+				}
+
+				err := g.WriteHigh(gpioPin)
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(fakeOsHelper.ExecCallCount()).To(Equal(1))
