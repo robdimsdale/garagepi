@@ -37,7 +37,7 @@ func (e Executor) handleLightGet(w http.ResponseWriter, r *http.Request) {
 
 func (e Executor) discoverLightState() (*LightState, error) {
 	e.logger.Log("Reading light state")
-	state, err := e.g.Read(e.gpioLightPin)
+	state, err := e.gpio.Read(e.gpioLightPin)
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error reading light state: %v", err))
 		return &LightState{StateKnown: false, LightOn: false}, err
@@ -102,7 +102,7 @@ func renderLightState(ls LightState, w http.ResponseWriter) {
 
 func (e Executor) turnLightOn() LightState {
 	e.logger.Log(fmt.Sprintf("Turning light on"))
-	err := e.g.WriteHigh(e.gpioLightPin)
+	err := e.gpio.WriteHigh(e.gpioLightPin)
 
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error turning light on: %v", err))
@@ -122,7 +122,7 @@ func (e Executor) turnLightOn() LightState {
 
 func (e Executor) turnLightOff() LightState {
 	e.logger.Log(fmt.Sprintf("Turning light off"))
-	err := e.g.WriteLow(e.gpioLightPin)
+	err := e.gpio.WriteLow(e.gpioLightPin)
 
 	if err != nil {
 		e.logger.Log(fmt.Sprintf("Error turning light off: %v", err))
