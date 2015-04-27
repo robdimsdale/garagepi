@@ -8,8 +8,8 @@ install:
   - go install github.com/onsi/ginkgo/ginkgo
 
 script:
-  - go tool vet $(ls -d */ | grep -v Godeps)
-  - go tool vet *.go
+  - go tool vet -composites=false $(ls -d */ | grep -v Godeps)
+  - go tool vet -composites=false *.go
   - ginkgo -r -race -randomizeAllSpecs
 
 branches:
