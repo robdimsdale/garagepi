@@ -78,20 +78,17 @@ func (e Executor) handleLightSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gpioState, err := onOffStringToStateNumber(state)
-	if err != nil {
-		e.logger.Log(fmt.Sprintf("Invalid state provided (%s) - assuming light should be turned on.", state))
-		ls := e.turnLightOn()
-		renderLightState(ls, w)
-		return
-	}
-
-	switch gpioState {
-	case GpioLowState:
+	switch state {
+	case "off":
 		ls := e.turnLightOff()
 		renderLightState(ls, w)
 		return
-	case GpioHighState:
+	case "on":
+		ls := e.turnLightOn()
+		renderLightState(ls, w)
+		return
+	default:
+		e.logger.Log(fmt.Sprintf("Invalid state provided (%s) - assuming light should be turned on.", state))
 		ls := e.turnLightOn()
 		renderLightState(ls, w)
 		return

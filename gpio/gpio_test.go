@@ -5,16 +5,18 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/robdimsdale/garagepi"
 	"github.com/robdimsdale/garagepi/gpio"
 	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	oshelper_fakes "github.com/robdimsdale/garagepi/oshelper/fakes"
 )
 
 const (
-	gpioExecutable = "gpio"
-	gpioHighState  = "1"
-	gpioLowState   = "0"
+	gpioExecutable   = "gpio"
+	gpioReadCommand  = "read"
+	gpioWriteCommand = "write"
+
+	gpioHighState = "1"
+	gpioLowState  = "0"
 
 	gpioPin         = uint(1)
 	gpioPinAsString = "1"
@@ -59,7 +61,7 @@ var _ = Describe("Gpio", func() {
 
 			It("returns the output without error", func() {
 				expectedArgs := []string{
-					garagepi.GpioReadCommand,
+					gpioReadCommand,
 					gpioPinAsString,
 				}
 
@@ -101,7 +103,7 @@ var _ = Describe("Gpio", func() {
 
 			It("returns without error", func() {
 				expectedArgs := []string{
-					garagepi.GpioWriteCommand,
+					gpioWriteCommand,
 					gpioPinAsString,
 					gpioLowState,
 				}
@@ -143,7 +145,7 @@ var _ = Describe("Gpio", func() {
 
 			It("returns without error", func() {
 				expectedArgs := []string{
-					garagepi.GpioWriteCommand,
+					gpioWriteCommand,
 					gpioPinAsString,
 					gpioHighState,
 				}

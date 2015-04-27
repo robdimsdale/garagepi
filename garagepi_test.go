@@ -162,7 +162,7 @@ var _ = Describe("Garagepi", func() {
 	Describe("Door-toggle handling", func() {
 
 		Context("When toggling and sleeping return sucessfully", func() {
-			It("Should write high to gpio "+tostr(gpioDoorPin)+", sleep, and write "+garagepi.GpioLowState+" to gpio "+tostr(gpioDoorPin), func() {
+			It("Should write high to gpio "+tostr(gpioDoorPin)+", sleep, and write low to gpio "+tostr(gpioDoorPin), func() {
 				executor.ToggleDoorHandler(fakeResponseWriter, dummyRequest)
 				Expect(fakeOsHelper.SleepArgsForCall(0)).To(Equal(garagepi.SleepTime))
 
@@ -221,7 +221,7 @@ var _ = Describe("Garagepi", func() {
 		Describe("Reading state", func() {
 			Context("When reading light state returns with error", func() {
 				BeforeEach(func() {
-					fakeGpio.ReadReturns("", errors.New(garagepi.GpioReadCommand+" "+gpioExecutable+"error"))
+					fakeGpio.ReadReturns("", errors.New("gpio read error"))
 					expectedLightState.StateKnown = false
 					expectedReturn, err = json.Marshal(expectedLightState)
 					Expect(err).NotTo(HaveOccurred())
@@ -387,7 +387,7 @@ var _ = Describe("Garagepi", func() {
 
 				Context("When turning on light commands returns with error", func() {
 					BeforeEach(func() {
-						expectedError := errors.New(fmt.Sprintf("%s %s error", gpioExecutable, garagepi.GpioWriteCommand))
+						expectedError := errors.New(fmt.Sprintf("gpio write error"))
 						fakeGpio.WriteHighReturns(expectedError)
 
 						expectedLightState.StateKnown = false
@@ -444,7 +444,7 @@ var _ = Describe("Garagepi", func() {
 
 				Context("When turning off light command returns with error", func() {
 					BeforeEach(func() {
-						expectedError := errors.New(fmt.Sprintf("%s %s error", gpioExecutable, garagepi.GpioWriteCommand))
+						expectedError := errors.New(fmt.Sprintf("gpio write error"))
 						fakeGpio.WriteLowReturns(expectedError)
 
 						expectedLightState.StateKnown = false

@@ -1,7 +1,6 @@
 package garagepi
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,11 +14,7 @@ import (
 )
 
 var (
-	SleepTime        = 500 * time.Millisecond
-	GpioReadCommand  = "read"
-	GpioWriteCommand = "write"
-	GpioLowState     = "0"
-	GpioHighState    = "1"
+	SleepTime = 500 * time.Millisecond
 )
 
 type ExecutorConfig struct {
@@ -62,17 +57,6 @@ func NewExecutor(
 		gpioDoorPin:    config.GpioDoorPin,
 		gpioLightPin:   config.GpioLightPin,
 		gpioExecutable: config.GpioExecutable,
-	}
-}
-
-func onOffStringToStateNumber(onOff string) (string, error) {
-	switch onOff {
-	case "on":
-		return GpioHighState, nil
-	case "off":
-		return GpioLowState, nil
-	default:
-		return "", errors.New(fmt.Sprintf("Unrecognized state: %s", onOff))
 	}
 }
 
