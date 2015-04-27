@@ -10,7 +10,7 @@ install:
 script:
   - go tool vet $(ls -d */ | grep -v Godeps)
   - go tool vet *.go
-  - ginkgo -r -race --randomizeAllSpecs
+  - ginkgo -r -race -randomizeAllSpecs
 
 branches:
   only:
