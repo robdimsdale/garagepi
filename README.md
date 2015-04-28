@@ -9,12 +9,13 @@ A typical use would be to view the interior of a garage and trigger the garage d
 Copyright (c) 2014-2015, Robert Dimsdale. Licensed under [MIT License].
 
 ##Getting started
-Install Go, [WiringPi] and jacksonliam's [experimental mjpg-streamer].
+Requires Go v1.2 and jacksonliam's [experimental mjpg-streamer].
 
 ###Go dependencies
 ```
 go get github.com/GeertJohan/go.rice
 go get github.com/gorilla/mux
+go get github.com/stianeikeland/go-rpio
 ```
 
 ###Installing
@@ -30,16 +31,16 @@ go build -o $GOPATH/bin/garagepi main.go
 Copy the init scripts to `/etc/init.d/` and set them to run automatically on boot with the following commands:
 
 ```
-sudo cp init-scripts/* /etc/init.d/
+sudo cp scripts/init-scripts/* /etc/init.d/
 sudo update-rc.d garagepi defaults
 sudo update-rc.d garagestreamer defaults
 ```
 
-The default location for the `garagepi` binary is `/go/bin/garagepi`. This is controlled by the `GARAGE_PI_BINARY` environment variable in `init-scripts/garagepi`.
+The default location for the `garagepi` binary is `/go/bin/garagepi`. This is controlled by the `GARAGE_PI_BINARY` environment variable in `scripts/init-scripts/garagepi`.
 
 ###Logging
 
-By default logs are sent to `/dev/null`. This is controlled by the `OUT_LOG` environment variable in `init-scripts/garagepi` and `init-scripts/garagestreamer`. These can either be set to the same file or different files.
+By default logs are sent to `/dev/null`. This is controlled by the `OUT_LOG` environment variable in `scripts/init-scripts/garagepi` and `scripts/init-scripts/garagestreamer`. These can either be set to the same file or different files.
 
 ##Performance
 
@@ -51,23 +52,19 @@ The gpio utility is lightweight and so it may be installed on both, but it is on
 On the Pi with the camera, copy only the garage streamer start script:
 
 ```
-sudo cp init-scripts/garagestreamer /etc/init.d/
+sudo cp scripts/init-scripts/garagestreamer /etc/init.d/
 sudo update-rc.d garagestreamer defaults
 ```
 
-On the Pi with the Go webserver and gpio, copy only the garagepi and garagerelay start scripts:
+On the Pi with the Go webserver and gpio, copy only the garagepi start script:
 
 ```
-sudo cp init-scripts/garagepi /etc/init.d/
-sudo cp init-scripts/garagerelay /etc/init.d/
+sudo cp scripts/init-scripts/garagepi /etc/init.d/
 sudo update-rc.d garagepi defaults
-sudo update-rc.d garagerelay defaults
 ```
 
-By default, the `garagepi` webserver assumes the webcam is available on `localhost:8080`. This is controlled by the the environment variables `$WEBCAM_HOST` and `$WEBCAM_PORT` in `init-scripts/garagepi`.
+By default, the `garagepi` webserver assumes the webcam is available on `localhost:8080`. This is controlled by the the environment variables `$WEBCAM_HOST` and `$WEBCAM_PORT` in `scripts/init-scripts/garagepi`.
 
 [MIT License]: https://github.com/robdimsdale/garagepi/raw/master/LICENSE
-
-[WiringPi]: https://github.com/WiringPi/WiringPi
 
 [experimental mjpg-streamer]: https://github.com/jacksonliam/mjpg-streamer
