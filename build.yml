@@ -1,10 +1,10 @@
 ---
 platform: linux
    
-image: docker:///cloudfoundry/cf-mysql-ci
+image: docker:///golang#1.4.2
    
 inputs:
-  - name: garagepi
+- name: garagepi
 
 run:
   path: garagepi/scripts/ci/run_tests 
