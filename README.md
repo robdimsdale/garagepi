@@ -6,7 +6,7 @@ A webserver written in golang to display output of Raspberry Pi camera module an
 
 A typical use would be to view the interior of a garage and trigger the garage door opener via gpio (and a relay).
 
-Copyright (c) 2014, Robert Dimsdale. Licensed under [MIT License].
+Copyright (c) 2014-2015, Robert Dimsdale. Licensed under [MIT License].
 
 ##Getting started
 Install Go, [WiringPi] and jacksonliam's [experimental mjpg-streamer].
@@ -32,7 +32,6 @@ Copy the init scripts to `/etc/init.d/` and set them to run automatically on boo
 ```
 sudo cp init-scripts/* /etc/init.d/
 sudo update-rc.d garagepi defaults
-sudo update-rc.d garagerelay defaults
 sudo update-rc.d garagestreamer defaults
 ```
 
