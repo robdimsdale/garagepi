@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/robdimsdale/garagepi/door"
@@ -15,6 +17,7 @@ import (
 	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
+	"github.com/tedsuo/ifrit"
 )
 
 var (
@@ -87,6 +90,51 @@ func main() {
 	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
 
 	http.Handle("/", rtr)
-	fmt.Printf("Listening on port %d...\n", *port)
-	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
+
+	runner := runner{
+		port:    *port,
+		logger:  logger,
+		handler: rtr,
+	}
+
+	process := ifrit.Invoke(runner)
+
+	fmt.Println("garagepi started")
+
+	err = <-process.Wait()
+	if err != nil {
+		logger.Log(fmt.Sprintf("Error running garagepi: %v", err))
+	}
+}
+
+type runner struct {
+	port    uint
+	logger  logger.Logger
+	handler http.Handler
+}
+
+func (r runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port))
+	if err != nil {
+		return err
+	} else {
+		r.logger.Log(fmt.Sprintf("Listening on port %d", r.port))
+	}
+
+	errChan := make(chan error)
+	go func() {
+		err := http.Serve(listener, r.handler)
+		if err != nil {
+			errChan <- err
+		}
+	}()
+
+	close(ready)
+
+	select {
+	case <-signals:
+		return listener.Close()
+	case err := <-errChan:
+		return err
+	}
 }

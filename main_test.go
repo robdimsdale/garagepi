@@ -23,7 +23,7 @@ func startMainWithArgs(args ...string) *gexec.Session {
 	var err error
 	session, err = gexec.Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(session).Should(gbytes.Say("Listening on port"))
+	Eventually(session).Should(gbytes.Say(".*garagepi started"))
 	return session
 }
 

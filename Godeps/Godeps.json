@@ -36,6 +36,10 @@
 			"ImportPath": "github.com/stianeikeland/go-rpio",
 			"Comment": "v2.0.0",
 			"Rev": "ab68f61e91349ee0ba15aaddc320a4d8f812d65b"
+		},
+		{
+			"ImportPath": "github.com/tedsuo/ifrit",
+			"Rev": "65ca48cd8a947d0e80efa4bda726f0363352e5f9"
 		}
 	]
 }
