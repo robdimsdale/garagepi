@@ -11,9 +11,11 @@ BASE_DIR="$( cd ${MY_DIR}/../.. && pwd )"
 SCRIPTS_DIR="$( cd ${BASE_DIR}/scripts/ && pwd )"
 
 pushd ${BASE_DIR}
+  go get -v github.com/onsi/ginkgo/ginkgo
+  PATH=$PATH:$HOME/gopath/bin
   go get -v -t -d ./...
-  go build -v
-  go install github.com/onsi/ginkgo/ginkgo
+  go get github.com/tools/godep
+  godep restore
 popd
 
 ${SCRIPTS_DIR}/run_tests
