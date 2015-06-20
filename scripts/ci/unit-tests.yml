@@ -1,0 +1,10 @@
+---
+platform: linux
+
+image: docker:///robdimsdale/garagepi
+
+inputs:
+- name: garagepi
+
+run:
+  path: garagepi/scripts/ci/run_tests
