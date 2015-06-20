@@ -3,14 +3,14 @@ sudo: false
 language: go
 
 install:
-  - go get -v github.com/onsi/ginkgo/ginkgo
-  - PATH=$PATH:$HOME/gopath/bin
-  - go get -v -t -d ./...
-  - go get github.com/tools/godep
-  - godep restore
+- go get -v github.com/onsi/ginkgo/ginkgo
+- PATH=$PATH:$HOME/gopath/bin
+- go get -v -t -d ./...
+- go get github.com/tools/godep
+- godep restore
 
 script:
-  - ./scripts/run_tests
+- ./scripts/unit_tests
 
 branches:
   only:

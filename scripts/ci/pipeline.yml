@@ -14,7 +14,3 @@ jobs:
     trigger: true
   - task: unit-tests
     file: garagepi/scripts/ci/unit-tests.yml
-    config:
-      params:
-        COVERALLS_TOKEN: {{coveralls-token}}
-
