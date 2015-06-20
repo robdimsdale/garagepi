@@ -25,7 +25,7 @@ pushd ${BASE_DIR}
   godep restore
 popd
 
-${SCRIPTS_DIR}/run_tests -cover
+${SCRIPTS_DIR}/unit_tests -cover
  
 gover
 goveralls \
