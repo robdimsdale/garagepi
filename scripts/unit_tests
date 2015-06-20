@@ -10,5 +10,5 @@ BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
 pushd ${BASE_DIR}
   go tool vet -composites=false $(ls -d */ | grep -v Godeps)
   go tool vet -composites=false *.go
-  ginkgo -r -race -randomizeAllSpecs
+  ginkgo -r -race -randomizeAllSpecs "$@"
 popd

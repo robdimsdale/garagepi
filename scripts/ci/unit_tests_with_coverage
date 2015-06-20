@@ -10,12 +10,24 @@ BASE_DIR="$( cd ${MY_DIR}/../.. && pwd )"
 # And that scripts/ lives one directory below the base directory.
 SCRIPTS_DIR="$( cd ${BASE_DIR}/scripts/ && pwd )"
 
+COVERALLS_TOKEN="${COVERALLS_TOKEN:?}"
+
 pushd ${BASE_DIR}
-  go get -v github.com/onsi/ginkgo/ginkgo
+  go get github.com/onsi/ginkgo/ginkgo
   go get golang.org/x/tools/cmd/vet
-  go get -v -t -d ./...
   go get github.com/tools/godep
+
+  go get golang.org/x/tools/cmd/cover
+  go get github.com/modocache/gover
+  go get github.com/mattn/goveralls
+
+  go get -v -t -d ./...
   godep restore
 popd
 
-${SCRIPTS_DIR}/run_tests
+${SCRIPTS_DIR}/run_tests -cover
+ 
+gover
+goveralls \
+      -coverprofile=gover.coverprofile \
+      -repotoken "${COVERALLS_TOKEN}"

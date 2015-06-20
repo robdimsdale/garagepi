@@ -7,4 +7,4 @@ inputs:
 - name: garagepi
 
 run:
-  path: garagepi/scripts/ci/run_tests
+  path: garagepi/scripts/ci/unit_tests_with_coverage
