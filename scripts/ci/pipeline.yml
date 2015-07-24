@@ -7,6 +7,11 @@ resources:
     branch: master
     private_key: {{private-key}}
 
+- name: slack_alert
+  type: slack-notification
+  source:
+    url: {{slack-url}}
+
 jobs:
 - name: unit-tests
   plan:
@@ -14,3 +19,17 @@ jobs:
     trigger: true
   - task: unit-tests
     file: garagepi/scripts/ci/unit-tests.yml
+    on_success:
+      put: slack_alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{slack-success-text}}
+    on_failure:
+      put: slack_alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{slack-failure-text}}
