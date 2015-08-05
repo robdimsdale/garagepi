@@ -68,3 +68,9 @@ By default, the `garagepi` webserver assumes the webcam is available on `localho
 [MIT License]: https://github.com/robdimsdale/garagepi/raw/master/LICENSE
 
 [experimental mjpg-streamer]: https://github.com/jacksonliam/mjpg-streamer
+
+## Project administration
+
+### Tracker
+
+Find this project on tracker at https://www.pivotaltracker.com/n/projects/1401690
