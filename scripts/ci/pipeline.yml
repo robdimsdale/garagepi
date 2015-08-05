@@ -4,7 +4,7 @@ resources:
   type: git
   source:
     uri: git@github.com:robdimsdale/garagepi
-    branch: master
+    branch: develop
     private_key: {{private-key}}
 
 - name: slack_alert
