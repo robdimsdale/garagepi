@@ -81,8 +81,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(staticFileSystem)))
 
+	staticFileServer := http.FileServer(staticFileSystem)
+	strippedStaticFileServer := http.StripPrefix("/static/", staticFileServer)
+
+	rtr.PathPrefix("/static/").Handler(strippedStaticFileServer)
 	rtr.HandleFunc("/", hh.Handle).Methods("GET")
 	rtr.HandleFunc("/webcam", wh.Handle).Methods("GET")
 	rtr.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")

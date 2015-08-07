@@ -91,4 +91,11 @@ var _ = Describe("GaragepiExecutable", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 	})
+
+	It("Should serve static files", func() {
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/static/css/application.css", port))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(resp.StatusCode).To(Equal(http.StatusOK))
+
+	})
 })
