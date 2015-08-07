@@ -10,8 +10,8 @@ install:
 - godep restore
 
 script:
-- ./scripts/unit_tests
+- ./scripts/tests
 
 branches:
   only:
-  - master
+  - develop

@@ -13,12 +13,13 @@ resources:
     url: {{slack-url}}
 
 jobs:
-- name: unit-tests
+- name: tests
+  public: false
   plan:
   - get: garagepi
     trigger: true
-  - task: unit-tests
-    file: garagepi/scripts/ci/unit-tests.yml
+  - task: tests
+    file: garagepi/scripts/ci/tests.yml
     on_success:
       put: slack_alert
       params:
