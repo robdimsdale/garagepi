@@ -12,14 +12,29 @@ resources:
   source:
     url: {{slack-url}}
 
+- name: version
+  type: semver
+  source:
+    initial_version: 0.1.0
+    bucket: garagepi-releases
+    key: current-version
+    access_key_id: {{pipeline-bucket-access-key}}
+    secret_access_key: {{pipeline-bucket-secret-key}}
+
 jobs:
 - name: tests
   public: false
   plan:
-  - get: garagepi
-    trigger: true
-  - task: tests
-    file: garagepi/scripts/ci/tests.yml
+  - do:
+    - aggregate:
+      - get: version
+        params: {bump: minor}
+      - get: garagepi
+        trigger: true
+    - task: tests
+      file: garagepi/scripts/ci/tests.yml
+    - put: version
+      params: {file: version/number}
     on_success:
       put: slack_alert
       params:
