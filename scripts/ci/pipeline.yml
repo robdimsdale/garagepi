@@ -7,7 +7,7 @@ resources:
     branch: develop
     private_key: {{private-key}}
 
-- name: slack_alert
+- name: slack-alert
   type: slack-notification
   source:
     url: {{slack-url}}
@@ -36,14 +36,14 @@ jobs:
     - put: version
       params: {file: version/number}
     on_success:
-      put: slack_alert
+      put: slack-alert
       params:
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         channel: {{slack-channel}}
         text: {{slack-success-text}}
     on_failure:
-      put: slack_alert
+      put: slack-alert
       params:
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
