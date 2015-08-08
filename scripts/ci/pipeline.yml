@@ -7,6 +7,13 @@ resources:
     branch: develop
     private_key: {{private-key}}
 
+- name: garagepi-master
+  type: git
+  source:
+    uri: git@github.com:robdimsdale/garagepi
+    branch: master
+    private_key: {{private-key}}
+
 - name: slack-alert
   type: slack-notification
   source:
@@ -28,7 +35,7 @@ jobs:
   - do:
     - aggregate:
       - get: version
-        params: {bump: minor}
+        params: {bump: minor, pre: rc}
       - get: garagepi
         trigger: true
     - task: tests
@@ -49,3 +56,22 @@ jobs:
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         channel: {{slack-channel}}
         text: {{slack-failure-text}}
+
+- name: shipit
+  serial: true
+  plan:
+  - aggregate:
+    - get: garagepi
+      passed: [tests]
+      params: {fetch: [master]}
+    - get: version
+      passed: [tests]
+      params: {bump: final}
+  - aggregate:
+    - put: version
+      params: {file: version/number}
+    - put: garagepi-master
+      params:
+        repository: garagepi
+        tag: version/number
+        tag_prefix: v
