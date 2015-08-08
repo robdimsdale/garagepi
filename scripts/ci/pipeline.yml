@@ -22,7 +22,6 @@ resources:
 - name: version
   type: semver
   source:
-    initial_version: 0.1.0
     bucket: garagepi-releases
     key: current-version
     access_key_id: {{pipeline-bucket-access-key}}
