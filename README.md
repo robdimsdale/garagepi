@@ -13,13 +13,13 @@ Requires Go v1.2 or higher, and jacksonliam's [experimental mjpg-streamer].
 
 ### Go dependencies
 
-Dependencies are managed using [godep](https://github.com/tools/godep). Install godep :
+Dependencies are managed using [godep](https://github.com/tools/godep). Install it as follows:
 
 ```
 go get -u github.com/tools/godep
 ```
 
-Install dependencies from within the directory of this cloned repo:
+From within the directory of this cloned repo, fetch the golang dependencies:
 
 ```
 godep restore
