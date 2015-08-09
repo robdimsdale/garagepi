@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -8,7 +8,5 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
 
 pushd ${BASE_DIR}
-  go tool vet -composites=false $(ls -d */ | grep -v Godeps)
-  go tool vet -composites=false *.go
-  ginkgo -r -race -randomizeAllSpecs "$@"
+  ginkgo -p -r -race -randomizeAllSpecs "$@" integration_tests
 popd
