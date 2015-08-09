@@ -21,6 +21,9 @@ import (
 )
 
 var (
+	// version is deliberately left uninitialized so it can be set at compile-time
+	version string
+
 	port = flag.Uint("port", 9999, "Port for server to bind to.")
 
 	webcamHost = flag.String("webcamHost", "localhost", "Host of webcam image.")
@@ -33,6 +36,11 @@ var (
 )
 
 func main() {
+	if version == "" {
+		version = "dev"
+	}
+
+	fmt.Printf("garagepi version: %s\n", version)
 	flag.Parse()
 
 	logger := logger.NewLoggerImpl(*loggingOn)
