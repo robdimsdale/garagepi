@@ -96,6 +96,5 @@ var _ = Describe("GaragepiExecutable", func() {
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/static/css/application.css", port))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
 	})
 })
