@@ -28,44 +28,101 @@ resources:
     secret_access_key: {{pipeline-bucket-secret-key}}
 
 jobs:
-- name: tests
+- name: golang-1.2
   public: false
   plan:
-  - do:
-    - aggregate:
-      - get: version
-        params: {bump: minor, pre: rc}
-      - get: garagepi
-        trigger: true
-    - task: tests
-      file: garagepi/scripts/ci/tests.yml
-    - put: version
-      params: {file: version/number}
+  - get: garagepi
+    trigger: true
+  - task: unit-integration-tests
+    file: garagepi/scripts/ci/golang-1.2/unit-integration-tests.yml
     on_success:
       put: slack-alert
       params:
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         channel: {{slack-channel}}
-        text: {{slack-success-text}}
+        text: {{v1-2-slack-success-text}}
     on_failure:
       put: slack-alert
       params:
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         channel: {{slack-channel}}
-        text: {{slack-failure-text}}
+        text: {{v1-2-slack-failure-text}}
+- name: golang-1.3
+  public: false
+  plan:
+  - get: garagepi
+    trigger: true
+  - task: unit-integration-tests
+    file: garagepi/scripts/ci/golang-1.3/unit-integration-tests.yml
+    on_success:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{v1-3-slack-success-text}}
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{v1-3-slack-failure-text}}
+- name: golang-1.4
+  public: false
+  plan:
+  - get: garagepi
+    trigger: true
+  - task: unit-integration-tests
+    file: garagepi/scripts/ci/golang-1.4/unit-integration-tests.yml
+    on_success:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{v1-4-slack-success-text}}
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{v1-4-slack-failure-text}}
+- name: golang-1.5
+  public: false
+  plan:
+  - get: garagepi
+    trigger: true
+  - task: unit-integration-tests
+    file: garagepi/scripts/ci/golang-1.5/unit-integration-tests.yml
+    on_success:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{v1-5-slack-success-text}}
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{v1-5-slack-failure-text}}
 
 - name: shipit
+  public: false
   serial: true
   plan:
   - aggregate:
     - get: garagepi
-      passed: [tests]
+      passed: [golang-1.2,golang-1.3,golang-1.4,golang-1.5]
       params: {fetch: [master]}
     - get: version
-      passed: [tests]
-      params: {bump: final}
+      params: {bump: minor}
   - aggregate:
     - put: version
       params: {file: version/number}

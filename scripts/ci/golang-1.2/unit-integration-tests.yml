@@ -1,0 +1,11 @@
+---
+platform: linux
+
+image: docker:///robdimsdale/garagepi-1.2
+
+inputs:
+- name: garagepi
+
+run:
+  path: garagepi/scripts/ci/golang-1.2/unit-integration-tests
+

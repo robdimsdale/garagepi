@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image: docker:///robdimsdale/garagepi-1.3
+
+inputs:
+- name: garagepi
+
+params:
+  WL_ACCESS_TOKEN:
+  WL_CLIENT_ID:
+
+run:
+  path: garagepi/scripts/ci/golang-1.3/unit-integration-tests
+
