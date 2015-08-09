@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eux
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives one directory below the base directory.
+BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
+
+pushd ${BASE_DIR}
+  go tool vet -composites=false $(ls -d */ | grep -v Godeps )
+  go tool vet -composites=false *.go
+popd
