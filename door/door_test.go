@@ -6,10 +6,11 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-golang/lager"
+	"github.com/pivotal-golang/lager/lagertest"
 	"github.com/robdimsdale/garagepi/door"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
-	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	oshelper_fakes "github.com/robdimsdale/garagepi/oshelper/fakes"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/test_helpers/fakes"
 )
@@ -21,7 +22,7 @@ const (
 var (
 	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
 	fakeOsHelper       *oshelper_fakes.FakeOsHelper
-	fakeLogger         *logger_fakes.FakeLogger
+	fakeLogger         lager.Logger
 	fakeGpio           *gpio_fakes.FakeGpio
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
 
@@ -31,7 +32,7 @@ var (
 
 var _ = Describe("Door", func() {
 	BeforeEach(func() {
-		fakeLogger = new(logger_fakes.FakeLogger)
+		fakeLogger = lagertest.NewTestLogger("Door test")
 		fakeOsHelper = new(oshelper_fakes.FakeOsHelper)
 		fakeGpio = new(gpio_fakes.FakeGpio)
 		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)

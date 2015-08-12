@@ -1,13 +1,12 @@
 package homepage
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/fshelper"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
-	"github.com/robdimsdale/garagepi/logger"
 )
 
 type Handler interface {
@@ -15,14 +14,14 @@ type Handler interface {
 }
 
 type handler struct {
-	logger       logger.Logger
+	logger       lager.Logger
 	httpHelper   httphelper.HttpHelper
 	fsHelper     fshelper.FsHelper
 	lightHandler light.Handler
 }
 
 func NewHandler(
-	logger logger.Logger,
+	logger lager.Logger,
 	httpHelper httphelper.HttpHelper,
 	fsHelper fshelper.FsHelper,
 	lightHandler light.Handler,
@@ -37,17 +36,17 @@ func NewHandler(
 }
 
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
-	h.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
+	h.logger.Debug("received request", lager.Data{"method": r.Method, "url": r.URL})
 
 	t, err := h.fsHelper.GetHomepageTemplate()
 	if err != nil {
-		h.logger.Log(fmt.Sprintf("Error reading homepage template: %v", err))
+		h.logger.Error("Error reading homepage template", err)
 		panic(err)
 	}
 
 	ls, err := h.lightHandler.DiscoverLightState()
 	if err != nil {
-		h.logger.Log("Error reading light state - rendering homepage without light controls")
+		h.logger.Error("Error reading light state - rendering homepage without light controls", err)
 	}
 
 	t.Execute(w, ls)

@@ -5,8 +5,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-golang/lager/lagertest"
 
-	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	"github.com/robdimsdale/garagepi/oshelper"
 )
 
@@ -14,7 +14,7 @@ var _ = Describe("OsHelper", func() {
 	var osHelper oshelper.OsHelper
 
 	BeforeEach(func() {
-		fakeLogger := &logger_fakes.FakeLogger{}
+		fakeLogger := lagertest.NewTestLogger("oshelper test")
 		osHelper = oshelper.NewOsHelperImpl(fakeLogger)
 	})
 

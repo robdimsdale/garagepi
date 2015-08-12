@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/httphelper"
-	"github.com/robdimsdale/garagepi/logger"
 )
 
 type Handler interface {
@@ -14,13 +14,13 @@ type Handler interface {
 }
 
 type handler struct {
-	logger     logger.Logger
+	logger     lager.Logger
 	httpHelper httphelper.HttpHelper
 	webcamUrl  string
 }
 
 func NewHandler(
-	logger logger.Logger,
+	logger lager.Logger,
 	httpHelper httphelper.HttpHelper,
 	webcamHost string,
 	webcamPort uint,
@@ -38,9 +38,9 @@ func NewHandler(
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.httpHelper.Get(h.webcamUrl + r.Form.Get("n"))
 	if err != nil {
-		h.logger.Log(fmt.Sprintf("Error getting image: %v", err))
+		h.logger.Error("Error getting image: %v", err)
 		if resp == nil {
-			h.logger.Log("No image to return")
+			h.logger.Info("No image to return")
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -48,7 +48,7 @@ func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		h.logger.Log(fmt.Sprintf("Error closing image request: %v", err))
+		h.logger.Error("Error closing image request: %v", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}

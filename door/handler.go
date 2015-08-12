@@ -1,13 +1,12 @@
 package door
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/gpio"
 	"github.com/robdimsdale/garagepi/httphelper"
-	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 )
 
@@ -20,7 +19,7 @@ type Handler interface {
 }
 
 type handler struct {
-	logger      logger.Logger
+	logger      lager.Logger
 	httpHelper  httphelper.HttpHelper
 	osHelper    oshelper.OsHelper
 	gpio        gpio.Gpio
@@ -28,7 +27,7 @@ type handler struct {
 }
 
 func NewHandler(
-	logger logger.Logger,
+	logger lager.Logger,
 	httpHelper httphelper.HttpHelper,
 	osHelper oshelper.OsHelper,
 	gpio gpio.Gpio,
@@ -45,11 +44,11 @@ func NewHandler(
 }
 
 func (h handler) HandleToggle(w http.ResponseWriter, r *http.Request) {
-	h.logger.Log(fmt.Sprintf("%s request to %v", r.Method, r.URL))
+	h.logger.Debug("request received", lager.Data{"method": r.Method, "url": r.URL})
 
 	err := h.gpio.WriteHigh(h.gpioDoorPin)
 	if err != nil {
-		h.logger.Log(fmt.Sprintf("Error toggling door (skipping sleep and further executions): %v", err))
+		h.logger.Error("Error toggling door. Skipping sleep and further executions", err)
 		w.Write([]byte("error - door not toggled"))
 		return
 	} else {
@@ -57,10 +56,10 @@ func (h handler) HandleToggle(w http.ResponseWriter, r *http.Request) {
 
 		err := h.gpio.WriteLow(h.gpioDoorPin)
 		if err != nil {
-			h.logger.Log(fmt.Sprintf("Error toggling door: %v", err))
+			h.logger.Error("Error toggling door: %v", err)
 		}
 
-		h.logger.Log("door toggled")
+		h.logger.Info("door toggled")
 		w.Write([]byte("door toggled"))
 		return
 	}

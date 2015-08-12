@@ -3,7 +3,7 @@ package oshelper
 import (
 	"time"
 
-	"github.com/robdimsdale/garagepi/logger"
+	"github.com/pivotal-golang/lager"
 )
 
 type OsHelper interface {
@@ -11,11 +11,11 @@ type OsHelper interface {
 }
 
 type OsHelperImpl struct {
-	logger logger.Logger
+	logger lager.Logger
 }
 
 func NewOsHelperImpl(
-	logger logger.Logger,
+	logger lager.Logger,
 ) *OsHelperImpl {
 	return &OsHelperImpl{
 		logger: logger,
@@ -23,6 +23,6 @@ func NewOsHelperImpl(
 }
 
 func (h *OsHelperImpl) Sleep(d time.Duration) {
-	h.logger.Log("sleeping for " + d.String())
+	h.logger.Info("sleeping", lager.Data{"duration": d.String()})
 	time.Sleep(d)
 }

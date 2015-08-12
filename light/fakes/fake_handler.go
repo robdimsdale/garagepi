@@ -24,7 +24,7 @@ type FakeHandler struct {
 	DiscoverLightStateStub        func() (*light.LightState, error)
 	discoverLightStateMutex       sync.RWMutex
 	discoverLightStateArgsForCall []struct{}
-	discoverLightStateReturns struct {
+	discoverLightStateReturns     struct {
 		result1 *light.LightState
 		result2 error
 	}

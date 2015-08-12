@@ -9,10 +9,11 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-golang/lager"
+	"github.com/pivotal-golang/lager/lagertest"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	"github.com/robdimsdale/garagepi/light"
-	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/test_helpers/fakes"
 )
 
@@ -22,7 +23,7 @@ const (
 
 var (
 	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
-	fakeLogger         *logger_fakes.FakeLogger
+	fakeLogger         lager.Logger
 	fakeGpio           *gpio_fakes.FakeGpio
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
 
@@ -41,7 +42,7 @@ var _ = Describe("Light", func() {
 			LightOn:    false,
 		}
 
-		fakeLogger = new(logger_fakes.FakeLogger)
+		fakeLogger = lagertest.NewTestLogger("light test")
 		fakeGpio = new(gpio_fakes.FakeGpio)
 		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)

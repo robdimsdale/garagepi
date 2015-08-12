@@ -8,8 +8,9 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-golang/lager"
+	"github.com/pivotal-golang/lager/lagertest"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
-	logger_fakes "github.com/robdimsdale/garagepi/logger/fakes"
 	test_helpers "github.com/robdimsdale/garagepi/test_helpers"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/test_helpers/fakes"
 	"github.com/robdimsdale/garagepi/webcam"
@@ -22,7 +23,7 @@ const (
 
 var (
 	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
-	fakeLogger         *logger_fakes.FakeLogger
+	fakeLogger         lager.Logger
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
 
 	dummyRequest *http.Request
@@ -31,7 +32,7 @@ var (
 
 var _ = Describe("Webcam", func() {
 	BeforeEach(func() {
-		fakeLogger = new(logger_fakes.FakeLogger)
+		fakeLogger = lagertest.NewTestLogger("webcam test")
 		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/robdimsdale/garagepi/logger"
+	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/stianeikeland/go-rpio"
 )
@@ -17,12 +17,12 @@ type Gpio interface {
 
 type gpio struct {
 	osHelper oshelper.OsHelper
-	logger   logger.Logger
+	logger   lager.Logger
 }
 
 func NewGpio(
 	osHelper oshelper.OsHelper,
-	logger logger.Logger,
+	logger lager.Logger,
 ) Gpio {
 	return &gpio{
 		osHelper: osHelper,
@@ -31,7 +31,7 @@ func NewGpio(
 }
 
 func (g gpio) Read(pin uint) (string, error) {
-	g.logger.Log(fmt.Sprintf("Reading from pin: %d", pin))
+	g.logger.Debug("Reading from pin", lager.Data{"pin": pin})
 
 	rpin := rpio.Pin(pin)
 
@@ -46,7 +46,7 @@ func (g gpio) Read(pin uint) (string, error) {
 }
 
 func (g gpio) WriteLow(pin uint) error {
-	g.logger.Log(fmt.Sprintf("Writing low to pin: %d", pin))
+	g.logger.Debug("Writing low to pin", lager.Data{"pin": pin})
 
 	rpin := rpio.Pin(pin)
 
@@ -62,7 +62,7 @@ func (g gpio) WriteLow(pin uint) error {
 }
 
 func (g gpio) WriteHigh(pin uint) error {
-	g.logger.Log(fmt.Sprintf("Writing high to pin: %d", pin))
+	g.logger.Debug("Writing high to pin", lager.Data{"pin": pin})
 
 	rpin := rpio.Pin(pin)
 

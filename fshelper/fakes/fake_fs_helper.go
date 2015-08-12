@@ -13,14 +13,14 @@ type FakeFsHelper struct {
 	GetStaticFileSystemStub        func() (http.FileSystem, error)
 	getStaticFileSystemMutex       sync.RWMutex
 	getStaticFileSystemArgsForCall []struct{}
-	getStaticFileSystemReturns struct {
+	getStaticFileSystemReturns     struct {
 		result1 http.FileSystem
 		result2 error
 	}
 	GetHomepageTemplateStub        func() (*template.Template, error)
 	getHomepageTemplateMutex       sync.RWMutex
 	getHomepageTemplateArgsForCall []struct{}
-	getHomepageTemplateReturns struct {
+	getHomepageTemplateReturns     struct {
 		result1 *template.Template
 		result2 error
 	}

@@ -8,16 +8,23 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/door"
 	"github.com/robdimsdale/garagepi/fshelper"
 	"github.com/robdimsdale/garagepi/gpio"
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
-	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
+)
+
+const (
+	DEBUG = "debug"
+	INFO  = "info"
+	ERROR = "error"
+	FATAL = "fatal"
 )
 
 var (
@@ -33,6 +40,8 @@ var (
 
 	gpioDoorPin  = flag.Uint("gpioDoorPin", 17, "Gpio pin of door.")
 	gpioLightPin = flag.Uint("gpioLightPin", 2, "Gpio pin of light.")
+
+	logLevel = flag.String("logLevel", string(INFO), "log level: debug, info, error or fatal")
 )
 
 func main() {
@@ -40,10 +49,9 @@ func main() {
 		version = "dev"
 	}
 
-	fmt.Printf("garagepi version: %s\n", version)
 	flag.Parse()
 
-	logger := logger.NewLoggerImpl(*loggingOn)
+	logger := initializeLogger()
 
 	// The location of the 'assets' directory
 	// is relative to where the compilation takes place
@@ -110,17 +118,40 @@ func main() {
 
 	process := ifrit.Invoke(runner)
 
-	fmt.Println("garagepi started")
+	logger.Info("garagepi started", lager.Data{"version": version})
 
 	err = <-process.Wait()
 	if err != nil {
-		logger.Log(fmt.Sprintf("Error running garagepi: %v", err))
+		logger.Error("Error running garagepi", err)
 	}
+}
+
+func initializeLogger() lager.Logger {
+	var minLagerLogLevel lager.LogLevel
+	switch *logLevel {
+	case DEBUG:
+		minLagerLogLevel = lager.DEBUG
+	case INFO:
+		minLagerLogLevel = lager.INFO
+	case ERROR:
+		minLagerLogLevel = lager.ERROR
+	case FATAL:
+		minLagerLogLevel = lager.FATAL
+	default:
+		panic(fmt.Errorf("unknown log level: %s", logLevel))
+	}
+
+	logger := lager.NewLogger("garagepi")
+
+	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), minLagerLogLevel)
+	logger.RegisterSink(sink)
+
+	return logger
 }
 
 type runner struct {
 	port    uint
-	logger  logger.Logger
+	logger  lager.Logger
 	handler http.Handler
 }
 
@@ -129,7 +160,7 @@ func (r runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	if err != nil {
 		return err
 	} else {
-		r.logger.Log(fmt.Sprintf("Listening on port %d", r.port))
+		r.logger.Info("Listening on port", lager.Data{"port": r.port})
 	}
 
 	errChan := make(chan error)
