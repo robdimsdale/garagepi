@@ -50,6 +50,7 @@ func main() {
 	flag.Parse()
 
 	logger := initializeLogger()
+	logger.Info("garagepi starting", lager.Data{"version": version})
 
 	// The location of the 'assets' directory
 	// is relative to where the compilation takes place
@@ -116,7 +117,7 @@ func main() {
 
 	process := ifrit.Invoke(runner)
 
-	logger.Info("garagepi started", lager.Data{"version": version})
+	logger.Info("garagepi started")
 
 	err = <-process.Wait()
 	if err != nil {
@@ -158,7 +159,7 @@ func (r runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	if err != nil {
 		return err
 	} else {
-		r.logger.Info("Listening on port", lager.Data{"port": r.port})
+		r.logger.Info("web server listening on port", lager.Data{"port": r.port})
 	}
 
 	errChan := make(chan error)

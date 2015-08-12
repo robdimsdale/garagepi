@@ -31,7 +31,7 @@ func NewGpio(
 }
 
 func (g gpio) Read(pin uint) (string, error) {
-	g.logger.Debug("Reading from pin", lager.Data{"pin": pin})
+	g.logger.Debug("reading from pin", lager.Data{"pin": pin})
 
 	rpin := rpio.Pin(pin)
 
@@ -46,7 +46,7 @@ func (g gpio) Read(pin uint) (string, error) {
 }
 
 func (g gpio) WriteLow(pin uint) error {
-	g.logger.Debug("Writing low to pin", lager.Data{"pin": pin})
+	g.logger.Debug("writing low to pin", lager.Data{"pin": pin})
 
 	rpin := rpio.Pin(pin)
 
@@ -62,7 +62,7 @@ func (g gpio) WriteLow(pin uint) error {
 }
 
 func (g gpio) WriteHigh(pin uint) error {
-	g.logger.Debug("Writing high to pin", lager.Data{"pin": pin})
+	g.logger.Debug("writing high to pin", lager.Data{"pin": pin})
 
 	rpin := rpio.Pin(pin)
 

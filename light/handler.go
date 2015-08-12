@@ -69,7 +69,7 @@ func (h handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h handler) DiscoverLightState() (*LightState, error) {
-	h.logger.Info("Reading light state")
+	h.logger.Info("reading light state")
 	state, err := h.gpio.Read(h.gpioLightPin)
 	if err != nil {
 		return &LightState{StateKnown: false, LightOn: false}, err
@@ -85,7 +85,7 @@ func (h handler) DiscoverLightState() (*LightState, error) {
 		StateKnown: true,
 		LightOn:    lightOn,
 	}
-	h.logger.Debug("Light state discovered", lager.Data{"state": ls.StateString()})
+	h.logger.Debug("light state discovered", lager.Data{"state": ls.StateString()})
 	return ls, nil
 }
 
@@ -94,7 +94,7 @@ func (h handler) HandleSet(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		h.logger.Error("Error parsing form - assuming light should be turned on.", err)
+		h.logger.Error("error parsing form - assuming light should be turned on.", err)
 
 		ls := h.turnLightOn()
 		renderLightState(ls, w)
@@ -105,7 +105,7 @@ func (h handler) HandleSet(w http.ResponseWriter, r *http.Request) {
 	state := r.Form.Get("state")
 
 	if state == "" {
-		h.logger.Info("No state provided - assuming light should be turned on.")
+		h.logger.Info("no state provided - assuming light should be turned on.")
 		ls := h.turnLightOn()
 		renderLightState(ls, w)
 		return
@@ -121,7 +121,7 @@ func (h handler) HandleSet(w http.ResponseWriter, r *http.Request) {
 		renderLightState(ls, w)
 		return
 	default:
-		h.logger.Info("Invalid state provided - assuming light should be turned on.", lager.Data{"state": state})
+		h.logger.Info("invalid state provided - assuming light should be turned on.", lager.Data{"state": state})
 		ls := h.turnLightOn()
 		renderLightState(ls, w)
 		return
@@ -134,11 +134,11 @@ func renderLightState(ls LightState, w http.ResponseWriter) {
 }
 
 func (h handler) turnLightOn() LightState {
-	h.logger.Info("Turning light on")
+	h.logger.Info("turning light on")
 	err := h.gpio.WriteHigh(h.gpioLightPin)
 
 	if err != nil {
-		h.logger.Error("Error turning light on", err)
+		h.logger.Error("error turning light on", err)
 		return LightState{
 			StateKnown: false,
 			LightOn:    false,
@@ -146,7 +146,7 @@ func (h handler) turnLightOn() LightState {
 		}
 	}
 
-	h.logger.Info("Light is turned on")
+	h.logger.Info("light is turned on")
 	return LightState{
 		StateKnown: true,
 		LightOn:    true,
@@ -154,11 +154,11 @@ func (h handler) turnLightOn() LightState {
 }
 
 func (h handler) turnLightOff() LightState {
-	h.logger.Info("Turning light off")
+	h.logger.Info("turning light off")
 	err := h.gpio.WriteLow(h.gpioLightPin)
 
 	if err != nil {
-		h.logger.Error("Error turning light off", err)
+		h.logger.Error("error turning light off", err)
 		return LightState{
 			StateKnown: false,
 			LightOn:    false,
@@ -166,7 +166,7 @@ func (h handler) turnLightOff() LightState {
 		}
 	}
 
-	h.logger.Info("Light is turned off")
+	h.logger.Info("light is turned off")
 	return LightState{
 		StateKnown: true,
 		LightOn:    false,

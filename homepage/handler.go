@@ -40,13 +40,13 @@ func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	t, err := h.fsHelper.GetHomepageTemplate()
 	if err != nil {
-		h.logger.Error("Error reading homepage template", err)
+		h.logger.Error("error reading homepage template", err)
 		panic(err)
 	}
 
 	ls, err := h.lightHandler.DiscoverLightState()
 	if err != nil {
-		h.logger.Error("Error reading light state - rendering homepage without light controls", err)
+		h.logger.Error("error reading light state - rendering homepage without light controls", err)
 	}
 
 	t.Execute(w, ls)
