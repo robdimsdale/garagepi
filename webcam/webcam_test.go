@@ -3,6 +3,7 @@ package webcam_test
 import (
 	"bytes"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
-	test_helpers "github.com/robdimsdale/garagepi/test_helpers"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/test_helpers/fakes"
 	"github.com/robdimsdale/garagepi/webcam"
 )
@@ -79,7 +79,7 @@ var _ = Describe("Webcam", func() {
 	Context("When reading the webcam image fails with error", func() {
 		BeforeEach(func() {
 			dummyResponse := new(http.Response)
-			dummyResponse.Body = test_helpers.ErrCloser{bytes.NewReader([]byte{})}
+			dummyResponse.Body = errCloser{bytes.NewReader([]byte{})}
 			fakeHttpHelper.GetReturns(dummyResponse, nil)
 		})
 
@@ -95,3 +95,15 @@ var _ = Describe("Webcam", func() {
 		})
 	})
 })
+
+type errCloser struct {
+	io.Reader
+}
+
+func (e errCloser) Read(p []byte) (n int, err error) {
+	return 0, errors.New("ReadError")
+}
+
+func (e errCloser) Close() error {
+	return nil
+}
