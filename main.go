@@ -36,8 +36,6 @@ var (
 	webcamHost = flag.String("webcamHost", "localhost", "Host of webcam image.")
 	webcamPort = flag.Uint("webcamPort", 8080, "Port of webcam image.")
 
-	loggingOn = flag.Bool("loggingOn", true, "Whether logging is enabled.")
-
 	gpioDoorPin  = flag.Uint("gpioDoorPin", 17, "Gpio pin of door.")
 	gpioLightPin = flag.Uint("gpioLightPin", 2, "Gpio pin of light.")
 
