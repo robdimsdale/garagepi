@@ -72,14 +72,12 @@ func (h handler) DiscoverLightState() (*LightState, error) {
 	h.logger.Info("Reading light state")
 	state, err := h.gpio.Read(h.gpioLightPin)
 	if err != nil {
-		h.logger.Error("Error reading light state", err)
 		return &LightState{StateKnown: false, LightOn: false}, err
 	}
 	state = strings.TrimSpace(state)
 
 	lightOn, err := strconv.ParseBool(state)
 	if err != nil {
-		h.logger.Error("Error parsing light state", err)
 		return &LightState{StateKnown: false, LightOn: false}, err
 	}
 
