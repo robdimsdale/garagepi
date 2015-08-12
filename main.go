@@ -136,7 +136,7 @@ func initializeLogger() lager.Logger {
 	case FATAL:
 		minLagerLogLevel = lager.FATAL
 	default:
-		panic(fmt.Errorf("unknown log level: %s", logLevel))
+		panic(fmt.Errorf("unknown log level: %s", *logLevel))
 	}
 
 	logger := lager.NewLogger("garagepi")

@@ -56,7 +56,7 @@ func (h handler) HandleToggle(w http.ResponseWriter, r *http.Request) {
 
 		err := h.gpio.WriteLow(h.gpioDoorPin)
 		if err != nil {
-			h.logger.Error("Error toggling door: %v", err)
+			h.logger.Error("Error toggling door", err)
 		}
 
 		h.logger.Info("door toggled")

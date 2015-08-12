@@ -79,7 +79,7 @@ func (h handler) DiscoverLightState() (*LightState, error) {
 
 	lightOn, err := strconv.ParseBool(state)
 	if err != nil {
-		h.logger.Error("Error parsing light state: %v", err)
+		h.logger.Error("Error parsing light state", err)
 		return &LightState{StateKnown: false, LightOn: false}, err
 	}
 

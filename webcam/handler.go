@@ -38,7 +38,7 @@ func NewHandler(
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.httpHelper.Get(h.webcamUrl + r.Form.Get("n"))
 	if err != nil {
-		h.logger.Error("Error getting image: %v", err)
+		h.logger.Error("Error getting image", err)
 		if resp == nil {
 			h.logger.Info("No image to return")
 			w.WriteHeader(http.StatusServiceUnavailable)
@@ -48,7 +48,7 @@ func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		h.logger.Error("Error closing image request: %v", err)
+		h.logger.Error("Error closing image request", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
