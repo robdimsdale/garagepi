@@ -11,8 +11,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
+	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
-	test_helpers_fakes "github.com/robdimsdale/garagepi/test_helpers/fakes"
 	"github.com/robdimsdale/garagepi/webcam"
 )
 

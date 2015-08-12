@@ -11,10 +11,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
+	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	"github.com/robdimsdale/garagepi/light"
-	test_helpers_fakes "github.com/robdimsdale/garagepi/test_helpers/fakes"
 )
 
 const (
