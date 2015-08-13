@@ -36,8 +36,6 @@ func NewHandler(
 }
 
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
-	h.logger.Debug("received request", lager.Data{"method": r.Method, "url": r.URL})
-
 	t, err := h.fsHelper.GetHomepageTemplate()
 	if err != nil {
 		h.logger.Error("error reading homepage template", err)

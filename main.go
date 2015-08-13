@@ -15,6 +15,7 @@ import (
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
+	"github.com/robdimsdale/garagepi/middleware"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
@@ -107,12 +108,10 @@ func main() {
 	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
 	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
 
-	http.Handle("/", rtr)
-
 	runner := runner{
 		port:    *port,
 		logger:  logger,
-		handler: rtr,
+		handler: newHandler(rtr, logger),
 	}
 
 	process := ifrit.Invoke(runner)
@@ -178,4 +177,10 @@ func (r runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	case err := <-errChan:
 		return err
 	}
+}
+
+func newHandler(mux http.Handler, logger lager.Logger) http.Handler {
+	return middleware.Chain{
+		middleware.NewLogger(logger),
+	}.Wrap(mux)
 }

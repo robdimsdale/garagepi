@@ -44,8 +44,6 @@ func NewHandler(
 }
 
 func (h handler) HandleToggle(w http.ResponseWriter, r *http.Request) {
-	h.logger.Debug("request received", lager.Data{"method": r.Method, "url": r.URL})
-
 	err := h.gpio.WriteHigh(h.gpioDoorPin)
 	if err != nil {
 		h.logger.Error("error toggling door. Skipping sleep and further executions", err)

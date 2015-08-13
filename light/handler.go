@@ -57,8 +57,6 @@ func (l LightState) StateString() string {
 }
 
 func (h handler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	h.logger.Debug("received request", lager.Data{"method": r.Method, "url": r.URL})
-
 	ls, err := h.DiscoverLightState()
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -90,8 +88,6 @@ func (h handler) DiscoverLightState() (*LightState, error) {
 }
 
 func (h handler) HandleSet(w http.ResponseWriter, r *http.Request) {
-	h.logger.Debug("received request", lager.Data{"method": r.Method, "url": r.URL})
-
 	err := r.ParseForm()
 	if err != nil {
 		h.logger.Error("error parsing form - assuming light should be turned on.", err)
