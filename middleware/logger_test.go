@@ -36,8 +36,8 @@ var _ = Describe("Logger", func() {
 
 		Expect(fakeLogger.DebugCallCount()).To(Equal(1))
 		_, arg1 := fakeLogger.DebugArgsForCall(0)
-		loggedRequest := arg1[0]["request"].(http.Request)
-		Expect(loggedRequest.BasicAuth()).To(Equal(""))
+		loggedRequest := arg1[0]["request"].(middleware.LoggableHTTPRequest)
+		Expect(loggedRequest.Header.Get("Authorization")).To(Equal(""))
 	})
 
 	It("should call next handler", func() {
