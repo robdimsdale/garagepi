@@ -15,7 +15,6 @@ import (
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
-	"github.com/robdimsdale/garagepi/middleware"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
@@ -132,16 +131,20 @@ func main() {
 		r = handler.NewHTTPSRunner(
 			*port,
 			logger,
-			newHandler(rtr, logger),
+			rtr,
 			*keyFile,
 			*certFile,
 			*caFile,
+			*username,
+			*password,
 		)
 	} else {
 		r = handler.NewHTTPRunner(
 			*port,
 			logger,
-			newHandler(rtr, logger),
+			rtr,
+			*username,
+			*password,
 		)
 	}
 
@@ -176,19 +179,4 @@ func initializeLogger() lager.Logger {
 	logger.RegisterSink(sink)
 
 	return logger
-}
-
-func newHandler(mux http.Handler, logger lager.Logger) http.Handler {
-	if *username == "" && *password == "" {
-		return middleware.Chain{
-			middleware.NewPanicRecovery(logger),
-			middleware.NewLogger(logger),
-		}.Wrap(mux)
-	} else {
-		return middleware.Chain{
-			middleware.NewPanicRecovery(logger),
-			middleware.NewLogger(logger),
-			middleware.NewBasicAuth("username", "password"),
-		}.Wrap(mux)
-	}
 }

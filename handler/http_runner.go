@@ -20,11 +20,13 @@ func NewHTTPRunner(
 	port uint,
 	logger lager.Logger,
 	handler http.Handler,
+	username string,
+	password string,
 ) ifrit.Runner {
 	return &httpRunner{
 		port:    port,
 		logger:  logger,
-		handler: handler,
+		handler: newHandler(handler, logger, username, password),
 	}
 }
 

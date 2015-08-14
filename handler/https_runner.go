@@ -28,12 +28,14 @@ func NewHTTPSRunner(
 	keyFile string,
 	certFile string,
 	caFile string,
+	username string,
+	password string,
 ) ifrit.Runner {
 	tlsConfig := createTLSConfig(keyFile, certFile, caFile)
 	return &httpsRunner{
 		port:      port,
 		logger:    logger,
-		handler:   handler,
+		handler:   newHandler(handler, logger, username, password),
 		tlsConfig: tlsConfig,
 	}
 }

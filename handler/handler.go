@@ -7,7 +7,7 @@ import (
 	"github.com/robdimsdale/garagepi/middleware"
 )
 
-func NewHandler(
+func newHandler(
 	mux http.Handler,
 	logger lager.Logger,
 	username string,
