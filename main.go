@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/pivotal-golang/lager"
@@ -15,16 +14,10 @@ import (
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
+	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
-)
-
-const (
-	DEBUG = "debug"
-	INFO  = "info"
-	ERROR = "error"
-	FATAL = "fatal"
 )
 
 var (
@@ -39,7 +32,7 @@ var (
 	gpioDoorPin  = flag.Uint("gpioDoorPin", 17, "Gpio pin of door.")
 	gpioLightPin = flag.Uint("gpioLightPin", 2, "Gpio pin of light.")
 
-	logLevel = flag.String("logLevel", string(INFO), "log level: debug, info, error or fatal")
+	logLevel = flag.String("logLevel", string(logger.INFO), "log level: debug, info, error or fatal")
 
 	enableHTTPS = flag.Bool("enableHTTPS", false, "Enable HTTPS traffic")
 
@@ -58,7 +51,7 @@ func main() {
 
 	flag.Parse()
 
-	logger := initializeLogger()
+	logger := logger.InitializeLogger(*logLevel)
 	logger.Info("garagepi starting", lager.Data{"version": version})
 
 	if *enableHTTPS {
@@ -156,27 +149,4 @@ func main() {
 	if err != nil {
 		logger.Error("Error running garagepi", err)
 	}
-}
-
-func initializeLogger() lager.Logger {
-	var minLagerLogLevel lager.LogLevel
-	switch *logLevel {
-	case DEBUG:
-		minLagerLogLevel = lager.DEBUG
-	case INFO:
-		minLagerLogLevel = lager.INFO
-	case ERROR:
-		minLagerLogLevel = lager.ERROR
-	case FATAL:
-		minLagerLogLevel = lager.FATAL
-	default:
-		panic(fmt.Errorf("unknown log level: %s", *logLevel))
-	}
-
-	logger := lager.NewLogger("garagepi")
-
-	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), minLagerLogLevel)
-	logger.RegisterSink(sink)
-
-	return logger
 }
