@@ -1,12 +1,8 @@
 package main
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -19,6 +15,7 @@ import (
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
+	"github.com/robdimsdale/garagepi/middleware"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
@@ -132,19 +129,19 @@ func main() {
 
 	var r ifrit.Runner
 	if *enableHTTPS {
-		tlsConfig := createTLSConfig()
-
 		r = handler.NewHTTPSRunner(
 			*port,
 			logger,
-			handler.NewHandler(rtr, logger, *username, *password),
-			tlsConfig,
+			newHandler(rtr, logger),
+			*keyFile,
+			*certFile,
+			*caFile,
 		)
 	} else {
 		r = handler.NewHTTPRunner(
 			*port,
 			logger,
-			handler.NewHandler(rtr, logger, *username, *password),
+			newHandler(rtr, logger),
 		)
 	}
 
@@ -181,30 +178,17 @@ func initializeLogger() lager.Logger {
 	return logger
 }
 
-func createTLSConfig() *tls.Config {
-	// Load client cert
-	cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
-	if err != nil {
-		log.Fatal(err)
+func newHandler(mux http.Handler, logger lager.Logger) http.Handler {
+	if *username == "" && *password == "" {
+		return middleware.Chain{
+			middleware.NewPanicRecovery(logger),
+			middleware.NewLogger(logger),
+		}.Wrap(mux)
+	} else {
+		return middleware.Chain{
+			middleware.NewPanicRecovery(logger),
+			middleware.NewLogger(logger),
+			middleware.NewBasicAuth("username", "password"),
+		}.Wrap(mux)
 	}
-
-	// Setup HTTPS client
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
-
-	if *caFile != "" {
-		// Load CA cert
-		caCert, err := ioutil.ReadFile(*caFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		tlsConfig.RootCAs = caCertPool
-	}
-
-	tlsConfig.BuildNameToCertificate()
-	return tlsConfig
 }

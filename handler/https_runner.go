@@ -2,7 +2,10 @@ package handler
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -22,8 +25,11 @@ func NewHTTPSRunner(
 	port uint,
 	logger lager.Logger,
 	handler http.Handler,
-	tlsConfig *tls.Config,
+	keyFile string,
+	certFile string,
+	caFile string,
 ) ifrit.Runner {
+	tlsConfig := createTLSConfig(keyFile, certFile, caFile)
 	return &httpsRunner{
 		port:      port,
 		logger:    logger,
@@ -59,4 +65,32 @@ func (r httpsRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error 
 	case err := <-errChan:
 		return err
 	}
+}
+
+func createTLSConfig(keyFile string, certFile string, caFile string) *tls.Config {
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+
+	if caFile != "" {
+		// Load CA cert
+		caCert, err := ioutil.ReadFile(caFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		tlsConfig.RootCAs = caCertPool
+	}
+
+	tlsConfig.BuildNameToCertificate()
+	return tlsConfig
 }
