@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"os"
 
@@ -16,10 +15,10 @@ import (
 	"github.com/robdimsdale/garagepi/door"
 	"github.com/robdimsdale/garagepi/fshelper"
 	"github.com/robdimsdale/garagepi/gpio"
+	"github.com/robdimsdale/garagepi/handler"
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
-	"github.com/robdimsdale/garagepi/middleware"
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
@@ -84,8 +83,6 @@ func main() {
 	osHelper := oshelper.NewOsHelperImpl(logger)
 	httpHelper := httphelper.NewHttpHelperImpl()
 
-	rtr := mux.NewRouter()
-
 	wh := webcam.NewHandler(
 		logger,
 		httpHelper,
@@ -124,6 +121,8 @@ func main() {
 	staticFileServer := http.FileServer(staticFileSystem)
 	strippedStaticFileServer := http.StripPrefix("/static/", staticFileServer)
 
+	rtr := mux.NewRouter()
+
 	rtr.PathPrefix("/static/").Handler(strippedStaticFileServer)
 	rtr.HandleFunc("/", hh.Handle).Methods("GET")
 	rtr.HandleFunc("/webcam", wh.Handle).Methods("GET")
@@ -131,42 +130,25 @@ func main() {
 	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
 	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
 
-	var tlsConfig *tls.Config
+	var r ifrit.Runner
 	if *enableHTTPS {
-		// Load client cert
-		cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
-		if err != nil {
-			log.Fatal(err)
-		}
+		tlsConfig := createTLSConfig()
 
-		// Setup HTTPS client
-		tlsConfig = &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-
-		if *caFile != "" {
-			// Load CA cert
-			caCert, err := ioutil.ReadFile(*caFile)
-			if err != nil {
-				log.Fatal(err)
-			}
-			caCertPool := x509.NewCertPool()
-			caCertPool.AppendCertsFromPEM(caCert)
-
-			tlsConfig.RootCAs = caCertPool
-		}
-
-		tlsConfig.BuildNameToCertificate()
+		r = handler.NewHTTPSRunner(
+			*port,
+			logger,
+			handler.NewHandler(rtr, logger, *username, *password),
+			tlsConfig,
+		)
+	} else {
+		r = handler.NewHTTPRunner(
+			*port,
+			logger,
+			handler.NewHandler(rtr, logger, *username, *password),
+		)
 	}
 
-	runner := runner{
-		port:      *port,
-		logger:    logger,
-		handler:   newHandler(rtr, logger),
-		tlsConfig: tlsConfig,
-	}
-
-	process := ifrit.Invoke(runner)
+	process := ifrit.Invoke(r)
 
 	logger.Info("garagepi started")
 
@@ -199,57 +181,30 @@ func initializeLogger() lager.Logger {
 	return logger
 }
 
-type runner struct {
-	port      uint
-	logger    lager.Logger
-	handler   http.Handler
-	tlsConfig *tls.Config
-}
-
-func (r runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
-	var listener net.Listener
-	var err error
-
-	if *enableHTTPS {
-		listener, err = tls.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port), r.tlsConfig)
-	} else {
-		listener, err = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port))
-	}
+func createTLSConfig() *tls.Config {
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
 	if err != nil {
-		return err
-	} else {
-		r.logger.Info("web server listening on port", lager.Data{"port": r.port})
+		log.Fatal(err)
 	}
 
-	errChan := make(chan error)
-	go func() {
-		err := http.Serve(listener, r.handler)
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+
+	if *caFile != "" {
+		// Load CA cert
+		caCert, err := ioutil.ReadFile(*caFile)
 		if err != nil {
-			errChan <- err
+			log.Fatal(err)
 		}
-	}()
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
 
-	close(ready)
-
-	select {
-	case <-signals:
-		return listener.Close()
-	case err := <-errChan:
-		return err
+		tlsConfig.RootCAs = caCertPool
 	}
-}
 
-func newHandler(mux http.Handler, logger lager.Logger) http.Handler {
-	if *username == "" && *password == "" {
-		return middleware.Chain{
-			middleware.NewPanicRecovery(logger),
-			middleware.NewLogger(logger),
-		}.Wrap(mux)
-	} else {
-		return middleware.Chain{
-			middleware.NewPanicRecovery(logger),
-			middleware.NewLogger(logger),
-			middleware.NewBasicAuth("username", "password"),
-		}.Wrap(mux)
-	}
+	tlsConfig.BuildNameToCertificate()
+	return tlsConfig
 }
