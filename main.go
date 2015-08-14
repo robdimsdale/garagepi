@@ -181,6 +181,7 @@ func (r runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 
 func newHandler(mux http.Handler, logger lager.Logger) http.Handler {
 	return middleware.Chain{
+		middleware.NewPanicRecovery(logger),
 		middleware.NewLogger(logger),
 	}.Wrap(mux)
 }
