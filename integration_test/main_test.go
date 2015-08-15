@@ -70,6 +70,7 @@ var _ = Describe("GaragepiExecutable", func() {
 			args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 			args = append(args, "-dev")
 			args = append(args, "-enableHTTPS=false")
+			args = append(args, "-forceHTTPS=false")
 			session = startMainWithArgs(args...)
 			Eventually(session).Should(gbytes.Say("garagepi started"))
 		})
@@ -127,6 +128,7 @@ var _ = Describe("GaragepiExecutable", func() {
 				args = append(args, "-enableHTTP=true")
 				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 				args = append(args, "-enableHTTPS=false")
+				args = append(args, "-forceHTTPS=false")
 			})
 
 			It("accepts HTTP connections", func() {
@@ -166,6 +168,8 @@ var _ = Describe("GaragepiExecutable", func() {
 				var (
 					keyFile  string
 					certFile string
+
+					client *http.Client
 				)
 
 				BeforeEach(func() {
@@ -176,11 +180,6 @@ var _ = Describe("GaragepiExecutable", func() {
 
 					args = append(args, "-keyFile="+keyFile)
 					args = append(args, "-certFile="+certFile)
-				})
-
-				It("accepts HTTPS connections", func() {
-					session = startMainWithArgs(args...)
-					Eventually(session).Should(gbytes.Say("garagepi started"))
 
 					// Load client cert
 					cert, err := tls.LoadX509KeyPair(certFile, keyFile)
@@ -203,12 +202,71 @@ var _ = Describe("GaragepiExecutable", func() {
 					}
 					tlsConfig.BuildNameToCertificate()
 					transport := &http.Transport{TLSClientConfig: tlsConfig}
-					client := &http.Client{Transport: transport}
+					client = &http.Client{Transport: transport}
+				})
+
+				It("accepts HTTPS connections", func() {
+					session = startMainWithArgs(args...)
+					Eventually(session).Should(gbytes.Say("garagepi started"))
 
 					resp, err := client.Get(fmt.Sprintf("https://localhost:%d/", httpsPort))
 					Expect(err).NotTo(HaveOccurred())
 					validateSuccessNonZeroLengthBody(resp)
 				})
+
+				Context("when enableHTTP is true", func() {
+					BeforeEach(func() {
+						args = append(args, "-enableHTTP=true")
+						args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
+					})
+
+					Context("when forceHTTPS is true", func() {
+						BeforeEach(func() {
+							args = append(args, "-forceHTTPS=true")
+						})
+
+						It("redirects HTTP to HTTPS", func() {
+							session = startMainWithArgs(args...)
+							Eventually(session).Should(gbytes.Say("garagepi started"))
+
+							req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+							Expect(err).NotTo(HaveOccurred())
+
+							transport := http.Transport{}
+							resp, err := transport.RoundTrip(req)
+
+							Expect(resp.StatusCode).To(Equal(http.StatusFound))
+
+							expectedLocation := fmt.Sprintf("localhost:%d", httpsPort)
+
+							location, err := resp.Location()
+							Expect(err).NotTo(HaveOccurred())
+							Expect(location.Scheme).To(Equal("https"))
+							Expect(location.Host).To(Equal(expectedLocation))
+						})
+					})
+
+					Context("when forceHTTPS is false", func() {
+						BeforeEach(func() {
+							args = append(args, "-forceHTTPS=false")
+						})
+
+						It("does not redirect HTTP to HTTPS", func() {
+							session = startMainWithArgs(args...)
+							Eventually(session).Should(gbytes.Say("garagepi started"))
+
+							req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+							Expect(err).NotTo(HaveOccurred())
+
+							transport := http.Transport{}
+							resp, err := transport.RoundTrip(req)
+
+							Expect(resp.StatusCode).To(Equal(http.StatusOK))
+						})
+					})
+
+				})
+
 			})
 		})
 	})
@@ -219,6 +277,7 @@ var _ = Describe("GaragepiExecutable", func() {
 				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 				args = append(args, "-dev")
 				args = append(args, "-enableHTTPS=false")
+				args = append(args, "-forceHTTPS=false")
 			})
 
 			It("accepts unauthenticated requests", func() {
@@ -236,6 +295,7 @@ var _ = Describe("GaragepiExecutable", func() {
 				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 				args = append(args, "-dev=false")
 				args = append(args, "-enableHTTPS=false")
+				args = append(args, "-forceHTTPS=false")
 			})
 
 			It("exits with error when -username is not provided", func() {

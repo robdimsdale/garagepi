@@ -31,11 +31,20 @@ func NewHTTPSRunner(
 	username string,
 	password string,
 ) ifrit.Runner {
+
 	tlsConfig := createTLSConfig(keyFile, certFile, caFile)
+
+	var h http.Handler
+	if username == "" && password == "" {
+		h = newHandler(handler, logger)
+	} else {
+		h = newBasicAuthHandler(handler, logger, username, password)
+	}
+
 	return &httpsRunner{
 		port:      port,
 		logger:    logger,
-		handler:   newHandler(handler, logger, username, password),
+		handler:   h,
 		tlsConfig: tlsConfig,
 	}
 }
@@ -48,7 +57,7 @@ func (r httpsRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error 
 	if err != nil {
 		return err
 	} else {
-		r.logger.Info("web server listening on port", lager.Data{"port": r.port})
+		r.logger.Info("https server listening on port", lager.Data{"port": r.port})
 	}
 
 	errChan := make(chan error)

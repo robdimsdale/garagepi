@@ -11,22 +11,36 @@ import (
 )
 
 type httpRunner struct {
-	port    uint
-	logger  lager.Logger
-	handler http.Handler
+	port       uint
+	logger     lager.Logger
+	handler    http.Handler
+	forceHTTPS bool
 }
 
 func NewHTTPRunner(
 	port uint,
 	logger lager.Logger,
 	handler http.Handler,
+	forceHTTPS bool,
+	httpsPort uint,
 	username string,
 	password string,
 ) ifrit.Runner {
+
+	var h http.Handler
+	if forceHTTPS {
+		h = newForceHTTPSHandler(handler, logger, httpsPort)
+	} else if username != "" && password != "" {
+		h = newBasicAuthHandler(handler, logger, username, password)
+	} else {
+		h = newHandler(handler, logger)
+	}
+
 	return &httpRunner{
-		port:    port,
-		logger:  logger,
-		handler: newHandler(handler, logger, username, password),
+		port:       port,
+		logger:     logger,
+		handler:    h,
+		forceHTTPS: forceHTTPS,
 	}
 }
 
@@ -38,7 +52,7 @@ func (r httpRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	if err != nil {
 		return err
 	} else {
-		r.logger.Info("web server listening on port", lager.Data{"port": r.port})
+		r.logger.Info("http server listening on port", lager.Data{"port": r.port})
 	}
 
 	errChan := make(chan error)
