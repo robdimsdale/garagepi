@@ -9,7 +9,7 @@ A typical use would be to view the interior of a garage and trigger the garage d
 Copyright (c) 2014-2015, Robert Dimsdale. Licensed under [MIT License].
 
 ## Getting started
-Requires Go v1.2 or higher, and jacksonliam's [experimental mjpg-streamer].
+Requires Go v1.4 or higher, and jacksonliam's [experimental mjpg-streamer].
 
 ### Go dependencies
 
