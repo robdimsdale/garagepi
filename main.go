@@ -42,6 +42,8 @@ var (
 
 	username = flag.String("username", "", "Username for HTTP authentication.")
 	password = flag.String("password", "", "Password for HTTP authentication.")
+
+	dev = flag.Bool("dev", false, "Development mode; do not require username/password")
 )
 
 func main() {
@@ -62,6 +64,10 @@ func main() {
 		if *certFile == "" {
 			logger.Fatal("exiting", fmt.Errorf("certFile must be provided if useHTTPS is true"))
 		}
+	}
+
+	if !*dev && (*username == "" || *password == "") {
+		logger.Fatal("exiting", fmt.Errorf("must specify -username and -password or turn on dev mode"))
 	}
 
 	// The location of the 'assets' directory
