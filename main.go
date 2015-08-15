@@ -24,8 +24,6 @@ var (
 	// version is deliberately left uninitialized so it can be set at compile-time
 	version string
 
-	port = flag.Uint("port", 9999, "Port for server to bind to.")
-
 	webcamHost = flag.String("webcamHost", "localhost", "Host of webcam image.")
 	webcamPort = flag.Uint("webcamPort", 8080, "Port of webcam image.")
 
@@ -34,7 +32,10 @@ var (
 
 	logLevel = flag.String("logLevel", string(logger.INFO), "log level: debug, info, error or fatal")
 
-	enableHTTPS = flag.Bool("enableHTTPS", false, "Enable HTTPS traffic")
+	enableHTTPS = flag.Bool("enableHTTPS", true, "Enable HTTPS traffic.")
+
+	httpPort  = flag.Uint("httpPort", 13080, "Port on which to listen for HTTP (if enabled)")
+	httpsPort = flag.Uint("httpsPort", 13433, "Port on which to listen for HTTP (if enabled)")
 
 	certFile = flag.String("certFile", "", "A PEM encoded certificate file.")
 	keyFile  = flag.String("keyFile", "", "A PEM encoded private key file.")
@@ -128,7 +129,7 @@ func main() {
 	var r ifrit.Runner
 	if *enableHTTPS {
 		r = handler.NewHTTPSRunner(
-			*port,
+			*httpsPort,
 			logger,
 			rtr,
 			*keyFile,
@@ -139,7 +140,7 @@ func main() {
 		)
 	} else {
 		r = handler.NewHTTPRunner(
-			*port,
+			*httpPort,
 			logger,
 			rtr,
 			*username,

@@ -14,7 +14,8 @@ func TestGaragepi(t *testing.T) {
 }
 
 var (
-	port            uint
+	httpPort        uint
+	httpsPort       uint
 	garagepiBinPath string
 )
 
@@ -23,7 +24,8 @@ var _ = BeforeSuite(func() {
 	garagepiBinPath, err = gexec.Build("github.com/robdimsdale/garagepi", "-race")
 	Expect(err).ShouldNot(HaveOccurred())
 
-	port = uint(59990 + GinkgoParallelNode())
+	httpPort = uint(59990 + 2*GinkgoParallelNode())
+	httpsPort = uint(59991 + 2*GinkgoParallelNode())
 })
 
 var _ = AfterSuite(func() {
