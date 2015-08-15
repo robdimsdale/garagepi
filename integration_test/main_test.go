@@ -20,7 +20,6 @@ import (
 )
 
 func startMainWithArgs(args ...string) *gexec.Session {
-	args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 	command := exec.Command(garagepiBinPath, args...)
 	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
@@ -68,6 +67,7 @@ var _ = Describe("GaragepiExecutable", func() {
 
 	Describe("routing", func() {
 		BeforeEach(func() {
+			args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 			args = append(args, "-dev")
 			args = append(args, "-enableHTTPS=false")
 			session = startMainWithArgs(args...)
@@ -122,6 +122,24 @@ var _ = Describe("GaragepiExecutable", func() {
 			args = append(args, "-dev")
 		})
 
+		Context("when enableHTTP is true", func() {
+			BeforeEach(func() {
+				args = append(args, "-enableHTTP=true")
+				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
+				args = append(args, "-enableHTTPS=false")
+			})
+
+			It("accepts HTTP connections", func() {
+				session = startMainWithArgs(args...)
+				Eventually(session).Should(gbytes.Say("garagepi started"))
+
+				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", httpPort))
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(resp.StatusCode).To(Equal(http.StatusOK))
+			})
+		})
+
 		Context("when enableHTTPS is true", func() {
 			BeforeEach(func() {
 				args = append(args, "-enableHTTPS=true")
@@ -160,7 +178,7 @@ var _ = Describe("GaragepiExecutable", func() {
 					args = append(args, "-certFile="+certFile)
 				})
 
-				It("Should accept requests via https", func() {
+				It("accepts HTTPS connections", func() {
 					session = startMainWithArgs(args...)
 					Eventually(session).Should(gbytes.Say("garagepi started"))
 
@@ -187,7 +205,7 @@ var _ = Describe("GaragepiExecutable", func() {
 					transport := &http.Transport{TLSClientConfig: tlsConfig}
 					client := &http.Client{Transport: transport}
 
-					resp, err := client.Get(fmt.Sprintf("https://localhost:%d", httpsPort))
+					resp, err := client.Get(fmt.Sprintf("https://localhost:%d/", httpsPort))
 					Expect(err).NotTo(HaveOccurred())
 					validateSuccessNonZeroLengthBody(resp)
 				})
@@ -198,6 +216,7 @@ var _ = Describe("GaragepiExecutable", func() {
 	Describe("authentication", func() {
 		Context("when dev is enabled", func() {
 			BeforeEach(func() {
+				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 				args = append(args, "-dev")
 				args = append(args, "-enableHTTPS=false")
 			})
@@ -214,6 +233,7 @@ var _ = Describe("GaragepiExecutable", func() {
 
 		Context("when dev is disabled", func() {
 			BeforeEach(func() {
+				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 				args = append(args, "-dev=false")
 				args = append(args, "-enableHTTPS=false")
 			})

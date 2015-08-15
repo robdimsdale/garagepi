@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/pivotal-golang/lager"
@@ -18,6 +19,7 @@ import (
 	"github.com/robdimsdale/garagepi/oshelper"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
+	"github.com/tedsuo/ifrit/grouper"
 )
 
 var (
@@ -32,6 +34,7 @@ var (
 
 	logLevel = flag.String("logLevel", string(logger.INFO), "log level: debug, info, error or fatal")
 
+	enableHTTP  = flag.Bool("enableHTTP", true, "Enable HTTP traffic.")
 	enableHTTPS = flag.Bool("enableHTTPS", true, "Enable HTTPS traffic.")
 
 	httpPort  = flag.Uint("httpPort", 13080, "Port on which to listen for HTTP (if enabled)")
@@ -59,11 +62,11 @@ func main() {
 
 	if *enableHTTPS {
 		if *keyFile == "" {
-			logger.Fatal("exiting", fmt.Errorf("keyFile must be provided if useHTTPS is true"))
+			logger.Fatal("exiting", fmt.Errorf("keyFile must be provided if enableHTTPS is true"))
 		}
 
 		if *certFile == "" {
-			logger.Fatal("exiting", fmt.Errorf("certFile must be provided if useHTTPS is true"))
+			logger.Fatal("exiting", fmt.Errorf("certFile must be provided if enableHTTPS is true"))
 		}
 	}
 
@@ -126,9 +129,9 @@ func main() {
 	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
 	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
 
-	var r ifrit.Runner
+	members := grouper.Members{}
 	if *enableHTTPS {
-		r = handler.NewHTTPSRunner(
+		httpsRunner := handler.NewHTTPSRunner(
 			*httpsPort,
 			logger,
 			rtr,
@@ -138,17 +141,29 @@ func main() {
 			*username,
 			*password,
 		)
-	} else {
-		r = handler.NewHTTPRunner(
+
+		members = append(members, grouper.Member{
+			Name:   "https",
+			Runner: httpsRunner,
+		})
+	}
+
+	if *enableHTTP {
+		httpRunner := handler.NewHTTPRunner(
 			*httpPort,
 			logger,
 			rtr,
 			*username,
 			*password,
 		)
+		members = append(members, grouper.Member{
+			Name:   "http",
+			Runner: httpRunner,
+		})
 	}
 
-	process := ifrit.Invoke(r)
+	group := grouper.NewParallel(os.Kill, members)
+	process := ifrit.Invoke(group)
 
 	logger.Info("garagepi started")
 
