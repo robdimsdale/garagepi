@@ -71,47 +71,66 @@ var _ = Describe("GaragepiExecutable", func() {
 			args = append(args, "-dev")
 			args = append(args, "-enableHTTPS=false")
 			args = append(args, "-forceHTTPS=false")
-			session = startMainWithArgs(args...)
-			Eventually(session).Should(gbytes.Say("garagepi started"))
 		})
 
 		It("Should accept GET requests to /", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Get(fmt.Sprintf("http://localhost:%d", httpPort))
 			Expect(err).NotTo(HaveOccurred())
 			validateSuccessNonZeroLengthBody(resp)
 		})
 
 		It("Should reject GET requests to /toggle with 404", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/toggle", httpPort))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
 		})
 
 		It("Should accept POST requests to /toggle", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Post(fmt.Sprintf("http://localhost:%d/toggle", httpPort), "", strings.NewReader(""))
 			Expect(err).NotTo(HaveOccurred())
 			validateSuccessNonZeroLengthBody(resp)
 		})
 
 		It("Should accept GET requests to /light", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/light", httpPort))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 		})
 
 		It("Should accept POST requests to /light", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Post(fmt.Sprintf("http://localhost:%d/light", httpPort), "", strings.NewReader(""))
 			Expect(err).NotTo(HaveOccurred())
 			validateSuccessNonZeroLengthBody(resp)
 		})
 
 		It("Should accept GET requests to /webcam", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/webcam", httpPort))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 		})
 
 		It("Should serve static files", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
 			resp, err := http.Get(fmt.Sprintf("http://localhost:%d/static/css/application.css", httpPort))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
@@ -404,6 +423,39 @@ var _ = Describe("GaragepiExecutable", func() {
 					Expect(resp.StatusCode).To(Equal(http.StatusOK))
 				})
 			})
+		})
+	})
+
+	Describe("Signal handling", func() {
+		BeforeEach(func() {
+			args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
+			args = append(args, "-dev")
+			args = append(args, "-enableHTTPS=false")
+			args = append(args, "-forceHTTPS=false")
+		})
+
+		It("shuts downs when interrupted", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
+			session.Interrupt()
+			Eventually(session).Should(gexec.Exit())
+		})
+
+		It("shuts downs when terminated", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
+			session.Terminate()
+			Eventually(session).Should(gexec.Exit())
+		})
+
+		It("shuts downs when killed", func() {
+			session = startMainWithArgs(args...)
+			Eventually(session).Should(gbytes.Say("garagepi started"))
+
+			session.Kill()
+			Eventually(session).Should(gexec.Exit())
 		})
 	})
 })
