@@ -110,6 +110,7 @@ jobs:
   public: false
   plan:
   - get: garagepi
+    trigger: true
   - put: docker-garagepi-1.4
     params:
       build: garagepi/scripts/ci/golang-1.4
@@ -118,6 +119,7 @@ jobs:
   public: false
   plan:
   - get: garagepi
+    trigger: true
   - put: docker-garagepi-1.5
     params:
       build: garagepi/scripts/ci/golang-1.5
