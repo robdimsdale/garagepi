@@ -16,7 +16,7 @@ func newBasicAuthHandler(
 	return middleware.Chain{
 		middleware.NewPanicRecovery(logger),
 		middleware.NewLogger(logger),
-		middleware.NewBasicAuth("username", "password"),
+		middleware.NewBasicAuth(username, password, logger),
 	}.Wrap(mux)
 }
 

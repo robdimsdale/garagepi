@@ -316,8 +316,8 @@ var _ = Describe("GaragepiExecutable", func() {
 
 			Context("when username and password are provided", func() {
 				BeforeEach(func() {
-					args = append(args, "-username=username")
-					args = append(args, "-password=password")
+					args = append(args, "-username=some-user")
+					args = append(args, "-password=teE73F4vf0")
 				})
 
 				It("rejects unauthenticated requests", func() {
@@ -336,7 +336,7 @@ var _ = Describe("GaragepiExecutable", func() {
 					req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
 					Expect(err).NotTo(HaveOccurred())
 
-					req.SetBasicAuth("username", "badpassword")
+					req.SetBasicAuth("baduser", "badpassword")
 
 					client := &http.Client{}
 					resp, err := client.Do(req)
@@ -352,7 +352,7 @@ var _ = Describe("GaragepiExecutable", func() {
 					req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
 					Expect(err).NotTo(HaveOccurred())
 
-					req.SetBasicAuth("username", "password")
+					req.SetBasicAuth("some-user", "teE73F4vf0")
 
 					client := &http.Client{}
 					resp, err := client.Do(req)
