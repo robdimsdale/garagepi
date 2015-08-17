@@ -35,7 +35,6 @@ func (l Logger) Wrap(next http.Handler) http.Handler {
 
 		response := map[string]interface{}{
 			"Header":     loggingResponseWriter.Header(),
-			"Body":       string(loggingResponseWriter.body),
 			"StatusCode": loggingResponseWriter.statusCode,
 		}
 
