@@ -27,6 +27,22 @@ resources:
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
 
+- name: docker-garagepi-1.4
+  type: docker-image
+  source:
+    repository: robdimsdale/garagepi-1.4
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
+- name: docker-garagepi-1.5
+  type: docker-image
+  source:
+    repository: robdimsdale/garagepi-1.5
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 jobs:
 - name: golang-1.4
   public: false
@@ -89,3 +105,30 @@ jobs:
         repository: garagepi
         tag: version/number
         tag_prefix: v
+
+- name: docker-garagepi-1.4
+  public: false
+  plan:
+  - get: garagepi
+  - put: docker-garagepi-1.4
+    params:
+      build: garagepi/scripts/ci/golang-1.4
+
+- name: docker-garagepi-1.5
+  public: false
+  plan:
+  - get: garagepi
+  - put: docker-garagepi-1.5
+    params:
+      build: garagepi/scripts/ci/golang-1.5
+
+groups:
+- name: garagepi
+  jobs:
+    - golang-1.4
+    - golang-1.5
+    - shipit
+- name: images
+  jobs:
+    - docker-garagepi-1.4
+    - docker-garagepi-1.5
