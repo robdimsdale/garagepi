@@ -123,22 +123,50 @@ var _ = Describe("GaragepiExecutable", func() {
 			args = append(args, "-dev")
 		})
 
-		Context("when enableHTTP is true", func() {
+		Context("when enableHTTP and enableHTTPS are both false", func() {
+			BeforeEach(func() {
+				args = append(args, "-enableHTTP=false")
+				args = append(args, "-enableHTTPS=false")
+			})
+
+			It("exits with error", func() {
+				session = startMainWithArgs(args...)
+				Eventually(session).Should(gexec.Exit(2))
+			})
+		})
+
+		Context("when enableHTTP is true and enableHTTPS is false", func() {
 			BeforeEach(func() {
 				args = append(args, "-enableHTTP=true")
 				args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 				args = append(args, "-enableHTTPS=false")
-				args = append(args, "-forceHTTPS=false")
 			})
 
-			It("accepts HTTP connections", func() {
-				session = startMainWithArgs(args...)
-				Eventually(session).Should(gbytes.Say("garagepi started"))
+			Context("when forceHTTPS is false", func() {
+				BeforeEach(func() {
+					args = append(args, "-forceHTTPS=false")
+				})
 
-				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", httpPort))
-				Expect(err).NotTo(HaveOccurred())
+				It("accepts HTTP connections", func() {
+					session = startMainWithArgs(args...)
+					Eventually(session).Should(gbytes.Say("garagepi started"))
 
-				Expect(resp.StatusCode).To(Equal(http.StatusOK))
+					resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", httpPort))
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(resp.StatusCode).To(Equal(http.StatusOK))
+				})
+			})
+
+			Context("when forceHTTPS is true", func() {
+				BeforeEach(func() {
+					args = append(args, "-forceHTTPS=true")
+				})
+
+				It("exits with error", func() {
+					session = startMainWithArgs(args...)
+					Eventually(session).Should(gexec.Exit(2))
+				})
 			})
 		})
 
@@ -214,6 +242,23 @@ var _ = Describe("GaragepiExecutable", func() {
 					validateSuccessNonZeroLengthBody(resp)
 				})
 
+				Context("when enableHTTP is false", func() {
+					BeforeEach(func() {
+						args = append(args, "-enableHTTP=false")
+					})
+
+					Context("when forceHTTPS is true", func() {
+						BeforeEach(func() {
+							args = append(args, "-forceHTTPS=true")
+						})
+
+						It("exits with error", func() {
+							session = startMainWithArgs(args...)
+							Eventually(session).Should(gexec.Exit(2))
+						})
+					})
+				})
+
 				Context("when enableHTTP is true", func() {
 					BeforeEach(func() {
 						args = append(args, "-enableHTTP=true")
@@ -264,9 +309,7 @@ var _ = Describe("GaragepiExecutable", func() {
 							Expect(resp.StatusCode).To(Equal(http.StatusOK))
 						})
 					})
-
 				})
-
 			})
 		})
 	})

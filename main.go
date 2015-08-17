@@ -60,6 +60,11 @@ func main() {
 
 	logger := logger.InitializeLogger(*logLevel)
 	logger.Info("garagepi starting", lager.Data{"version": version})
+	logger.Debug("flags", lager.Data{
+		"enableHTTP":  enableHTTP,
+		"enableHTTPS": enableHTTPS,
+		"forceHTTPS":  forceHTTPS,
+	})
 
 	if *enableHTTPS {
 		if *keyFile == "" {
@@ -69,6 +74,10 @@ func main() {
 		if *certFile == "" {
 			logger.Fatal("exiting", fmt.Errorf("certFile must be provided if enableHTTPS is true"))
 		}
+	}
+
+	if *forceHTTPS && !(*enableHTTP && *enableHTTPS) {
+		logger.Fatal("exiting", fmt.Errorf("enableHTTP must be enabled if forceHTTPS is true"))
 	}
 
 	if !*dev && (*username == "" || *password == "") {
