@@ -1,6 +1,8 @@
 package main_test
 
 import (
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
@@ -20,6 +22,10 @@ var (
 )
 
 var _ = BeforeSuite(func() {
+	// The default of 1 second is always enough for the webserver to start
+	// handling requests.
+	SetDefaultEventuallyTimeout(10 * time.Second)
+
 	var err error
 	garagepiBinPath, err = gexec.Build("github.com/robdimsdale/garagepi", "-race")
 	Expect(err).ShouldNot(HaveOccurred())
