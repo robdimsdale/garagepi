@@ -10,6 +10,8 @@ import (
 	"github.com/robdimsdale/garagepi/oshelper"
 )
 
+//go:generate counterfeiter . Handler
+
 var (
 	SleepTime = 500 * time.Millisecond
 )

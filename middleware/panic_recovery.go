@@ -6,15 +6,15 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
-type PanicRecovery struct {
+type panicRecovery struct {
 	logger lager.Logger
 }
 
 func NewPanicRecovery(logger lager.Logger) Middleware {
-	return &PanicRecovery{logger}
+	return &panicRecovery{logger}
 }
 
-func (p PanicRecovery) Wrap(next http.Handler) http.Handler {
+func (p panicRecovery) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		defer func() {
 			if panicInfo := recover(); panicInfo != nil {

@@ -9,6 +9,8 @@ import (
 	"github.com/stianeikeland/go-rpio"
 )
 
+//go:generate counterfeiter . Gpio
+
 type Gpio interface {
 	Read(pin uint) (string, error)
 	WriteLow(pin uint) error

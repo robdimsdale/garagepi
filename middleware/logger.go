@@ -11,17 +11,17 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
-type Logger struct {
+type logger struct {
 	logger lager.Logger
 }
 
-func NewLogger(logger lager.Logger) Middleware {
-	return Logger{
-		logger: logger,
+func NewLogger(l lager.Logger) Middleware {
+	return logger{
+		logger: l,
 	}
 }
 
-func (l Logger) Wrap(next http.Handler) http.Handler {
+func (l logger) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		loggingResponseWriter := responseWriter{
 			rw,

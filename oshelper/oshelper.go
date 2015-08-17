@@ -6,23 +6,25 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
+//go:generate counterfeiter . OsHelper
+
 type OsHelper interface {
 	Sleep(d time.Duration)
 }
 
-type OsHelperImpl struct {
+type osHelperImpl struct {
 	logger lager.Logger
 }
 
 func NewOsHelperImpl(
 	logger lager.Logger,
-) *OsHelperImpl {
-	return &OsHelperImpl{
+) OsHelper {
+	return &osHelperImpl{
 		logger: logger,
 	}
 }
 
-func (h *OsHelperImpl) Sleep(d time.Duration) {
+func (h *osHelperImpl) Sleep(d time.Duration) {
 	h.logger.Info("sleeping", lager.Data{"duration": d.String()})
 	time.Sleep(d)
 }

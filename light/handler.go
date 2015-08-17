@@ -11,6 +11,8 @@ import (
 	"github.com/robdimsdale/garagepi/httphelper"
 )
 
+//go:generate counterfeiter . Handler
+
 type Handler interface {
 	HandleGet(w http.ResponseWriter, r *http.Request)
 	HandleSet(w http.ResponseWriter, r *http.Request)

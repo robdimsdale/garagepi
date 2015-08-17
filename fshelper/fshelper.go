@@ -7,6 +7,8 @@ import (
 	"github.com/GeertJohan/go.rice"
 )
 
+//go:generate counterfeiter . FsHelper
+
 var (
 	homepageTemplate *template.Template
 )
@@ -16,25 +18,25 @@ type FsHelper interface {
 	GetHomepageTemplate() (*template.Template, error)
 }
 
-type FsHelperImpl struct {
+type fsHelperImpl struct {
 	staticFileSystem http.FileSystem
 	templatesBox     *rice.Box
 }
 
 func NewFsHelperImpl(
 	assetsDir string,
-) *FsHelperImpl {
-	return &FsHelperImpl{
+) FsHelper {
+	return &fsHelperImpl{
 		templatesBox:     rice.MustFindBox(assetsDir + "/templates"),
 		staticFileSystem: rice.MustFindBox(assetsDir + "/static").HTTPBox(),
 	}
 }
 
-func (h *FsHelperImpl) GetStaticFileSystem() (http.FileSystem, error) {
+func (h *fsHelperImpl) GetStaticFileSystem() (http.FileSystem, error) {
 	return h.staticFileSystem, nil
 }
 
-func (h *FsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
+func (h *fsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
 	if homepageTemplate == nil {
 		err := h.loadHomepageTemplate()
 		if err != nil {
@@ -44,7 +46,7 @@ func (h *FsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
 	return homepageTemplate, nil
 }
 
-func (h *FsHelperImpl) loadHomepageTemplate() error {
+func (h *fsHelperImpl) loadHomepageTemplate() error {
 	templateString, err := h.templatesBox.String("homepage.html.tmpl")
 	if err != nil {
 		return err

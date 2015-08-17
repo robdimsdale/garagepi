@@ -9,6 +9,8 @@ import (
 	"github.com/robdimsdale/garagepi/httphelper"
 )
 
+//go:generate counterfeiter . Handler
+
 type Handler interface {
 	Handle(w http.ResponseWriter, r *http.Request)
 }

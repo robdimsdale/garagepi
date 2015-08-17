@@ -9,55 +9,11 @@ import (
 )
 
 type FakeOsHelper struct {
-	ExecStub        func(executable string, arg ...string) (string, error)
-	execMutex       sync.RWMutex
-	execArgsForCall []struct {
-		executable string
-		arg        []string
-	}
-	execReturns struct {
-		result1 string
-		result2 error
-	}
 	SleepStub        func(d time.Duration)
 	sleepMutex       sync.RWMutex
 	sleepArgsForCall []struct {
 		d time.Duration
 	}
-}
-
-func (fake *FakeOsHelper) Exec(executable string, arg ...string) (string, error) {
-	fake.execMutex.Lock()
-	fake.execArgsForCall = append(fake.execArgsForCall, struct {
-		executable string
-		arg        []string
-	}{executable, arg})
-	fake.execMutex.Unlock()
-	if fake.ExecStub != nil {
-		return fake.ExecStub(executable, arg...)
-	} else {
-		return fake.execReturns.result1, fake.execReturns.result2
-	}
-}
-
-func (fake *FakeOsHelper) ExecCallCount() int {
-	fake.execMutex.RLock()
-	defer fake.execMutex.RUnlock()
-	return len(fake.execArgsForCall)
-}
-
-func (fake *FakeOsHelper) ExecArgsForCall(i int) (string, []string) {
-	fake.execMutex.RLock()
-	defer fake.execMutex.RUnlock()
-	return fake.execArgsForCall[i].executable, fake.execArgsForCall[i].arg
-}
-
-func (fake *FakeOsHelper) ExecReturns(result1 string, result2 error) {
-	fake.ExecStub = nil
-	fake.execReturns = struct {
-		result1 string
-		result2 error
-	}{result1, result2}
 }
 
 func (fake *FakeOsHelper) Sleep(d time.Duration) {
