@@ -14,9 +14,9 @@ var (
 )
 
 var _ = Describe("HttpHelper", func() {
-	var httpHelper httphelper.HttpHelper
+	var httpHelper httphelper.HTTPHelper
 	BeforeEach(func() {
-		httpHelper = httphelper.NewHttpHelperImpl()
+		httpHelper = httphelper.NewHTTPHelper()
 	})
 	Describe("Get", func() {
 		It("Gets successfully", func() {

@@ -57,7 +57,7 @@ func (r httpsRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error 
 	if err != nil {
 		return err
 	} else {
-		r.logger.Info("https server listening on port", lager.Data{"port": r.port})
+		r.logger.Info("HTTPS server listening on port", lager.Data{"port": r.port})
 	}
 
 	errChan := make(chan error)

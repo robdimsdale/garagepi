@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
+	fakeHTTPHelper     *httphelper_fakes.FakeHTTPHelper
 	fakeLogger         lager.Logger
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
 
@@ -33,12 +33,12 @@ var (
 var _ = Describe("Webcam", func() {
 	BeforeEach(func() {
 		fakeLogger = lagertest.NewTestLogger("webcam test")
-		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
+		fakeHTTPHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		w = webcam.NewHandler(
 			fakeLogger,
-			fakeHttpHelper,
+			fakeHTTPHelper,
 			webcamHost,
 			webcamPort)
 
@@ -50,7 +50,7 @@ var _ = Describe("Webcam", func() {
 		BeforeEach(func() {
 			dummyResponse := new(http.Response)
 			dummyResponse.Body = ioutil.NopCloser(bytes.NewReader(contents))
-			fakeHttpHelper.GetReturns(dummyResponse, nil)
+			fakeHTTPHelper.GetReturns(dummyResponse, nil)
 		})
 
 		It("Should write the contents of the response to the response writer", func() {
@@ -61,7 +61,7 @@ var _ = Describe("Webcam", func() {
 
 	Context("When obtaining a webcam image fails with error", func() {
 		BeforeEach(func() {
-			fakeHttpHelper.GetReturns(nil, errors.New("Failed to GET url"))
+			fakeHTTPHelper.GetReturns(nil, errors.New("Failed to GET url"))
 		})
 
 		It("Should write nothing to the response writer and return", func() {
@@ -80,7 +80,7 @@ var _ = Describe("Webcam", func() {
 		BeforeEach(func() {
 			dummyResponse := new(http.Response)
 			dummyResponse.Body = errCloser{bytes.NewReader([]byte{})}
-			fakeHttpHelper.GetReturns(dummyResponse, nil)
+			fakeHTTPHelper.GetReturns(dummyResponse, nil)
 		})
 
 		It("Should write nothing to the response writer and return", func() {

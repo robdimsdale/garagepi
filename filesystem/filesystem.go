@@ -1,4 +1,4 @@
-package fshelper
+package filesystem
 
 import (
 	"html/template"
@@ -7,36 +7,36 @@ import (
 	"github.com/GeertJohan/go.rice"
 )
 
-//go:generate counterfeiter . FsHelper
+//go:generate counterfeiter . FileSystemHelper
 
 var (
 	homepageTemplate *template.Template
 )
 
-type FsHelper interface {
+type FileSystemHelper interface {
 	GetStaticFileSystem() (http.FileSystem, error)
 	GetHomepageTemplate() (*template.Template, error)
 }
 
-type fsHelperImpl struct {
+type fileSystemHelper struct {
 	staticFileSystem http.FileSystem
 	templatesBox     *rice.Box
 }
 
-func NewFsHelperImpl(
+func NewFileSystemHelper(
 	assetsDir string,
-) FsHelper {
-	return &fsHelperImpl{
+) FileSystemHelper {
+	return &fileSystemHelper{
 		templatesBox:     rice.MustFindBox(assetsDir + "/templates"),
 		staticFileSystem: rice.MustFindBox(assetsDir + "/static").HTTPBox(),
 	}
 }
 
-func (h *fsHelperImpl) GetStaticFileSystem() (http.FileSystem, error) {
+func (h *fileSystemHelper) GetStaticFileSystem() (http.FileSystem, error) {
 	return h.staticFileSystem, nil
 }
 
-func (h *fsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
+func (h *fileSystemHelper) GetHomepageTemplate() (*template.Template, error) {
 	if homepageTemplate == nil {
 		err := h.loadHomepageTemplate()
 		if err != nil {
@@ -46,7 +46,7 @@ func (h *fsHelperImpl) GetHomepageTemplate() (*template.Template, error) {
 	return homepageTemplate, nil
 }
 
-func (h *fsHelperImpl) loadHomepageTemplate() error {
+func (h *fileSystemHelper) loadHomepageTemplate() error {
 	templateString, err := h.templatesBox.String("homepage.html.tmpl")
 	if err != nil {
 		return err

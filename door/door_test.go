@@ -12,7 +12,7 @@ import (
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
-	oshelper_fakes "github.com/robdimsdale/garagepi/oshelper/fakes"
+	os_fakes "github.com/robdimsdale/garagepi/os/fakes"
 )
 
 const (
@@ -20,8 +20,8 @@ const (
 )
 
 var (
-	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
-	fakeOsHelper       *oshelper_fakes.FakeOsHelper
+	fakeHttpHelper     *httphelper_fakes.FakeHTTPHelper
+	fakeOSHelper       *os_fakes.FakeOSHelper
 	fakeLogger         lager.Logger
 	fakeGpio           *gpio_fakes.FakeGpio
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
@@ -33,15 +33,15 @@ var (
 var _ = Describe("Door", func() {
 	BeforeEach(func() {
 		fakeLogger = lagertest.NewTestLogger("Door test")
-		fakeOsHelper = new(oshelper_fakes.FakeOsHelper)
+		fakeOSHelper = new(os_fakes.FakeOSHelper)
 		fakeGpio = new(gpio_fakes.FakeGpio)
-		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
+		fakeHttpHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		dh = door.NewHandler(
 			fakeLogger,
 			fakeHttpHelper,
-			fakeOsHelper,
+			fakeOSHelper,
 			fakeGpio,
 			gpioDoorPin)
 
@@ -51,7 +51,7 @@ var _ = Describe("Door", func() {
 	Context("When toggling and sleeping return sucessfully", func() {
 		It("Should write high to door pin, sleep, and write low to door pin", func() {
 			dh.HandleToggle(fakeResponseWriter, dummyRequest)
-			Expect(fakeOsHelper.SleepArgsForCall(0)).To(Equal(door.SleepTime))
+			Expect(fakeOSHelper.SleepArgsForCall(0)).To(Equal(door.SleepTime))
 
 			Expect(fakeGpio.WriteHighCallCount()).To(Equal(1))
 			Expect(fakeGpio.WriteLowCallCount()).To(Equal(1))
@@ -77,7 +77,7 @@ var _ = Describe("Door", func() {
 
 		It("Should not sleep or execute further gpio commands", func() {
 			dh.HandleToggle(fakeResponseWriter, dummyRequest)
-			Expect(fakeOsHelper.SleepCallCount()).To(Equal(0))
+			Expect(fakeOSHelper.SleepCallCount()).To(Equal(0))
 
 			Expect(fakeGpio.WriteHighCallCount()).To(Equal(1))
 

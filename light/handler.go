@@ -21,14 +21,14 @@ type Handler interface {
 
 type handler struct {
 	logger       lager.Logger
-	httpHelper   httphelper.HttpHelper
+	httpHelper   httphelper.HTTPHelper
 	gpio         gpio.Gpio
 	gpioLightPin uint
 }
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HttpHelper,
+	httpHelper httphelper.HTTPHelper,
 	gpio gpio.Gpio,
 	gpioLightPin uint,
 ) Handler {

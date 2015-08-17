@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/pivotal-golang/lager"
-	"github.com/robdimsdale/garagepi/fshelper"
+	"github.com/robdimsdale/garagepi/filesystem"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
 )
@@ -17,16 +17,15 @@ type Handler interface {
 
 type handler struct {
 	logger       lager.Logger
-	httpHelper   httphelper.HttpHelper
-	fsHelper     fshelper.FsHelper
+	httpHelper   httphelper.HTTPHelper
+	fsHelper     filesystem.FileSystemHelper
 	lightHandler light.Handler
 }
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HttpHelper,
-	fsHelper fshelper.FsHelper,
-	lightHandler light.Handler,
+	httpHelper httphelper.HTTPHelper,
+	fsHelper filesystem.FileSystemHelper, lightHandler light.Handler,
 ) Handler {
 
 	return &handler{

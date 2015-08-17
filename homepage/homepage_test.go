@@ -10,17 +10,17 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
-	fshelper_fakes "github.com/robdimsdale/garagepi/fshelper/fakes"
+	filesystem_fakes "github.com/robdimsdale/garagepi/filesystem/fakes"
 	"github.com/robdimsdale/garagepi/homepage"
 	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	light_fakes "github.com/robdimsdale/garagepi/light/fakes"
 )
 
 var (
-	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
+	fakeHTTPHelper     *httphelper_fakes.FakeHTTPHelper
 	fakeLogger         lager.Logger
 	fakeLightHandler   *light_fakes.FakeHandler
-	fakeFsHelper       *fshelper_fakes.FakeFsHelper
+	fakeFsHelper       *filesystem_fakes.FakeFileSystemHelper
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
 
 	dummyRequest *http.Request
@@ -32,13 +32,13 @@ var _ = Describe("Homepage", func() {
 	BeforeEach(func() {
 		fakeLogger = lagertest.NewTestLogger("homepage handle test")
 		fakeLightHandler = new(light_fakes.FakeHandler)
-		fakeFsHelper = new(fshelper_fakes.FakeFsHelper)
-		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
+		fakeFsHelper = new(filesystem_fakes.FakeFileSystemHelper)
+		fakeHTTPHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		hh = homepage.NewHandler(
 			fakeLogger,
-			fakeHttpHelper,
+			fakeHTTPHelper,
 			fakeFsHelper,
 			fakeLightHandler,
 		)

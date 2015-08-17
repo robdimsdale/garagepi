@@ -17,13 +17,13 @@ type Handler interface {
 
 type handler struct {
 	logger     lager.Logger
-	httpHelper httphelper.HttpHelper
+	httpHelper httphelper.HTTPHelper
 	webcamUrl  string
 }
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HttpHelper,
+	httpHelper httphelper.HTTPHelper,
 	webcamHost string,
 	webcamPort uint,
 ) Handler {

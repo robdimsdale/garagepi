@@ -9,14 +9,14 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/door"
-	"github.com/robdimsdale/garagepi/fshelper"
+	"github.com/robdimsdale/garagepi/filesystem"
 	"github.com/robdimsdale/garagepi/gpio"
 	"github.com/robdimsdale/garagepi/handler"
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
-	"github.com/robdimsdale/garagepi/oshelper"
+	gpos "github.com/robdimsdale/garagepi/os"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
@@ -87,10 +87,10 @@ func main() {
 	// The location of the 'assets' directory
 	// is relative to where the compilation takes place
 	// This assumes compliation happens from the root directory
-	// It is also apparently relative to the fshelper package.
-	fsHelper := fshelper.NewFsHelperImpl("../assets")
-	osHelper := oshelper.NewOsHelperImpl(logger)
-	httpHelper := httphelper.NewHttpHelperImpl()
+	// It is also apparently relative to the filesystem package.
+	fsHelper := filesystem.NewFileSystemHelper("../assets")
+	osHelper := gpos.NewOSHelper(logger)
+	httpHelper := httphelper.NewHTTPHelper()
 
 	wh := webcam.NewHandler(
 		logger,

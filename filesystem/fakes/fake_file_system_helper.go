@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/robdimsdale/garagepi/fshelper"
+	"github.com/robdimsdale/garagepi/filesystem"
 )
 
-type FakeFsHelper struct {
+type FakeFileSystemHelper struct {
 	GetStaticFileSystemStub        func() (http.FileSystem, error)
 	getStaticFileSystemMutex       sync.RWMutex
 	getStaticFileSystemArgsForCall []struct{}
@@ -26,7 +26,7 @@ type FakeFsHelper struct {
 	}
 }
 
-func (fake *FakeFsHelper) GetStaticFileSystem() (http.FileSystem, error) {
+func (fake *FakeFileSystemHelper) GetStaticFileSystem() (http.FileSystem, error) {
 	fake.getStaticFileSystemMutex.Lock()
 	fake.getStaticFileSystemArgsForCall = append(fake.getStaticFileSystemArgsForCall, struct{}{})
 	fake.getStaticFileSystemMutex.Unlock()
@@ -37,13 +37,13 @@ func (fake *FakeFsHelper) GetStaticFileSystem() (http.FileSystem, error) {
 	}
 }
 
-func (fake *FakeFsHelper) GetStaticFileSystemCallCount() int {
+func (fake *FakeFileSystemHelper) GetStaticFileSystemCallCount() int {
 	fake.getStaticFileSystemMutex.RLock()
 	defer fake.getStaticFileSystemMutex.RUnlock()
 	return len(fake.getStaticFileSystemArgsForCall)
 }
 
-func (fake *FakeFsHelper) GetStaticFileSystemReturns(result1 http.FileSystem, result2 error) {
+func (fake *FakeFileSystemHelper) GetStaticFileSystemReturns(result1 http.FileSystem, result2 error) {
 	fake.GetStaticFileSystemStub = nil
 	fake.getStaticFileSystemReturns = struct {
 		result1 http.FileSystem
@@ -51,7 +51,7 @@ func (fake *FakeFsHelper) GetStaticFileSystemReturns(result1 http.FileSystem, re
 	}{result1, result2}
 }
 
-func (fake *FakeFsHelper) GetHomepageTemplate() (*template.Template, error) {
+func (fake *FakeFileSystemHelper) GetHomepageTemplate() (*template.Template, error) {
 	fake.getHomepageTemplateMutex.Lock()
 	fake.getHomepageTemplateArgsForCall = append(fake.getHomepageTemplateArgsForCall, struct{}{})
 	fake.getHomepageTemplateMutex.Unlock()
@@ -62,13 +62,13 @@ func (fake *FakeFsHelper) GetHomepageTemplate() (*template.Template, error) {
 	}
 }
 
-func (fake *FakeFsHelper) GetHomepageTemplateCallCount() int {
+func (fake *FakeFileSystemHelper) GetHomepageTemplateCallCount() int {
 	fake.getHomepageTemplateMutex.RLock()
 	defer fake.getHomepageTemplateMutex.RUnlock()
 	return len(fake.getHomepageTemplateArgsForCall)
 }
 
-func (fake *FakeFsHelper) GetHomepageTemplateReturns(result1 *template.Template, result2 error) {
+func (fake *FakeFileSystemHelper) GetHomepageTemplateReturns(result1 *template.Template, result2 error) {
 	fake.GetHomepageTemplateStub = nil
 	fake.getHomepageTemplateReturns = struct {
 		result1 *template.Template
@@ -76,4 +76,4 @@ func (fake *FakeFsHelper) GetHomepageTemplateReturns(result1 *template.Template,
 	}{result1, result2}
 }
 
-var _ fshelper.FsHelper = new(FakeFsHelper)
+var _ filesystem.FileSystemHelper = new(FakeFileSystemHelper)

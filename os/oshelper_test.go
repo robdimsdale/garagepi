@@ -1,4 +1,4 @@
-package oshelper_test
+package os_test
 
 import (
 	"time"
@@ -7,15 +7,15 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-golang/lager/lagertest"
 
-	"github.com/robdimsdale/garagepi/oshelper"
+	"github.com/robdimsdale/garagepi/os"
 )
 
 var _ = Describe("OsHelper", func() {
-	var osHelper oshelper.OsHelper
+	var osHelper os.OSHelper
 
 	BeforeEach(func() {
-		fakeLogger := lagertest.NewTestLogger("oshelper test")
-		osHelper = oshelper.NewOsHelperImpl(fakeLogger)
+		fakeLogger := lagertest.NewTestLogger("os test")
+		osHelper = os.NewOSHelper(fakeLogger)
 	})
 
 	Describe("Sleep", func() {

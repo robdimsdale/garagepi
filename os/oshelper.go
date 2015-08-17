@@ -1,4 +1,4 @@
-package oshelper
+package os
 
 import (
 	"time"
@@ -6,25 +6,25 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
-//go:generate counterfeiter . OsHelper
+//go:generate counterfeiter . OSHelper
 
-type OsHelper interface {
+type OSHelper interface {
 	Sleep(d time.Duration)
 }
 
-type osHelperImpl struct {
+type osHelper struct {
 	logger lager.Logger
 }
 
-func NewOsHelperImpl(
+func NewOSHelper(
 	logger lager.Logger,
-) OsHelper {
-	return &osHelperImpl{
+) OSHelper {
+	return &osHelper{
 		logger: logger,
 	}
 }
 
-func (h *osHelperImpl) Sleep(d time.Duration) {
+func (h *osHelper) Sleep(d time.Duration) {
 	h.logger.Info("sleeping", lager.Data{"duration": d.String()})
 	time.Sleep(d)
 }

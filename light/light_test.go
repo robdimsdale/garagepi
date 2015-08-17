@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	fakeHttpHelper     *httphelper_fakes.FakeHttpHelper
+	fakeHTTPHelper     *httphelper_fakes.FakeHTTPHelper
 	fakeLogger         lager.Logger
 	fakeGpio           *gpio_fakes.FakeGpio
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
@@ -44,12 +44,12 @@ var _ = Describe("Light", func() {
 
 		fakeLogger = lagertest.NewTestLogger("light test")
 		fakeGpio = new(gpio_fakes.FakeGpio)
-		fakeHttpHelper = new(httphelper_fakes.FakeHttpHelper)
+		fakeHTTPHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		lh = light.NewHandler(
 			fakeLogger,
-			fakeHttpHelper,
+			fakeHTTPHelper,
 			fakeGpio,
 			gpioLightPin)
 

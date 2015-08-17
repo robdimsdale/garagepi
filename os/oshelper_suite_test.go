@@ -1,4 +1,4 @@
-package oshelper_test
+package os_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestOsHelper(t *testing.T) {
+func TestOSHelper(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "OsHelper Suite")
+	RunSpecs(t, "OS Suite")
 }

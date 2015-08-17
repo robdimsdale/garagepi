@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/pivotal-golang/lager"
-	"github.com/robdimsdale/garagepi/oshelper"
+	"github.com/robdimsdale/garagepi/os"
 	"github.com/stianeikeland/go-rpio"
 )
 
@@ -18,12 +18,12 @@ type Gpio interface {
 }
 
 type gpio struct {
-	osHelper oshelper.OsHelper
+	osHelper os.OSHelper
 	logger   lager.Logger
 }
 
 func NewGpio(
-	osHelper oshelper.OsHelper,
+	osHelper os.OSHelper,
 	logger lager.Logger,
 ) Gpio {
 	return &gpio{

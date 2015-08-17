@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/robdimsdale/garagepi/oshelper"
+	"github.com/robdimsdale/garagepi/os"
 )
 
-type FakeOsHelper struct {
+type FakeOSHelper struct {
 	SleepStub        func(d time.Duration)
 	sleepMutex       sync.RWMutex
 	sleepArgsForCall []struct {
@@ -16,7 +16,7 @@ type FakeOsHelper struct {
 	}
 }
 
-func (fake *FakeOsHelper) Sleep(d time.Duration) {
+func (fake *FakeOSHelper) Sleep(d time.Duration) {
 	fake.sleepMutex.Lock()
 	fake.sleepArgsForCall = append(fake.sleepArgsForCall, struct {
 		d time.Duration
@@ -27,16 +27,16 @@ func (fake *FakeOsHelper) Sleep(d time.Duration) {
 	}
 }
 
-func (fake *FakeOsHelper) SleepCallCount() int {
+func (fake *FakeOSHelper) SleepCallCount() int {
 	fake.sleepMutex.RLock()
 	defer fake.sleepMutex.RUnlock()
 	return len(fake.sleepArgsForCall)
 }
 
-func (fake *FakeOsHelper) SleepArgsForCall(i int) time.Duration {
+func (fake *FakeOSHelper) SleepArgsForCall(i int) time.Duration {
 	fake.sleepMutex.RLock()
 	defer fake.sleepMutex.RUnlock()
 	return fake.sleepArgsForCall[i].d
 }
 
-var _ oshelper.OsHelper = new(FakeOsHelper)
+var _ os.OSHelper = new(FakeOSHelper)

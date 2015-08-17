@@ -8,7 +8,7 @@ import (
 	"github.com/robdimsdale/garagepi/httphelper"
 )
 
-type FakeHttpHelper struct {
+type FakeHTTPHelper struct {
 	GetStub        func(url string) (resp *http.Response, err error)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
@@ -26,7 +26,7 @@ type FakeHttpHelper struct {
 	}
 }
 
-func (fake *FakeHttpHelper) Get(url string) (resp *http.Response, err error) {
+func (fake *FakeHTTPHelper) Get(url string) (resp *http.Response, err error) {
 	fake.getMutex.Lock()
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
 		url string
@@ -39,19 +39,19 @@ func (fake *FakeHttpHelper) Get(url string) (resp *http.Response, err error) {
 	}
 }
 
-func (fake *FakeHttpHelper) GetCallCount() int {
+func (fake *FakeHTTPHelper) GetCallCount() int {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeHttpHelper) GetArgsForCall(i int) string {
+func (fake *FakeHTTPHelper) GetArgsForCall(i int) string {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	return fake.getArgsForCall[i].url
 }
 
-func (fake *FakeHttpHelper) GetReturns(result1 *http.Response, result2 error) {
+func (fake *FakeHTTPHelper) GetReturns(result1 *http.Response, result2 error) {
 	fake.GetStub = nil
 	fake.getReturns = struct {
 		result1 *http.Response
@@ -59,7 +59,7 @@ func (fake *FakeHttpHelper) GetReturns(result1 *http.Response, result2 error) {
 	}{result1, result2}
 }
 
-func (fake *FakeHttpHelper) RedirectToHomepage(w http.ResponseWriter, r *http.Request) {
+func (fake *FakeHTTPHelper) RedirectToHomepage(w http.ResponseWriter, r *http.Request) {
 	fake.redirectToHomepageMutex.Lock()
 	fake.redirectToHomepageArgsForCall = append(fake.redirectToHomepageArgsForCall, struct {
 		w http.ResponseWriter
@@ -71,16 +71,16 @@ func (fake *FakeHttpHelper) RedirectToHomepage(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func (fake *FakeHttpHelper) RedirectToHomepageCallCount() int {
+func (fake *FakeHTTPHelper) RedirectToHomepageCallCount() int {
 	fake.redirectToHomepageMutex.RLock()
 	defer fake.redirectToHomepageMutex.RUnlock()
 	return len(fake.redirectToHomepageArgsForCall)
 }
 
-func (fake *FakeHttpHelper) RedirectToHomepageArgsForCall(i int) (http.ResponseWriter, *http.Request) {
+func (fake *FakeHTTPHelper) RedirectToHomepageArgsForCall(i int) (http.ResponseWriter, *http.Request) {
 	fake.redirectToHomepageMutex.RLock()
 	defer fake.redirectToHomepageMutex.RUnlock()
 	return fake.redirectToHomepageArgsForCall[i].w, fake.redirectToHomepageArgsForCall[i].r
 }
 
-var _ httphelper.HttpHelper = new(FakeHttpHelper)
+var _ httphelper.HTTPHelper = new(FakeHTTPHelper)

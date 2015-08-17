@@ -2,24 +2,24 @@ package httphelper
 
 import "net/http"
 
-//go:generate counterfeiter . HttpHelper
+//go:generate counterfeiter . HTTPHelper
 
-type HttpHelper interface {
+type HTTPHelper interface {
 	Get(url string) (resp *http.Response, err error)
 	RedirectToHomepage(w http.ResponseWriter, r *http.Request)
 }
 
-type httpHelperImpl struct {
+type httpHelper struct {
 }
 
-func NewHttpHelperImpl() HttpHelper {
-	return &httpHelperImpl{}
+func NewHTTPHelper() HTTPHelper {
+	return &httpHelper{}
 }
 
-func (h *httpHelperImpl) Get(url string) (resp *http.Response, err error) {
+func (h *httpHelper) Get(url string) (resp *http.Response, err error) {
 	return http.Get(url)
 }
 
-func (h *httpHelperImpl) RedirectToHomepage(w http.ResponseWriter, r *http.Request) {
+func (h *httpHelper) RedirectToHomepage(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
