@@ -1,0 +1,12 @@
+---
+platform: linux
+
+image: docker:///busybox
+
+inputs:
+- name: candidate-release
+- name: version
+- name: garagepi
+
+run:
+  path: garagepi/scripts/ci/finalize-candidate-release

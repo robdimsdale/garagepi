@@ -119,6 +119,9 @@ jobs:
     - get: garagepi
       passed: [rc]
       params: {fetch: [master]}
+    - get: candidate-release
+      trigger: true
+      passed: [rc]
     - get: version
       passed: [rc]
       params: {bump: final}
