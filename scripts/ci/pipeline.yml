@@ -27,6 +27,14 @@ resources:
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
 
+- name: candidate-release
+  type: s3
+  source:
+    bucket: garagepi-releases
+    regexp: garagepi-(.*)
+    access_key_id: {{pipeline-bucket-access-key}}
+    secret_access_key: {{pipeline-bucket-secret-key}}
+
 - name: docker-garagepi-1.4
   type: docker-image
   source:
@@ -65,6 +73,7 @@ jobs:
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         channel: {{slack-channel}}
         text: {{v1-4-slack-failure-text}}
+
 - name: golang-1.5
   public: false
   plan:
@@ -87,16 +96,32 @@ jobs:
         channel: {{slack-channel}}
         text: {{v1-5-slack-failure-text}}
 
-- name: shipit
+- name: rc
   public: false
-  serial: true
+  serial_groups: [version]
   plan:
   - aggregate:
     - get: garagepi
       passed: [golang-1.4,golang-1.5]
       params: {fetch: [master]}
     - get: version
-      params: {bump: minor}
+      params: {pre: rc}
+  - task: create-candidate-release
+    file: garagepi/scripts/ci/create-candidate-release.yml
+  - put: candidate-release
+    params: {from: create-candidate-release/garagepi-(.*).tgz}
+
+- name: shipit
+  serial_groups: [version]
+  public: false
+  plan:
+  - aggregate:
+    - get: garagepi
+      passed: [rc]
+      params: {fetch: [master]}
+    - get: version
+      passed: [rc]
+      params: {bump: final}
   - aggregate:
     - put: version
       params: {file: version/number}
@@ -105,6 +130,35 @@ jobs:
         repository: garagepi
         tag: version/number
         tag_prefix: v
+
+- name: major
+  public: true
+  serial_groups: [version]
+  plan:
+  - get: version
+    params: {bump: major}
+  - put: version
+    params: {file: version/number}
+
+- name: minor
+  public: true
+  serial_groups: [version]
+  plan:
+  - get: version
+    params: {bump: minor}
+  - put: version
+    params: {file: version/number}
+
+- name: patch
+  public: true
+  serial_groups: [version]
+  plan:
+  - get: version
+    passed: [shipit]
+    params: {bump: patch}
+    trigger: true
+  - put: version
+    params: {file: version/number}
 
 - name: docker-garagepi-1.4
   public: false
@@ -129,6 +183,7 @@ groups:
   jobs:
     - golang-1.4
     - golang-1.5
+    - rc
     - shipit
 - name: images
   jobs:

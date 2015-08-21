@@ -1,0 +1,12 @@
+---
+platform: linux
+
+image: docker:///robdimsdale/garagepi-1.4
+
+inputs:
+- name: garagepi
+- name: version
+
+run:
+  path: garagepi/scripts/ci/create-candidate-release
+
