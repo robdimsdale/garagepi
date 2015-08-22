@@ -27,6 +27,7 @@ func (l logger) Wrap(next http.Handler) http.Handler {
 			rw,
 			[]byte{},
 			0,
+			0,
 		}
 		next.ServeHTTP(&loggingResponseWriter, req)
 
@@ -36,6 +37,8 @@ func (l logger) Wrap(next http.Handler) http.Handler {
 		response := map[string]interface{}{
 			"Header":     loggingResponseWriter.Header(),
 			"StatusCode": loggingResponseWriter.statusCode,
+			"Body":       loggingResponseWriter.body,
+			"Size":       loggingResponseWriter.size,
 		}
 
 		l.logger.Debug("", lager.Data{
@@ -49,17 +52,20 @@ type responseWriter struct {
 	http.ResponseWriter
 	body       []byte
 	statusCode int
+	size       int
 }
 
 func (rw *responseWriter) Write(b []byte) (int, error) {
-	rw.Header().Set("Content-Length", strconv.Itoa(len(b)))
-
 	if rw.statusCode == 0 {
 		rw.WriteHeader(http.StatusOK)
 	}
 
 	size, err := rw.ResponseWriter.Write(b)
-	rw.body = b
+	rw.body = append(rw.body, b...)
+	rw.size += size
+
+	rw.Header().Set("Content-Length", strconv.Itoa(rw.size))
+
 	return size, err
 }
 
