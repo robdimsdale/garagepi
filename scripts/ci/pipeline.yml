@@ -108,12 +108,24 @@ jobs:
       params: {pre: rc}
   - task: create-candidate-release
     file: garagepi/scripts/ci/create-candidate-release.yml
-  - task: smoke-tests
-    file: garagepi/scripts/ci/candidate-release-smoke-tests.yml
   - put: candidate-release
     params: {from: create-candidate-release/garagepi-(.*)}
   - put: version
     params: {file: version/number}
+
+- name: smoke-tests
+  public: false
+  plan:
+  - aggregate:
+    - get: garagepi
+      trigger: true
+      passed: [rc]
+    - get: version
+      passed: [rc]
+    - get: candidate-release
+      passed: [rc]
+  - task: smoke-tests
+    file: garagepi/scripts/ci/candidate-release-smoke-tests.yml
 
 - name: shipit
   serial_groups: [version]
@@ -121,13 +133,13 @@ jobs:
   plan:
   - aggregate:
     - get: garagepi
-      passed: [rc]
+      passed: [smoke-tests]
       params: {fetch: [master]}
-    - get: candidate-release
       trigger: true
-      passed: [rc]
+    - get: candidate-release
+      passed: [smoke-tests]
     - get: version
-      passed: [rc]
+      passed: [smoke-tests]
       params: {bump: final}
   - aggregate:
     - put: version
@@ -191,7 +203,11 @@ groups:
     - golang-1.4
     - golang-1.5
     - rc
+    - smoke-tests
     - shipit
+    - major
+    - minor
+    - patch
 - name: images
   jobs:
     - docker-garagepi-1.4
