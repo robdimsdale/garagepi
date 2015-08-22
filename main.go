@@ -17,6 +17,7 @@ import (
 	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
 	gpos "github.com/robdimsdale/garagepi/os"
+	"github.com/robdimsdale/garagepi/static"
 	"github.com/robdimsdale/garagepi/webcam"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
@@ -88,7 +89,7 @@ func main() {
 	// is relative to where the compilation takes place
 	// This assumes compliation happens from the root directory
 	// It is also apparently relative to the filesystem package.
-	fsHelper := filesystem.NewFileSystemHelper("../assets")
+	fsHelper := filesystem.NewFileSystemHelper()
 	osHelper := gpos.NewOSHelper(logger)
 	httpHelper := httphelper.NewHTTPHelper()
 
@@ -122,17 +123,16 @@ func main() {
 		gpio,
 		*gpioDoorPin)
 
-	staticFileSystem, err := fsHelper.GetStaticFileSystem()
-	if err != nil {
-		panic(err)
-	}
+	// staticFileSystem, err := fsHelper.GetStaticFileSystem()
+	staticFileSystem := static.FS(false)
 
 	staticFileServer := http.FileServer(staticFileSystem)
-	strippedStaticFileServer := http.StripPrefix("/static/", staticFileServer)
+	// strippedStaticFileServer := http.StripPrefix("/static/", staticFileServer)
 
 	rtr := mux.NewRouter()
 
-	rtr.PathPrefix("/static/").Handler(strippedStaticFileServer)
+	// rtr.PathPrefix("/static/").Handler(strippedStaticFileServer)
+	rtr.PathPrefix("/static/").Handler(staticFileServer)
 	rtr.HandleFunc("/", hh.Handle).Methods("GET")
 	rtr.HandleFunc("/webcam", wh.Handle).Methods("GET")
 	rtr.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")
@@ -179,7 +179,7 @@ func main() {
 
 	logger.Info("garagepi started")
 
-	err = <-process.Wait()
+	err := <-process.Wait()
 	if err != nil {
 		logger.Error("Error running garagepi", err)
 	}

@@ -2,9 +2,8 @@ package filesystem
 
 import (
 	"html/template"
-	"net/http"
 
-	"github.com/GeertJohan/go.rice"
+	"github.com/robdimsdale/garagepi/templates"
 )
 
 //go:generate counterfeiter . FileSystemHelper
@@ -14,26 +13,14 @@ var (
 )
 
 type FileSystemHelper interface {
-	GetStaticFileSystem() (http.FileSystem, error)
 	GetHomepageTemplate() (*template.Template, error)
 }
 
 type fileSystemHelper struct {
-	staticFileSystem http.FileSystem
-	templatesBox     *rice.Box
 }
 
-func NewFileSystemHelper(
-	assetsDir string,
-) FileSystemHelper {
-	return &fileSystemHelper{
-		templatesBox:     rice.MustFindBox(assetsDir + "/templates"),
-		staticFileSystem: rice.MustFindBox(assetsDir + "/static").HTTPBox(),
-	}
-}
-
-func (h *fileSystemHelper) GetStaticFileSystem() (http.FileSystem, error) {
-	return h.staticFileSystem, nil
+func NewFileSystemHelper() FileSystemHelper {
+	return &fileSystemHelper{}
 }
 
 func (h *fileSystemHelper) GetHomepageTemplate() (*template.Template, error) {
@@ -47,7 +34,7 @@ func (h *fileSystemHelper) GetHomepageTemplate() (*template.Template, error) {
 }
 
 func (h *fileSystemHelper) loadHomepageTemplate() error {
-	templateString, err := h.templatesBox.String("homepage.html.tmpl")
+	templateString, err := templates.FSString(false, "/templates/homepage.html.tmpl")
 	if err != nil {
 		return err
 	}

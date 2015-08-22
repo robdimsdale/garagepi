@@ -1,18 +1,10 @@
 {
 	"ImportPath": "github.com/robdimsdale/garagepi",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.5",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
-		{
-			"ImportPath": "github.com/GeertJohan/go.rice",
-			"Rev": "ada95a01c963696fb73320ee662195af68be81ae"
-		},
-		{
-			"ImportPath": "github.com/daaku/go.zipexe",
-			"Rev": "a5fe2436ffcb3236e175e5149162b41cd28bd27d"
-		},
 		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
@@ -20,10 +12,6 @@
 		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "8965bfef36e398a40fa4afbe4e22eea61cb8db86"
-		},
-		{
-			"ImportPath": "github.com/kardianos/osext",
-			"Rev": "6e7f843663477789fac7c02def0d0909e969b4e5"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",

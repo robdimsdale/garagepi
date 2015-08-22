@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -eu
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives one directory below the base directory.
+BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
+
+pushd ${BASE_DIR}
+  esc \
+    -pkg=templates \
+    -prefix assets \
+    -o ./templates/fs.go \
+    ./assets/templates/
+
+  esc \
+    -pkg=static \
+    -prefix assets \
+    -o ./static/fs.go \
+    ./assets/static/
+popd
+
+echo "All embedded assets created successfully"
