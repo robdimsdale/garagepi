@@ -102,14 +102,18 @@ jobs:
   plan:
   - aggregate:
     - get: garagepi
+      trigger: true
       passed: [golang-1.4,golang-1.5]
-      params: {fetch: [master]}
     - get: version
       params: {pre: rc}
   - task: create-candidate-release
     file: garagepi/scripts/ci/create-candidate-release.yml
+  - task: smoke-tests
+    file: garagepi/scripts/ci/candidate-release-smoke-tests.yml
   - put: candidate-release
-    params: {from: create-candidate-release/garagepi-(.*).tgz}
+    params: {from: create-candidate-release/garagepi-(.*)}
+  - put: version
+    params: {file: version/number}
 
 - name: shipit
   serial_groups: [version]

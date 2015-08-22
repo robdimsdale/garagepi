@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -eux
+
+ROOT="$PWD"
+export GARAGEPI_BIN_PATH="$(ls ${ROOT}/candidate-release/garagepi-*)"
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives two directories below the base directory.
+BASE_DIR="$( cd ${MY_DIR}/../.. && pwd )"
+
+# And that scripts/ lives one directory below the base directory.
+SCRIPTS_DIR="$( cd ${BASE_DIR}/scripts/ && pwd )"
+
+go get \
+  github.com/onsi/ginkgo/ginkgo \
+  github.com/onsi/gomega
+
+"${SCRIPTS_DIR}"/smoke-tests
