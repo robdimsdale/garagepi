@@ -135,7 +135,6 @@ jobs:
     - get: garagepi
       passed: [smoke-tests]
       params: {fetch: [master]}
-      trigger: true
     - get: candidate-release
       passed: [smoke-tests]
     - get: version
