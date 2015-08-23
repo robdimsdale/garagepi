@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
+	"github.com/sclevine/agouti"
 
 	"testing"
 )
@@ -19,6 +20,7 @@ var (
 	httpPort        uint
 	httpsPort       uint
 	garagepiBinPath string
+	agoutiDriver    *agouti.WebDriver
 )
 
 var _ = BeforeSuite(func() {
@@ -32,8 +34,12 @@ var _ = BeforeSuite(func() {
 
 	httpPort = uint(59990 + 2*GinkgoParallelNode())
 	httpsPort = uint(59991 + 2*GinkgoParallelNode())
+
+	agoutiDriver = agouti.PhantomJS()
+	Expect(agoutiDriver.Start()).To(Succeed())
 })
 
 var _ = AfterSuite(func() {
+	Expect(agoutiDriver.Stop()).To(Succeed())
 	gexec.CleanupBuildArtifacts()
 })

@@ -1,18 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Garage Control</title>
-
-    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-
-    <link rel="stylesheet" href="/static/css/application.css" type="text/css">
-    <script type="text/javascript" src="/static/js/garagepi.js"></script>
-  </head>
+{{define "homepage"}}
+{{template "head"}}
   <body onload="createImageLayer()">
     <div class="container">
       <div class="row">
@@ -72,6 +59,14 @@ function imageOnload() {
         </div>
       </div> <!-- row -->
       {{ end }}
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+          <form method="post" action="/logout">
+            <button type="submit" class="btn btn-default btn-block btn-action" id="logout">Logout</button>
+          </form>
+        </div>
+      </div> <!-- row -->
     </div> <!-- container -->
   </body>
 </html>
+{{end}}

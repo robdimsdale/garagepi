@@ -1,11 +1,12 @@
 package homepage
 
 import (
+	"html/template"
 	"net/http"
 
 	"github.com/pivotal-golang/lager"
-	"github.com/robdimsdale/garagepi/filesystem"
 	"github.com/robdimsdale/garagepi/light"
+	"github.com/robdimsdale/garagepi/login"
 )
 
 //go:generate counterfeiter . Handler
@@ -16,33 +17,30 @@ type Handler interface {
 
 type handler struct {
 	logger       lager.Logger
-	fsHelper     filesystem.FileSystemHelper
+	templates    *template.Template
 	lightHandler light.Handler
+	loginHandler login.Handler
 }
 
 func NewHandler(
 	logger lager.Logger,
-	fsHelper filesystem.FileSystemHelper, lightHandler light.Handler,
+	templates *template.Template,
+	lightHandler light.Handler,
+	loginHandler login.Handler,
 ) Handler {
-
 	return &handler{
 		logger:       logger,
-		fsHelper:     fsHelper,
+		templates:    templates,
 		lightHandler: lightHandler,
+		loginHandler: loginHandler,
 	}
 }
 
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
-	t, err := h.fsHelper.GetHomepageTemplate()
-	if err != nil {
-		h.logger.Error("error reading homepage template", err)
-		panic(err)
-	}
-
 	ls, err := h.lightHandler.DiscoverLightState()
 	if err != nil {
 		h.logger.Error("error reading light state - rendering homepage without light controls", err)
 	}
 
-	t.Execute(w, ls)
+	h.templates.ExecuteTemplate(w, "homepage", ls)
 }

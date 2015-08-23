@@ -1,7 +1,6 @@
 package homepage_test
 
 import (
-	"errors"
 	"html/template"
 	"net/http"
 
@@ -10,67 +9,63 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
-	filesystem_fakes "github.com/robdimsdale/garagepi/filesystem/fakes"
 	"github.com/robdimsdale/garagepi/homepage"
 	light_fakes "github.com/robdimsdale/garagepi/light/fakes"
+	login_fakes "github.com/robdimsdale/garagepi/login/fakes"
+)
+
+const (
+	headTemplate = `
+{{define "head"}}
+some head text
+{{end}}`
+	homepageTemplate = `
+{{define "homepage"}}
+{{template "head"}}
+some text here
+{{end}}`
 )
 
 var (
 	fakeLogger         lager.Logger
 	fakeLightHandler   *light_fakes.FakeHandler
-	fakeFsHelper       *filesystem_fakes.FakeFileSystemHelper
+	fakeLoginHandler   *login_fakes.FakeHandler
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
 
 	dummyRequest *http.Request
 	hh           homepage.Handler
+
+	templates *template.Template
 )
 
 var _ = Describe("Homepage", func() {
-
 	BeforeEach(func() {
 		fakeLogger = lagertest.NewTestLogger("homepage handle test")
 		fakeLightHandler = new(light_fakes.FakeHandler)
-		fakeFsHelper = new(filesystem_fakes.FakeFileSystemHelper)
+		fakeLoginHandler = new(login_fakes.FakeHandler)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
+
+		var err error
+
+		templates, err = template.New("head").Parse(headTemplate)
+		Expect(err).NotTo(HaveOccurred())
+		templates, err = templates.New("homepage").Parse(homepageTemplate)
+		Expect(err).NotTo(HaveOccurred())
 
 		hh = homepage.NewHandler(
 			fakeLogger,
-			fakeFsHelper,
+			templates,
 			fakeLightHandler,
+			fakeLoginHandler,
 		)
 
 		dummyRequest = new(http.Request)
 	})
 
 	Describe("Homepage Handling", func() {
-		Context("When reading the homepage template is successful", func() {
-			contents := "templateContents"
-			BeforeEach(func() {
-				t, err := template.New("template").Parse(contents)
-				Expect(err).NotTo(HaveOccurred())
-				fakeFsHelper.GetHomepageTemplateReturns(t, nil)
-			})
-
-			It("Should write the contents of the homepage template to the response writer", func() {
-				hh.Handle(fakeResponseWriter, dummyRequest)
-				Expect(fakeFsHelper.GetHomepageTemplateCallCount()).To(Equal(1))
-				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(1))
-				Expect(fakeResponseWriter.WriteArgsForCall(0)).To(Equal([]byte(contents)))
-			})
-		})
-
-		Context("When reading the homepage template fails with error", func() {
-			BeforeEach(func() {
-				fakeFsHelper.GetHomepageTemplateReturns(nil, errors.New("Failed to read contents"))
-			})
-
-			execution := func() {
-				hh.Handle(fakeResponseWriter, dummyRequest)
-			}
-
-			It("Should panic", func() {
-				Expect(execution).Should(Panic())
-			})
+		It("Should write the contents of the homepage template to the response writer", func() {
+			hh.Handle(fakeResponseWriter, dummyRequest)
+			Expect(fakeResponseWriter.WriteCallCount()).To(BeNumerically(">=", 1))
 		})
 	})
 })

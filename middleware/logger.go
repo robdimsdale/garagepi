@@ -102,6 +102,15 @@ type LoggableHTTPRequest struct {
 }
 
 func fromHTTPRequest(req http.Request) LoggableHTTPRequest {
+	var form, postForm url.Values
+	if req.Form != nil {
+		form = sanitizeCredentialsFromForm(req.Form)
+	}
+
+	if req.PostForm != nil {
+		postForm = sanitizeCredentialsFromForm(req.PostForm)
+	}
+
 	return LoggableHTTPRequest{
 		Method:           req.Method,
 		URL:              req.URL,
@@ -114,12 +123,17 @@ func fromHTTPRequest(req http.Request) LoggableHTTPRequest {
 		TransferEncoding: req.TransferEncoding,
 		Close:            req.Close,
 		Host:             req.Host,
-		Form:             req.Form,
-		PostForm:         req.PostForm,
+		Form:             form,
+		PostForm:         postForm,
 		MultipartForm:    req.MultipartForm,
 		Trailer:          req.Trailer,
 		RemoteAddr:       req.RemoteAddr,
 		RequestURI:       req.RequestURI,
 		TLS:              req.TLS,
 	}
+}
+
+func sanitizeCredentialsFromForm(form url.Values) url.Values {
+	form.Set("password", "***")
+	return form
 }

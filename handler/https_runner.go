@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/securecookie"
 	"github.com/pivotal-golang/lager"
 	"github.com/tedsuo/ifrit"
 )
@@ -30,6 +31,7 @@ func NewHTTPSRunner(
 	caFile string,
 	username string,
 	password string,
+	cookieHandler *securecookie.SecureCookie,
 ) ifrit.Runner {
 
 	tlsConfig := createTLSConfig(keyFile, certFile, caFile)
@@ -38,7 +40,7 @@ func NewHTTPSRunner(
 	if username == "" && password == "" {
 		h = newHandler(handler, logger)
 	} else {
-		h = newBasicAuthHandler(handler, logger, username, password)
+		h = newSessionAuthHandler(handler, logger, username, password, cookieHandler)
 	}
 
 	return &httpsRunner{

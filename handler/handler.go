@@ -3,20 +3,22 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gorilla/securecookie"
 	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/middleware"
 )
 
-func newBasicAuthHandler(
+func newSessionAuthHandler(
 	mux http.Handler,
 	logger lager.Logger,
 	username string,
 	password string,
+	cookieHandler *securecookie.SecureCookie,
 ) http.Handler {
 	return middleware.Chain{
 		middleware.NewPanicRecovery(logger),
 		middleware.NewLogger(logger),
-		middleware.NewBasicAuth(username, password, logger),
+		middleware.NewSessionAuth(username, password, logger, cookieHandler),
 	}.Wrap(mux)
 }
 

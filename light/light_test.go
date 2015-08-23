@@ -47,7 +47,8 @@ var _ = Describe("Light", func() {
 		lh = light.NewHandler(
 			fakeLogger,
 			fakeGpio,
-			gpioLightPin)
+			gpioLightPin,
+		)
 
 		dummyRequest = new(http.Request)
 	})

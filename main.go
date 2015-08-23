@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/door"
 	"github.com/robdimsdale/garagepi/filesystem"
@@ -15,6 +16,7 @@ import (
 	"github.com/robdimsdale/garagepi/homepage"
 	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
+	"github.com/robdimsdale/garagepi/login"
 	gpos "github.com/robdimsdale/garagepi/os"
 	"github.com/robdimsdale/garagepi/static"
 	"github.com/robdimsdale/garagepi/webcam"
@@ -96,12 +98,23 @@ func main() {
 		logger.Fatal("exiting", fmt.Errorf("must specify -username and -password or turn on dev mode"))
 	}
 
-	// The location of the 'assets' directory
-	// is relative to where the compilation takes place
-	// This assumes compliation happens from the root directory
-	// It is also apparently relative to the filesystem package.
-	fsHelper := filesystem.NewFileSystemHelper()
+	cookieHandler := securecookie.New(
+		securecookie.GenerateRandomKey(64),
+		securecookie.GenerateRandomKey(32),
+	)
+
+	templates, err := filesystem.LoadTemplates()
+	if err != nil {
+		logger.Fatal("exiting", err)
+	}
+
 	osHelper := gpos.NewOSHelper(logger)
+
+	loginHandler := login.NewHandler(
+		logger,
+		templates,
+		cookieHandler,
+	)
 
 	webcamURL := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", *webcamHost, *webcamPort)
 	wh := webcam.NewHandler(
@@ -119,8 +132,9 @@ func main() {
 
 	hh := homepage.NewHandler(
 		logger,
-		fsHelper,
+		templates,
 		lh,
+		loginHandler,
 	)
 
 	dh := door.NewHandler(
@@ -129,21 +143,20 @@ func main() {
 		gpio,
 		*gpioDoorPin)
 
-	// staticFileSystem, err := fsHelper.GetStaticFileSystem()
-	staticFileSystem := static.FS(false)
-
-	staticFileServer := http.FileServer(staticFileSystem)
-	// strippedStaticFileServer := http.StripPrefix("/static/", staticFileServer)
+	staticFileServer := http.FileServer(static.FS(false))
 
 	rtr := mux.NewRouter()
 
-	// rtr.PathPrefix("/static/").Handler(strippedStaticFileServer)
 	rtr.PathPrefix("/static/").Handler(staticFileServer)
 	rtr.HandleFunc("/", hh.Handle).Methods("GET")
 	rtr.HandleFunc("/webcam", wh.Handle).Methods("GET")
 	rtr.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")
 	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
 	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
+
+	rtr.HandleFunc("/login", loginHandler.LoginGET).Methods("GET")
+	rtr.HandleFunc("/login", loginHandler.LoginPOST).Methods("POST")
+	rtr.HandleFunc("/logout", loginHandler.LogoutPOST).Methods("POST")
 
 	members := grouper.Members{}
 	if *enableHTTPS {
@@ -156,6 +169,7 @@ func main() {
 			*caFile,
 			*username,
 			*password,
+			cookieHandler,
 		)
 
 		members = append(members, grouper.Member{
@@ -173,6 +187,7 @@ func main() {
 			*httpsPort,
 			*username,
 			*password,
+			cookieHandler,
 		)
 		members = append(members, grouper.Member{
 			Name:   "http",
@@ -185,7 +200,7 @@ func main() {
 
 	logger.Info("garagepi started")
 
-	err := <-process.Wait()
+	err = <-process.Wait()
 	if err != nil {
 		logger.Error("Error running garagepi", err)
 	}

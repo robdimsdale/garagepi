@@ -6,15 +6,16 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/securecookie"
 	"github.com/pivotal-golang/lager"
 	"github.com/tedsuo/ifrit"
 )
 
 type httpRunner struct {
-	port       uint
-	logger     lager.Logger
-	handler    http.Handler
-	forceHTTPS bool
+	port          uint
+	logger        lager.Logger
+	handler       http.Handler
+	cookieHandler securecookie.SecureCookie
 }
 
 func NewHTTPRunner(
@@ -25,22 +26,22 @@ func NewHTTPRunner(
 	httpsPort uint,
 	username string,
 	password string,
+	cookieHandler *securecookie.SecureCookie,
 ) ifrit.Runner {
 
 	var h http.Handler
 	if forceHTTPS {
 		h = newForceHTTPSHandler(handler, logger, httpsPort)
 	} else if username != "" && password != "" {
-		h = newBasicAuthHandler(handler, logger, username, password)
+		h = newSessionAuthHandler(handler, logger, username, password, cookieHandler)
 	} else {
 		h = newHandler(handler, logger)
 	}
 
 	return &httpRunner{
-		port:       port,
-		logger:     logger,
-		handler:    h,
-		forceHTTPS: forceHTTPS,
+		port:    port,
+		logger:  logger,
+		handler: h,
 	}
 }
 

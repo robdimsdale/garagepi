@@ -17,6 +17,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
+	"github.com/sclevine/agouti"
+	. "github.com/sclevine/agouti/matchers"
 )
 
 func startMainWithArgs(args ...string) *gexec.Session {
@@ -375,54 +377,6 @@ var _ = Describe("GaragepiExecutable", func() {
 					session = startMainWithArgs(args...)
 					Eventually(session).Should(gexec.Exit(2))
 				})
-
-				Context("when username and password are provided", func() {
-					BeforeEach(func() {
-						args = append(args, "-username=some-user")
-						args = append(args, "-password=teE73F4vf0")
-					})
-
-					It("rejects unauthenticated requests", func() {
-						session = startMainWithArgs(args...)
-						Eventually(session).Should(gbytes.Say("garagepi started"))
-
-						resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", httpPort))
-						Expect(err).NotTo(HaveOccurred())
-						Expect(resp.StatusCode).To(Equal(http.StatusUnauthorized))
-					})
-
-					It("rejects unauthorized requests", func() {
-						session = startMainWithArgs(args...)
-						Eventually(session).Should(gbytes.Say("garagepi started"))
-
-						req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
-						Expect(err).NotTo(HaveOccurred())
-
-						req.SetBasicAuth("baduser", "badpassword")
-
-						client := &http.Client{}
-						resp, err := client.Do(req)
-						Expect(err).NotTo(HaveOccurred())
-
-						Expect(resp.StatusCode).To(Equal(http.StatusForbidden))
-					})
-
-					It("accepts authorized requests", func() {
-						session = startMainWithArgs(args...)
-						Eventually(session).Should(gbytes.Say("garagepi started"))
-
-						req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
-						Expect(err).NotTo(HaveOccurred())
-
-						req.SetBasicAuth("some-user", "teE73F4vf0")
-
-						client := &http.Client{}
-						resp, err := client.Do(req)
-						Expect(err).NotTo(HaveOccurred())
-
-						Expect(resp.StatusCode).To(Equal(http.StatusOK))
-					})
-				})
 			})
 		})
 
@@ -456,6 +410,84 @@ var _ = Describe("GaragepiExecutable", func() {
 
 				session.Kill()
 				Eventually(session).Should(gexec.Exit())
+			})
+		})
+
+		Describe("UI", func() {
+			var page *agouti.Page
+
+			BeforeEach(func() {
+				var err error
+				page, err = agoutiDriver.NewPage()
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			AfterEach(func() {
+				Expect(page.Destroy()).To(Succeed())
+			})
+
+			Context("when dev is enabled", func() {
+				BeforeEach(func() {
+					args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
+					args = append(args, "-dev")
+				})
+
+				It("does not redirect to /login", func() {
+					session = startMainWithArgs(args...)
+					url := fmt.Sprintf("http://localhost:%d/", httpPort)
+
+					Expect(page.Navigate(url)).To(Succeed())
+					Expect(page).To(HaveURL(url))
+				})
+			})
+
+			Context("when dev is disabled", func() {
+				Describe("logging in", func() {
+					const (
+						username = "some-user"
+						password = "8eEd3g4vf0"
+					)
+
+					var (
+						expectedLoginURL string
+					)
+
+					BeforeEach(func() {
+						args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
+						args = append(args, fmt.Sprintf("-username=%s", username))
+						args = append(args, fmt.Sprintf("-password=%s", password))
+
+						expectedLoginURL = fmt.Sprintf("http://localhost:%d/login", httpPort)
+					})
+
+					It("allows the user to login and logout", func() {
+						session = startMainWithArgs(args...)
+
+						By("redirecting the user to the login form from the home page", func() {
+							url := fmt.Sprintf("http://localhost:%d/", httpPort)
+
+							Expect(page.Navigate(url)).To(Succeed())
+							Expect(page).To(HaveURL(expectedLoginURL))
+						})
+
+						By("allowing the user to fill out the login form and submit it", func() {
+							Eventually(page.FindByLabel("Username")).Should(BeFound())
+							Expect(page.FindByLabel("Username").Fill(username)).To(Succeed())
+							Expect(page.FindByLabel("Password").Fill(password)).To(Succeed())
+							Expect(page.Find("#login").Submit()).To(Succeed())
+						})
+
+						By("showing the user items found only on the homepage", func() {
+							Eventually(page.Find("#webcam")).Should(BeFound())
+						})
+
+						By("allowing the user to log out", func() {
+							Expect(page.Find("#logout").Submit()).To(Succeed())
+
+							Expect(page).To(HaveURL(expectedLoginURL))
+						})
+					})
+				})
 			})
 		})
 	})

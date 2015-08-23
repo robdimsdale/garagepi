@@ -14,6 +14,10 @@
 			"Rev": "8965bfef36e398a40fa4afbe4e22eea61cb8db86"
 		},
 		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "e95799a481bbcc3d01c2ad5178524cb8bec9f370"
+		},
+		{
 			"ImportPath": "github.com/onsi/ginkgo",
 			"Comment": "v1.1.0-32-g291f28e",
 			"Rev": "291f28e66dd277f35d3635990a7448759645c7e7"
@@ -26,6 +30,11 @@
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
 			"Rev": "c88fa6d6c4d2f8a21a4599785211e41777750d34"
+		},
+		{
+			"ImportPath": "github.com/sclevine/agouti",
+			"Comment": "v2-latest-27-g547867f",
+			"Rev": "547867f76f1c76d9d5380db4bf27deedd12ec367"
 		},
 		{
 			"ImportPath": "github.com/stianeikeland/go-rpio",

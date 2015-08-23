@@ -39,7 +39,8 @@ var _ = Describe("Door", func() {
 			fakeLogger,
 			fakeOSHelper,
 			fakeGpio,
-			gpioDoorPin)
+			gpioDoorPin,
+		)
 
 		dummyRequest = new(http.Request)
 	})

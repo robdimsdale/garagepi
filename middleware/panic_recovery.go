@@ -20,7 +20,7 @@ func (p panicRecovery) Wrap(next http.Handler) http.Handler {
 			if panicInfo := recover(); panicInfo != nil {
 				rw.WriteHeader(http.StatusInternalServerError)
 				p.logger.Error("Panic while serving request", nil, lager.Data{
-					"request":   req,
+					"request":   fromHTTPRequest(*req),
 					"panicInfo": panicInfo,
 				})
 			}
