@@ -145,10 +145,13 @@ jobs:
       passed: [rc]
     - get: version
       passed: [rc]
+      trigger: true
     - get: candidate-release-arm
       passed: [rc]
+      trigger: true
     - get: candidate-release-linux
       passed: [rc]
+      trigger: true
   - task: smoke-tests-linux
     file: garagepi/scripts/ci/candidate-release-linux-smoke-tests.yml
 
