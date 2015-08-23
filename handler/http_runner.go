@@ -51,9 +51,8 @@ func (r httpRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	listener, err = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port))
 	if err != nil {
 		return err
-	} else {
-		r.logger.Info("HTTP server listening on port", lager.Data{"port": r.port})
 	}
+	r.logger.Info("HTTP server listening on port", lager.Data{"port": r.port})
 
 	errChan := make(chan error)
 	go func() {

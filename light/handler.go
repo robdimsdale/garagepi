@@ -53,9 +53,9 @@ func (l LightState) StateString() string {
 	}
 	if l.LightOn {
 		return "on"
-	} else {
-		return "off"
 	}
+
+	return "off"
 }
 
 func (h handler) HandleGet(w http.ResponseWriter, r *http.Request) {

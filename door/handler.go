@@ -51,16 +51,16 @@ func (h handler) HandleToggle(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("error toggling door. Skipping sleep and further executions", err)
 		w.Write([]byte("error - door not toggled"))
 		return
-	} else {
-		h.osHelper.Sleep(SleepTime)
-
-		err := h.gpio.WriteLow(h.gpioDoorPin)
-		if err != nil {
-			h.logger.Error("error toggling door", err)
-		}
-
-		h.logger.Info("door toggled")
-		w.Write([]byte("door toggled"))
-		return
 	}
+
+	h.osHelper.Sleep(SleepTime)
+
+	err = h.gpio.WriteLow(h.gpioDoorPin)
+	if err != nil {
+		h.logger.Error("error toggling door", err)
+	}
+
+	h.logger.Info("door toggled")
+	w.Write([]byte("door toggled"))
+	return
 }

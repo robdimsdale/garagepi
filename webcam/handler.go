@@ -18,7 +18,7 @@ type Handler interface {
 type handler struct {
 	logger     lager.Logger
 	httpHelper httphelper.HTTPHelper
-	webcamUrl  string
+	webcamURL  string
 }
 
 func NewHandler(
@@ -28,17 +28,17 @@ func NewHandler(
 	webcamPort uint,
 ) Handler {
 
-	webcamUrl := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", webcamHost, webcamPort)
+	webcamURL := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", webcamHost, webcamPort)
 
 	return &handler{
 		httpHelper: httpHelper,
 		logger:     logger,
-		webcamUrl:  webcamUrl,
+		webcamURL:  webcamURL,
 	}
 }
 
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
-	resp, err := h.httpHelper.Get(h.webcamUrl + r.Form.Get("n"))
+	resp, err := h.httpHelper.Get(h.webcamURL + r.Form.Get("n"))
 	if err != nil {
 		h.logger.Error("error getting image", err)
 		if resp == nil {
