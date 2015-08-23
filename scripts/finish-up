@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -eux
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives one directory below the base directory.
+BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
+
+pushd ${BASE_DIR}
+  if [ "$#" != "0" ]; then
+    ids=""
+    for id in "$@"; do
+      ids="$ids #${id}"
+    done
+  fi
+
+  echo "[finishes${ids}]" | git ci --file -
+  
+  git ci --amend
+popd
