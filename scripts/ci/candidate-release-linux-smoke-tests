@@ -3,7 +3,7 @@
 set -eux
 
 ROOT="$PWD"
-export GARAGEPI_BIN_PATH="$(ls ${ROOT}/candidate-release/garagepi-*)"
+export GARAGEPI_BIN_PATH="$(ls ${ROOT}/candidate-release-linux/garagepi-*)"
 chmod +x "${GARAGEPI_BIN_PATH}"
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
