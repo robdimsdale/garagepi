@@ -59,6 +59,14 @@ resources:
     password: {{docker-password}}
     email: {{docker-email}}
 
+- name: docker-garagepi-cross-compile
+  type: docker-image
+  source:
+    repository: robdimsdale/garagepi-cross-compile
+    username: {{docker-username}}
+    password: {{docker-password}}
+    email: {{docker-email}}
+
 jobs:
 - name: golang-1.4
   public: false
@@ -197,7 +205,6 @@ jobs:
     params: {file: version/number}
 
 - name: docker-garagepi-1.4
-  public: false
   plan:
   - get: garagepi
     trigger: true
@@ -206,7 +213,6 @@ jobs:
       build: garagepi/scripts/ci/golang-1.4
 
 - name: docker-garagepi-1.5
-  public: false
   plan:
   - get: garagepi
     trigger: true
@@ -214,18 +220,27 @@ jobs:
     params:
       build: garagepi/scripts/ci/golang-1.5
 
+- name: docker-garagepi-cross-compile
+  plan:
+  - get: garagepi
+    trigger: true
+  - put: docker-garagepi-cross-compile
+    params:
+      build: garagepi/scripts/ci/cross-compile
+
 groups:
 - name: garagepi
   jobs:
-    - golang-1.4
-    - golang-1.5
-    - rc
-    - smoke-tests
-    - shipit
-    - major
-    - minor
-    - patch
+  - golang-1.4
+  - golang-1.5
+  - rc
+  - smoke-tests
+  - shipit
+  - major
+  - minor
+  - patch
 - name: images
   jobs:
-    - docker-garagepi-1.4
-    - docker-garagepi-1.5
+  - docker-garagepi-1.4
+  - docker-garagepi-1.5
+  - docker-garagepi-cross-compile
