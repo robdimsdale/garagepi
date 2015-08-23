@@ -167,6 +167,11 @@ jobs:
       passed: [smoke-tests]
       params: {bump: final}
   - aggregate:
+    - task: finalize-candidate-release-arm
+      file: garagepi/scripts/ci/finalize-candidate-release-arm.yml
+    - task: finalize-candidate-release-linux
+      file: garagepi/scripts/ci/finalizee-candidate-release-linux.yml
+  - aggregate:
     - put: version
       params: {file: version/number}
     - put: garagepi-master
@@ -174,6 +179,10 @@ jobs:
         repository: garagepi
         tag: version/number
         tag_prefix: v
+    - put: candidate-release-arm
+      params: {from: finalize-candidate-release-arm/garagepi-arm-(.*)}
+    - put: candidate-release-linux
+      params: {from: finalize-candidate-release-linux/garagepi-linux-(.*)}
 
 - name: major
   public: true
