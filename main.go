@@ -36,8 +36,8 @@ var (
 	logLevel = flag.String("logLevel", string(logger.INFO), "log level: debug, info, error or fatal")
 
 	enableHTTP  = flag.Bool("enableHTTP", true, "Enable HTTP traffic.")
-	enableHTTPS = flag.Bool("enableHTTPS", true, "Enable HTTPS traffic.")
-	forceHTTPS  = flag.Bool("forceHTTPS", true, "Redirect all HTTP traffic to HTTPS.")
+	enableHTTPS = flag.Bool("enableHTTPS", false, "Enable HTTPS traffic.")
+	forceHTTPS  = flag.Bool("forceHTTPS", false, "Redirect all HTTP traffic to HTTPS.")
 
 	httpPort  = flag.Uint("httpPort", 13080, "Port on which to listen for HTTP (if enabled)")
 	httpsPort = flag.Uint("httpsPort", 13433, "Port on which to listen for HTTP (if enabled)")
@@ -74,6 +74,10 @@ func main() {
 		"enableHTTPS": enableHTTPS,
 		"forceHTTPS":  forceHTTPS,
 	})
+
+	if !(*enableHTTP || *enableHTTPS) {
+		logger.Fatal("exiting", fmt.Errorf("at least one of enableHTTP and enableHTTPS must be true"))
+	}
 
 	if *enableHTTPS {
 		if *keyFile == "" {

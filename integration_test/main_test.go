@@ -342,8 +342,6 @@ var _ = Describe("GaragepiExecutable", func() {
 				BeforeEach(func() {
 					args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 					args = append(args, "-dev")
-					args = append(args, "-enableHTTPS=false")
-					args = append(args, "-forceHTTPS=false")
 				})
 
 				It("accepts unauthenticated requests", func() {
@@ -360,8 +358,6 @@ var _ = Describe("GaragepiExecutable", func() {
 				BeforeEach(func() {
 					args = append(args, fmt.Sprintf("-httpPort=%d", httpPort))
 					args = append(args, "-dev=false")
-					args = append(args, "-enableHTTPS=false")
-					args = append(args, "-forceHTTPS=false")
 				})
 
 				It("exits with error when -username is not provided", func() {
