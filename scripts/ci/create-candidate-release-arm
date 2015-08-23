@@ -22,7 +22,7 @@ pushd ${BASE_DIR}
   stripped_version="${arrVERSION[0]}"
 
   GOOS=linux GOARCH=arm go build \
-    -o "${ROOT}"/garagepi-"${VERSION}" \
+    -o "${ROOT}"/garagepi-arm-"${VERSION}" \
     -ldflags "-X main.version=${stripped_version}" \
     main.go
 popd
