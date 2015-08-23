@@ -57,6 +57,14 @@ func main() {
 		version = "dev"
 	}
 
+	if len(os.Args) > 0 {
+		arg := os.Args[1]
+		if arg == "version" || arg == "-v" || arg == "--version" {
+			fmt.Printf("%s\n", version)
+			os.Exit(0)
+		}
+	}
+
 	flag.Parse()
 
 	logger := logger.InitializeLogger(*logLevel)
