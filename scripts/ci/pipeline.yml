@@ -174,7 +174,7 @@ jobs:
     - task: finalize-candidate-release-arm
       file: garagepi/scripts/ci/finalize-candidate-release-arm.yml
     - task: finalize-candidate-release-linux
-      file: garagepi/scripts/ci/finalizee-candidate-release-linux.yml
+      file: garagepi/scripts/ci/finalize-candidate-release-linux.yml
   - aggregate:
     - put: version
       params: {file: version/number}
