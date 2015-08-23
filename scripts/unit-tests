@@ -8,5 +8,13 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
 
 pushd ${BASE_DIR}
-  ginkgo -p -r -race -randomizeAllSpecs -randomizeSuites -skipPackage="integration_test,smoke_test" "$@" .
+  ginkgo \
+    -p \
+    -r \
+    -race \
+    -randomizeAllSpecs \
+    -randomizeSuites \
+    -skipPackage="integration_test,smoke_test" \
+    "$@" \
+    .
 popd

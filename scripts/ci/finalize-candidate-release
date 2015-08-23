@@ -1,8 +1,0 @@
-#!/bin/sh
-
-set -eux
-
-ROOT="$PWD"
-VERSION="$(cat version/number)"
-
-mv candidate-release/garagepi-* "${ROOT}"/garagepi-"${VERSION}"

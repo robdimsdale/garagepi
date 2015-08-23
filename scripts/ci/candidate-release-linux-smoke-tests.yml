@@ -1,0 +1,11 @@
+---
+platform: linux
+
+image: docker:///robdimsdale/garagepi-1.4
+
+inputs:
+- name: garagepi
+- name: candidate-release-linux
+
+run:
+  path: garagepi/scripts/ci/candidate-release-linux-smoke-tests

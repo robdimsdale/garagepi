@@ -8,5 +8,4 @@ inputs:
 - name: version
 
 run:
-  path: garagepi/scripts/ci/create-candidate-release
-
+  path: garagepi/scripts/ci/create-candidate-release-linux

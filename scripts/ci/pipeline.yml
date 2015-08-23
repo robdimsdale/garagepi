@@ -27,11 +27,19 @@ resources:
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
 
-- name: candidate-release
+- name: candidate-release-arm
   type: s3
   source:
     bucket: garagepi-releases
-    regexp: garagepi-(.*)
+    regexp: garagepi-arm-(.*)
+    access_key_id: {{pipeline-bucket-access-key}}
+    secret_access_key: {{pipeline-bucket-secret-key}}
+
+- name: candidate-release-linux
+  type: s3
+  source:
+    bucket: garagepi-releases
+    regexp: garagepi-linux-(.*)
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
 
@@ -106,10 +114,16 @@ jobs:
       passed: [golang-1.4,golang-1.5]
     - get: version
       params: {pre: rc}
-  - task: create-candidate-release
-    file: garagepi/scripts/ci/create-candidate-release.yml
-  - put: candidate-release
-    params: {from: create-candidate-release/garagepi-(.*)}
+  - aggregate:
+    - task: create-candidate-release-arm
+      file: garagepi/scripts/ci/create-candidate-release-arm.yml
+    - task: create-candidate-release-linux
+      file: garagepi/scripts/ci/create-candidate-release-linux.yml
+  - aggregate:
+    - put: candidate-release-arm
+      params: {from: create-candidate-release-arm/garagepi-arm-(.*)}
+    - put: candidate-release-linux
+      params: {from: create-candidate-release-linux/garagepi-linux-(.*)}
   - put: version
     params: {file: version/number}
 
@@ -122,10 +136,12 @@ jobs:
       passed: [rc]
     - get: version
       passed: [rc]
-    - get: candidate-release
+    - get: candidate-release-arm
       passed: [rc]
-  - task: smoke-tests
-    file: garagepi/scripts/ci/candidate-release-smoke-tests.yml
+    - get: candidate-release-linux
+      passed: [rc]
+  - task: smoke-tests-linux
+    file: garagepi/scripts/ci/candidate-release-linux-smoke-tests.yml
 
 - name: shipit
   serial_groups: [version]
@@ -135,7 +151,9 @@ jobs:
     - get: garagepi
       passed: [smoke-tests]
       params: {fetch: [master]}
-    - get: candidate-release
+    - get: candidate-release-arm
+      passed: [smoke-tests]
+    - get: candidate-release-linux
       passed: [smoke-tests]
     - get: version
       passed: [smoke-tests]

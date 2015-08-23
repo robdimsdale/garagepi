@@ -16,8 +16,9 @@ pushd ${BASE_DIR}
 
   go get github.com/onsi/ginkgo/ginkgo
   go get golang.org/x/tools/cmd/vet
+  go get github.com/tools/godep
 
-  go get -v -t -d ./...
+  godep restore
 
   set +e
   ${SCRIPTS_DIR}/go-vet

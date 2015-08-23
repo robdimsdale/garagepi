@@ -5,7 +5,7 @@ image: docker:///robdimsdale/garagepi-1.4
 
 inputs:
 - name: garagepi
-- name: candidate-release
+- name: version
 
 run:
-  path: garagepi/scripts/ci/candidate-release-smoke-tests
+  path: garagepi/scripts/ci/create-candidate-release-arm

@@ -14,10 +14,13 @@ pushd ${BASE_DIR}
   mkdir -p $GOPATH/src/github.com/robdimsdale
   ln -s $PWD $GOPATH/src/github.com/robdimsdale/garagepi
 
-  go get -v -t -d ./...
+  go get github.com/tools/godep
+
+  godep restore
 
   IFS='-' read -ra arrVERSION <<< "${VERSION}"
   stripped_version="${arrVERSION[0]}"
+
   go build \
     -o "${ROOT}"/garagepi-"${VERSION}" \
     -ldflags "-X main.version ${stripped_version}" \
