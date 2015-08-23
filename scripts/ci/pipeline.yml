@@ -122,6 +122,7 @@ jobs:
       passed: [golang-1.4,golang-1.5]
     - get: version
       params: {pre: rc}
+      trigger: true
   - aggregate:
     - task: create-candidate-release-arm
       file: garagepi/scripts/ci/create-candidate-release-arm.yml
