@@ -57,7 +57,7 @@ func main() {
 		version = "dev"
 	}
 
-	if len(os.Args) > 0 {
+	if len(os.Args) > 1 {
 		arg := os.Args[1]
 		if arg == "version" || arg == "-v" || arg == "--version" {
 			fmt.Printf("%s\n", version)
