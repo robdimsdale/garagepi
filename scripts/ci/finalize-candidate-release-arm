@@ -5,4 +5,4 @@ set -eux
 ROOT="$PWD"
 VERSION="$(cat version/number)"
 
-mv candidate-release/garagepi-arm-* "${ROOT}"/garagepi-arm-"${VERSION}"
+mv candidate-release-arm/garagepi-arm-* "${ROOT}"/garagepi-arm-"${VERSION}"
