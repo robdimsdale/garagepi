@@ -5,7 +5,6 @@ import (
 
 	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/filesystem"
-	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
 )
 
@@ -17,19 +16,16 @@ type Handler interface {
 
 type handler struct {
 	logger       lager.Logger
-	httpHelper   httphelper.HTTPHelper
 	fsHelper     filesystem.FileSystemHelper
 	lightHandler light.Handler
 }
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HTTPHelper,
 	fsHelper filesystem.FileSystemHelper, lightHandler light.Handler,
 ) Handler {
 
 	return &handler{
-		httpHelper:   httpHelper,
 		logger:       logger,
 		fsHelper:     fsHelper,
 		lightHandler: lightHandler,

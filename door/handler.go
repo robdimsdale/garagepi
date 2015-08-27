@@ -6,7 +6,6 @@ import (
 
 	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/gpio"
-	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/os"
 )
 
@@ -22,7 +21,6 @@ type Handler interface {
 
 type handler struct {
 	logger      lager.Logger
-	httpHelper  httphelper.HTTPHelper
 	osHelper    os.OSHelper
 	gpio        gpio.Gpio
 	gpioDoorPin uint
@@ -30,14 +28,12 @@ type handler struct {
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HTTPHelper,
 	osHelper os.OSHelper,
 	gpio gpio.Gpio,
 	gpioDoorPin uint,
 ) Handler {
 
 	return &handler{
-		httpHelper:  httpHelper,
 		logger:      logger,
 		gpio:        gpio,
 		gpioDoorPin: gpioDoorPin,

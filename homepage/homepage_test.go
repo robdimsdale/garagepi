@@ -12,12 +12,10 @@ import (
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	filesystem_fakes "github.com/robdimsdale/garagepi/filesystem/fakes"
 	"github.com/robdimsdale/garagepi/homepage"
-	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	light_fakes "github.com/robdimsdale/garagepi/light/fakes"
 )
 
 var (
-	fakeHTTPHelper     *httphelper_fakes.FakeHTTPHelper
 	fakeLogger         lager.Logger
 	fakeLightHandler   *light_fakes.FakeHandler
 	fakeFsHelper       *filesystem_fakes.FakeFileSystemHelper
@@ -33,12 +31,10 @@ var _ = Describe("Homepage", func() {
 		fakeLogger = lagertest.NewTestLogger("homepage handle test")
 		fakeLightHandler = new(light_fakes.FakeHandler)
 		fakeFsHelper = new(filesystem_fakes.FakeFileSystemHelper)
-		fakeHTTPHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		hh = homepage.NewHandler(
 			fakeLogger,
-			fakeHTTPHelper,
 			fakeFsHelper,
 			fakeLightHandler,
 		)

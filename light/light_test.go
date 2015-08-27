@@ -13,7 +13,6 @@ import (
 	"github.com/pivotal-golang/lager/lagertest"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
-	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	"github.com/robdimsdale/garagepi/light"
 )
 
@@ -22,7 +21,6 @@ const (
 )
 
 var (
-	fakeHTTPHelper     *httphelper_fakes.FakeHTTPHelper
 	fakeLogger         lager.Logger
 	fakeGpio           *gpio_fakes.FakeGpio
 	fakeResponseWriter *test_helpers_fakes.FakeResponseWriter
@@ -44,12 +42,10 @@ var _ = Describe("Light", func() {
 
 		fakeLogger = lagertest.NewTestLogger("light test")
 		fakeGpio = new(gpio_fakes.FakeGpio)
-		fakeHTTPHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		lh = light.NewHandler(
 			fakeLogger,
-			fakeHTTPHelper,
 			fakeGpio,
 			gpioLightPin)
 

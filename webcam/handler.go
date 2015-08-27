@@ -1,12 +1,10 @@
 package webcam
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/pivotal-golang/lager"
-	"github.com/robdimsdale/garagepi/httphelper"
 )
 
 //go:generate counterfeiter . Handler
@@ -16,29 +14,23 @@ type Handler interface {
 }
 
 type handler struct {
-	logger     lager.Logger
-	httpHelper httphelper.HTTPHelper
-	webcamURL  string
+	logger    lager.Logger
+	webcamURL string
 }
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HTTPHelper,
-	webcamHost string,
-	webcamPort uint,
+	webcamURL string,
 ) Handler {
 
-	webcamURL := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", webcamHost, webcamPort)
-
 	return &handler{
-		httpHelper: httpHelper,
-		logger:     logger,
-		webcamURL:  webcamURL,
+		logger:    logger,
+		webcamURL: webcamURL,
 	}
 }
 
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
-	resp, err := h.httpHelper.Get(h.webcamURL + r.Form.Get("n"))
+	resp, err := http.Get(h.webcamURL + r.Form.Get("n"))
 	if err != nil {
 		h.logger.Error("error getting image", err)
 		if resp == nil {
@@ -47,10 +39,17 @@ func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	if resp.StatusCode != http.StatusOK {
+		h.logger.Info("Bad upstream status code", lager.Data{"statusCode": resp.StatusCode})
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		h.logger.Error("error closing image request", err)
+		h.logger.Error("error reading returned image", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}

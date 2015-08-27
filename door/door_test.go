@@ -11,7 +11,6 @@ import (
 	"github.com/robdimsdale/garagepi/door"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
-	httphelper_fakes "github.com/robdimsdale/garagepi/httphelper/fakes"
 	os_fakes "github.com/robdimsdale/garagepi/os/fakes"
 )
 
@@ -20,7 +19,6 @@ const (
 )
 
 var (
-	fakeHttpHelper     *httphelper_fakes.FakeHTTPHelper
 	fakeOSHelper       *os_fakes.FakeOSHelper
 	fakeLogger         lager.Logger
 	fakeGpio           *gpio_fakes.FakeGpio
@@ -35,12 +33,10 @@ var _ = Describe("Door", func() {
 		fakeLogger = lagertest.NewTestLogger("Door test")
 		fakeOSHelper = new(os_fakes.FakeOSHelper)
 		fakeGpio = new(gpio_fakes.FakeGpio)
-		fakeHttpHelper = new(httphelper_fakes.FakeHTTPHelper)
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
 
 		dh = door.NewHandler(
 			fakeLogger,
-			fakeHttpHelper,
 			fakeOSHelper,
 			fakeGpio,
 			gpioDoorPin)

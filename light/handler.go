@@ -8,7 +8,6 @@ import (
 
 	"github.com/pivotal-golang/lager"
 	"github.com/robdimsdale/garagepi/gpio"
-	"github.com/robdimsdale/garagepi/httphelper"
 )
 
 //go:generate counterfeiter . Handler
@@ -21,20 +20,17 @@ type Handler interface {
 
 type handler struct {
 	logger       lager.Logger
-	httpHelper   httphelper.HTTPHelper
 	gpio         gpio.Gpio
 	gpioLightPin uint
 }
 
 func NewHandler(
 	logger lager.Logger,
-	httpHelper httphelper.HTTPHelper,
 	gpio gpio.Gpio,
 	gpioLightPin uint,
 ) Handler {
 
 	return &handler{
-		httpHelper:   httpHelper,
 		logger:       logger,
 		gpio:         gpio,
 		gpioLightPin: gpioLightPin,

@@ -13,7 +13,6 @@ import (
 	"github.com/robdimsdale/garagepi/gpio"
 	"github.com/robdimsdale/garagepi/handler"
 	"github.com/robdimsdale/garagepi/homepage"
-	"github.com/robdimsdale/garagepi/httphelper"
 	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
 	gpos "github.com/robdimsdale/garagepi/os"
@@ -103,34 +102,29 @@ func main() {
 	// It is also apparently relative to the filesystem package.
 	fsHelper := filesystem.NewFileSystemHelper()
 	osHelper := gpos.NewOSHelper(logger)
-	httpHelper := httphelper.NewHTTPHelper()
 
+	webcamURL := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", *webcamHost, *webcamPort)
 	wh := webcam.NewHandler(
 		logger,
-		httpHelper,
-		*webcamHost,
-		*webcamPort,
+		webcamURL,
 	)
 
 	gpio := gpio.NewGpio(osHelper, logger)
 
 	lh := light.NewHandler(
 		logger,
-		httpHelper,
 		gpio,
 		*gpioLightPin,
 	)
 
 	hh := homepage.NewHandler(
 		logger,
-		httpHelper,
 		fsHelper,
 		lh,
 	)
 
 	dh := door.NewHandler(
 		logger,
-		httpHelper,
 		osHelper,
 		gpio,
 		*gpioDoorPin)
