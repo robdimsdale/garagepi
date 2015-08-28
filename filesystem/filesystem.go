@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"path/filepath"
 
-	"github.com/robdimsdale/garagepi/templates"
+	"github.com/robdimsdale/garagepi/web/templates"
 )
 
 var (

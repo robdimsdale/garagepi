@@ -1,26 +1,30 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/pivotal-golang/lager"
-	"github.com/robdimsdale/garagepi/door"
+	"github.com/robdimsdale/garagepi/api/door"
+	"github.com/robdimsdale/garagepi/api/light"
+	"github.com/robdimsdale/garagepi/api/loglevel"
 	"github.com/robdimsdale/garagepi/filesystem"
 	"github.com/robdimsdale/garagepi/gpio"
-	"github.com/robdimsdale/garagepi/handler"
-	"github.com/robdimsdale/garagepi/homepage"
-	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
-	"github.com/robdimsdale/garagepi/login"
-	"github.com/robdimsdale/garagepi/loglevel"
+	"github.com/robdimsdale/garagepi/middleware"
 	gpos "github.com/robdimsdale/garagepi/os"
-	"github.com/robdimsdale/garagepi/static"
-	"github.com/robdimsdale/garagepi/webcam"
+	"github.com/robdimsdale/garagepi/web/homepage"
+	"github.com/robdimsdale/garagepi/web/login"
+	"github.com/robdimsdale/garagepi/web/static"
+	"github.com/robdimsdale/garagepi/web/webcam"
 	"github.com/tedsuo/ifrit"
 	"github.com/tedsuo/ifrit/grouper"
 )
@@ -105,6 +109,15 @@ func main() {
 		logger.Fatal("exiting", fmt.Errorf("must specify -username and -password or turn on dev mode"))
 	}
 
+	var tlsConfig *tls.Config
+	if *keyFile != "" && *certFile != "" {
+		var err error
+		tlsConfig, err = createTLSConfig(*keyFile, *certFile, *caFile)
+		if err != nil {
+			logger.Fatal("exiting. Failed to create tlsConfig", err)
+		}
+	}
+
 	cookieHandler := securecookie.New(
 		securecookie.GenerateRandomKey(64),
 		securecookie.GenerateRandomKey(32),
@@ -160,13 +173,16 @@ func main() {
 	rtr := mux.NewRouter()
 
 	rtr.PathPrefix("/static/").Handler(staticFileServer)
+
 	rtr.HandleFunc("/", hh.Handle).Methods("GET")
 	rtr.HandleFunc("/webcam", wh.Handle).Methods("GET")
-	rtr.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")
-	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
-	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
-	rtr.HandleFunc("/loglevel", loglevelHandler.GetMinLevel).Methods("GET")
-	rtr.HandleFunc("/loglevel", loglevelHandler.SetMinLevel).Methods("POST")
+
+	s := rtr.PathPrefix("/api/v1").Subrouter()
+	s.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")
+	s.HandleFunc("/light", lh.HandleGet).Methods("GET")
+	s.HandleFunc("/light", lh.HandleSet).Methods("POST")
+	s.HandleFunc("/loglevel", loglevelHandler.GetMinLevel).Methods("GET")
+	s.HandleFunc("/loglevel", loglevelHandler.SetMinLevel).Methods("POST")
 
 	rtr.HandleFunc("/login", loginHandler.LoginGET).Methods("GET")
 	rtr.HandleFunc("/login", loginHandler.LoginPOST).Methods("POST")
@@ -174,13 +190,14 @@ func main() {
 
 	members := grouper.Members{}
 	if *enableHTTPS {
-		httpsRunner := handler.NewHTTPSRunner(
+		forceHTTPS := false
+		httpsRunner := NewWebRunner(
 			*httpsPort,
 			logger,
 			rtr,
-			*keyFile,
-			*certFile,
-			*caFile,
+			tlsConfig,
+			forceHTTPS,
+			*redirectPort,
 			*username,
 			*password,
 			cookieHandler,
@@ -193,10 +210,12 @@ func main() {
 	}
 
 	if *enableHTTP {
-		httpRunner := handler.NewHTTPRunner(
+		var tlsConfig *tls.Config // nil
+		httpRunner := NewWebRunner(
 			*httpPort,
 			logger,
 			rtr,
+			tlsConfig,
 			*forceHTTPS,
 			*redirectPort,
 			*username,
@@ -217,5 +236,110 @@ func main() {
 	err = <-process.Wait()
 	if err != nil {
 		logger.Error("Error running garagepi", err)
+	}
+}
+
+func createTLSConfig(keyFile string, certFile string, caFile string) (*tls.Config, error) {
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+
+	if caFile != "" {
+		// Load CA cert
+		caCert, err := ioutil.ReadFile(caFile)
+		if err != nil {
+			return nil, err
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		tlsConfig.RootCAs = caCertPool
+	}
+
+	tlsConfig.BuildNameToCertificate()
+	return tlsConfig, nil
+}
+
+type webRunner struct {
+	port      uint
+	logger    lager.Logger
+	handler   http.Handler
+	tlsConfig *tls.Config
+}
+
+func NewWebRunner(
+	port uint,
+	logger lager.Logger,
+	handler http.Handler,
+	tlsConfig *tls.Config,
+	forceHTTPS bool,
+	redirectPort uint,
+	username string,
+	password string,
+	cookieHandler *securecookie.SecureCookie,
+) ifrit.Runner {
+
+	m := middleware.Chain{
+		middleware.NewPanicRecovery(logger),
+		middleware.NewLogger(logger),
+	}
+
+	if forceHTTPS {
+		m = append(m, middleware.NewHTTPSEnforcer(redirectPort))
+	} else if username != "" && password != "" {
+		m = append(m, middleware.NewSessionAuth(username, password, logger, cookieHandler))
+	}
+
+	return &webRunner{
+		port:      port,
+		logger:    logger,
+		handler:   m.Wrap(handler),
+		tlsConfig: tlsConfig,
+	}
+}
+
+func (r webRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
+	var listener net.Listener
+	var err error
+
+	if r.tlsConfig == nil {
+		fmt.Printf("listen for TCP on %d\n", r.port)
+		listener, err = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port))
+	} else {
+		fmt.Printf("listen for TLS on %d\n", r.port)
+		listener, err = tls.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port), r.tlsConfig)
+	}
+	if err != nil {
+		return err
+	}
+
+	errChan := make(chan error)
+	go func() {
+		err := http.Serve(listener, r.handler)
+		if err != nil {
+			errChan <- err
+		}
+	}()
+
+	close(ready)
+
+	if r.tlsConfig == nil {
+		r.logger.Info("HTTP server listening on port", lager.Data{"port": r.port})
+	} else {
+		r.logger.Info("HTTPS server listening on port", lager.Data{"port": r.port})
+	}
+
+	select {
+	case <-signals:
+		return listener.Close()
+	case err := <-errChan:
+		return err
 	}
 }

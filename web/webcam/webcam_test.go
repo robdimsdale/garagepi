@@ -13,7 +13,7 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
-	"github.com/robdimsdale/garagepi/webcam"
+	"github.com/robdimsdale/garagepi/web/webcam"
 )
 
 var (

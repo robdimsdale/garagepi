@@ -10,15 +10,15 @@ BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
 pushd ${BASE_DIR}
   esc \
     -pkg=templates \
-    -prefix assets \
-    -o ./templates/fs.go \
-    ./assets/templates/
+    -prefix web/assets \
+    -o ./web/templates/fs.go \
+    ./web/assets/templates/
 
   esc \
     -pkg=static \
-    -prefix assets \
-    -o ./static/fs.go \
-    ./assets/static/
+    -prefix web/assets \
+    -o ./web/static/fs.go \
+    ./web/assets/static/
 popd
 
 echo "All embedded assets created successfully"

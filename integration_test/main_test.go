@@ -81,43 +81,43 @@ var _ = Describe("GaragepiExecutable", func() {
 				session = startMainWithArgs(args...)
 				Eventually(session).Should(gbytes.Say("garagepi started"))
 
-				resp, err := http.Get(fmt.Sprintf("http://localhost:%d", httpPort))
+				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/", httpPort))
 				Expect(err).NotTo(HaveOccurred())
 				validateSuccessNonZeroLengthBody(resp)
 			})
 
-			It("Should reject GET requests to /toggle with 404", func() {
+			It("Should reject GET requests to /api/v1/toggle with 404", func() {
 				session = startMainWithArgs(args...)
 				Eventually(session).Should(gbytes.Say("garagepi started"))
 
-				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/toggle", httpPort))
+				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/api/v1/toggle", httpPort))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
 			})
 
-			It("Should accept POST requests to /toggle", func() {
+			It("Should accept POST requests to /api/v1/toggle", func() {
 				session = startMainWithArgs(args...)
 				Eventually(session).Should(gbytes.Say("garagepi started"))
 
-				resp, err := http.Post(fmt.Sprintf("http://localhost:%d/toggle", httpPort), "", strings.NewReader(""))
+				resp, err := http.Post(fmt.Sprintf("http://localhost:%d/api/v1/toggle", httpPort), "", strings.NewReader(""))
 				Expect(err).NotTo(HaveOccurred())
 				validateSuccessNonZeroLengthBody(resp)
 			})
 
-			It("Should accept GET requests to /light", func() {
+			It("Should accept GET requests to /api/v1/light", func() {
 				session = startMainWithArgs(args...)
 				Eventually(session).Should(gbytes.Say("garagepi started"))
 
-				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/light", httpPort))
+				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/api/v1/light", httpPort))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
 			})
 
-			It("Should accept POST requests to /light", func() {
+			It("Should accept POST requests to /api/v1/light", func() {
 				session = startMainWithArgs(args...)
 				Eventually(session).Should(gbytes.Say("garagepi started"))
 
-				resp, err := http.Post(fmt.Sprintf("http://localhost:%d/light", httpPort), "", strings.NewReader(""))
+				resp, err := http.Post(fmt.Sprintf("http://localhost:%d/api/v1/light", httpPort), "", strings.NewReader(""))
 				Expect(err).NotTo(HaveOccurred())
 				validateSuccessNonZeroLengthBody(resp)
 			})

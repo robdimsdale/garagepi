@@ -11,9 +11,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotal-golang/lager/lagertest"
+	"github.com/robdimsdale/garagepi/api/light"
 	test_helpers_fakes "github.com/robdimsdale/garagepi/fakes"
 	gpio_fakes "github.com/robdimsdale/garagepi/gpio/fakes"
-	"github.com/robdimsdale/garagepi/light"
 )
 
 const (

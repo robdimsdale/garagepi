@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/robdimsdale/garagepi/webcam"
+	"github.com/robdimsdale/garagepi/web/homepage"
 )
 
 type FakeHandler struct {
@@ -41,4 +41,4 @@ func (fake *FakeHandler) HandleArgsForCall(i int) (http.ResponseWriter, *http.Re
 	return fake.handleArgsForCall[i].w, fake.handleArgsForCall[i].r
 }
 
-var _ webcam.Handler = new(FakeHandler)
+var _ homepage.Handler = new(FakeHandler)

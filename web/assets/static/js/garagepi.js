@@ -7,15 +7,15 @@ $(document).ready(function(){
   var lightOn = ($btnLight.text() == "Turn Off Light");
 
   function toggleGarageDoor() {
-    $.post("/toggle");
+    $.post("/api/v1/toggle");
   }
 
   function turnLightOn() {
-    $.post("/light?state=on", parseLightState);
+    $.post("/api/v1/light?state=on", parseLightState);
   }
 
   function turnLightOff() {
-    $.post("/light?state=off", parseLightState);
+    $.post("/api/v1/light?state=off", parseLightState);
   }
 
   function parseLightState(data) {
