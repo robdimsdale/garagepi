@@ -14,6 +14,17 @@ resources:
     branch: master
     private_key: {{private-key}}
 
+- name: garagepi-develop-docker
+  type: git
+  source:
+    uri: git@github.com:robdimsdale/garagepi
+    branch: develop
+    private_key: {{private-key}}
+    paths:
+    - scripts/ci/cross-compile/Dockerfile
+    - scripts/ci/golang-1.4/Dockerfile
+    - scripts/ci/golang-1.5/Dockerfile
+
 - name: slack-alert
   type: slack-notification
   source:
@@ -78,8 +89,12 @@ jobs:
 - name: golang-1.4
   public: false
   plan:
-  - get: garagepi
-    trigger: true
+  - aggregate:
+    - get: garagepi
+      trigger: true
+    - get: docker-garagepi-1.4
+      trigger: true
+      passed: [docker-garagepi-1.4]
   - task: unit-integration-tests
     file: garagepi/scripts/ci/golang-1.4/unit-integration-tests.yml
     on_success:
@@ -100,8 +115,12 @@ jobs:
 - name: golang-1.5
   public: false
   plan:
-  - get: garagepi
-    trigger: true
+  - aggregate:
+    - get: garagepi
+      trigger: true
+    - get: docker-garagepi-1.5
+      trigger: true
+      passed: [docker-garagepi-1.5]
   - task: unit-integration-tests
     file: garagepi/scripts/ci/golang-1.5/unit-integration-tests.yml
     on_success:
@@ -130,6 +149,9 @@ jobs:
     - get: version
       params: {pre: rc}
       trigger: true
+    - get: docker-garagepi-cross-compile
+      trigger: true
+      passed: [docker-garagepi-cross-compile]
   - aggregate:
     - task: create-candidate-release-arm
       file: garagepi/scripts/ci/create-candidate-release-arm.yml
@@ -229,7 +251,7 @@ jobs:
 
 - name: docker-garagepi-1.4
   plan:
-  - get: garagepi
+  - get: garagepi-develop-docker
     trigger: true
   - put: docker-garagepi-1.4
     params:
@@ -238,7 +260,7 @@ jobs:
 
 - name: docker-garagepi-1.5
   plan:
-  - get: garagepi
+  - get: garagepi-develop-docker
     trigger: true
   - put: docker-garagepi-1.5
     params:
@@ -247,7 +269,7 @@ jobs:
 
 - name: docker-garagepi-cross-compile
   plan:
-  - get: garagepi
+  - get: garagepi-develop-docker
     trigger: true
   - put: docker-garagepi-cross-compile
     params:
