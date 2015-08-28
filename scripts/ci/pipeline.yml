@@ -251,7 +251,8 @@ jobs:
 
 - name: docker-garagepi-1.4
   plan:
-  - get: garagepi-develop-docker
+  - get: garagepi
+    resource: garagepi-develop-docker
     trigger: true
   - put: docker-garagepi-1.4
     params:
@@ -260,7 +261,8 @@ jobs:
 
 - name: docker-garagepi-1.5
   plan:
-  - get: garagepi-develop-docker
+  - get: garagepi
+    resource: garagepi-develop-docker
     trigger: true
   - put: docker-garagepi-1.5
     params:
@@ -269,7 +271,8 @@ jobs:
 
 - name: docker-garagepi-cross-compile
   plan:
-  - get: garagepi-develop-docker
+  - get: garagepi
+    resource: garagepi-develop-docker
     trigger: true
   - put: docker-garagepi-cross-compile
     params:
