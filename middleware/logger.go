@@ -73,13 +73,6 @@ func (rw *responseWriter) WriteHeader(s int) {
 	rw.ResponseWriter.WriteHeader(s)
 }
 
-// Golang 1.5 introduces a http.Request.Cancel field,
-// of type <-chan struct{} which the lager library fails to deal with.
-// We introduced loggableHTTPRequest as a way of handling this
-// until such time as lager can deal with it.
-//
-// Once lager can handle the request directly, remove this struct.
-// #101259402
 type LoggableHTTPRequest struct {
 	Method           string
 	URL              *url.URL
