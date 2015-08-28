@@ -6,11 +6,11 @@ A webserver written in golang to display output of Raspberry Pi camera module an
 
 A typical use would be to view the interior of a garage and trigger the garage door opener via gpio (and a relay).
 
-Copyright (c) 2014-2015, Robert Dimsdale. Licensed under [MIT License].
+Copyright © 2014-2015, Robert Dimsdale. Licensed under the [MIT License](https://github.com/robdimsdale/garagepi/raw/master/LICENSE).
 
 ## Getting started
 
-Requires Go v1.4 or higher, and jacksonliam's [experimental mjpg-streamer].
+Requires jacksonliam's [experimental mjpg-streamer](https://github.com/jacksonliam/mjpg-streamer).
 
 ### Downloading
 
@@ -18,7 +18,7 @@ Obtain the most recent binary from the [releases page](https://github.com/robdim
 
 ### Init scripts
 
-Clone this repo, and from within the cloned directory copy the init scripts to `/etc/init.d/`
+Clone this repo, and from within the cloned directory copy the init scripts to `/etc/init.d/` as follows:
 
 ```
 sudo cp scripts/init-scripts/* /etc/init.d/
@@ -31,7 +31,7 @@ sudo update-rc.d garagepi defaults
 sudo update-rc.d garagestreamer defaults
 ```
 
-The default location for the `garagepi` binary is `/go/bin/garagepi`. This is controlled by the `GARAGE_PI_BINARY` environment variable in `scripts/init-scripts/garagepi`. Set this variable to the location of the downloaded binary.
+The default location for the `garagepi` binary is `/go/bin/garagepi`. This is controlled by the `GARAGE_PI_BINARY` environment variable in `scripts/init-scripts/garagepi`. Edit the script and set this variable to the location of the downloaded binary.
 
 ### Logging
 
@@ -61,11 +61,9 @@ sudo update-rc.d garagepi defaults
 
 By default, the `garagepi` webserver assumes the webcam is available on `localhost:8080`. This is controlled by the the environment variables `$WEBCAM_HOST` and `$WEBCAM_PORT` in `scripts/init-scripts/garagepi`.
 
-[MIT License]: https://github.com/robdimsdale/garagepi/raw/master/LICENSE
-
-[experimental mjpg-streamer]: https://github.com/jacksonliam/mjpg-streamer
-
 ## Development
+
+Requires Golang 1.4 or higher.
 
 ### Go dependencies
 
@@ -95,10 +93,18 @@ and then run the script which creates them:
 
 ### Running the tests
 
-The tests require the [ginkgo](https://github.com/onsi/ginkgo/) binary:
+The tests require the [ginkgo](https://github.com/onsi/ginkgo/) binary and [phantomJS](https://github.com/ariya/phantomjs/).
+
+Install `ginkgo` via `go get`:
 
 ```
 go get github.com/onsi/github.com/ginkgo/ginkgo
+```
+
+Install `phantomJS` e.g. for OSX:
+
+```
+brew install phantomjs
 ```
 
 Execute the unit and integration tests with:
@@ -110,6 +116,4 @@ Execute the unit and integration tests with:
 
 ## Project administration
 
-### Tracker
-
-Find this project on tracker at https://www.pivotaltracker.com/n/projects/1401690
+- Roadmap: [Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1401690)
