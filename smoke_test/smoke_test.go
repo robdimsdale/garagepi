@@ -73,6 +73,7 @@ var _ = Describe("GaragepiExecutable", func() {
 			BeforeEach(func() {
 				args = append(args, "-enableHTTPS=true")
 				args = append(args, fmt.Sprintf("-httpsPort=%d", httpsPort))
+				args = append(args, fmt.Sprintf("-redirectPort=%d", httpsPort))
 			})
 
 			Context("when both -certFile and -keyFile are provided", func() {
