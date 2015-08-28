@@ -3,14 +3,34 @@
 
 OUT_LOG=/dev/null
 GARAGEPI_BINARY=/go/bin/garagepi
-MY_PORT=9999
+HTTP_PORT=9999
+HTTPS_PORT=19999
 WEBCAM_HOST=localhost
 WEBCAM_PORT=8080
+ENABLE_HTTPS=false
+FORCE_HTTPS=false
+KEY_FILE=
+CERT_FILE=
+LOG_LEVEL=INFO
+USERNAME=
+PASSWORD=
 
 case "$1" in
   start)
     echo "Starting garagepi"
-    $GARAGEPI_BINARY --port=$MY_PORT --webcamHost=$WEBCAM_HOST --webcamPort=$WEBCAM_PORT 1>$OUT_LOG 2>$OUT_LOG &
+    $GARAGEPI_BINARY \
+      -httpPort=$HTTP_PORT \
+      -httpsPort=$HTTPS_PORT \
+      -webcamHost=$WEBCAM_HOST \
+      -webcamPort=$WEBCAM_PORT \
+      -enableHTTPS=$ENABLE_HTTPS \
+      -forceHTTPS=$FORCE_HTTPS \
+      -keyFile=$KEY_FILE \
+      -certFile=$CERT_FILE \
+      -logLevel=$LOG_LEVEL \
+      -username=$USERNAME \
+      -password=$PASSWORD \
+      1>$OUT_LOG 2>$OUT_LOG &
     ;;
   stop)
     echo "Stopping garagepi"
