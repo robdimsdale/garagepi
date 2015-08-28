@@ -437,7 +437,7 @@ var _ = Describe("GaragepiExecutable", func() {
 					url := fmt.Sprintf("http://localhost:%d/", httpPort)
 
 					Expect(page.Navigate(url)).To(Succeed())
-					Expect(page).To(HaveURL(url))
+					Eventually(page).Should(HaveURL(url))
 				})
 			})
 
