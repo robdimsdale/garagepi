@@ -449,7 +449,8 @@ var _ = Describe("GaragepiExecutable", func() {
 					)
 
 					var (
-						expectedLoginURL string
+						expectedLoginURL    string
+						expectedHomepageURL string
 					)
 
 					BeforeEach(func() {
@@ -458,6 +459,7 @@ var _ = Describe("GaragepiExecutable", func() {
 						args = append(args, fmt.Sprintf("-password=%s", password))
 
 						expectedLoginURL = fmt.Sprintf("http://localhost:%d/login", httpPort)
+						expectedHomepageURL = fmt.Sprintf("http://localhost:%d/", httpPort)
 					})
 
 					It("allows the user to login and logout", func() {
@@ -467,7 +469,7 @@ var _ = Describe("GaragepiExecutable", func() {
 							url := fmt.Sprintf("http://localhost:%d/", httpPort)
 
 							Expect(page.Navigate(url)).To(Succeed())
-							Expect(page).To(HaveURL(expectedLoginURL))
+							Eventually(page).Should(HaveURL(expectedLoginURL))
 						})
 
 						By("allowing the user to fill out the login form and submit it", func() {
@@ -477,14 +479,15 @@ var _ = Describe("GaragepiExecutable", func() {
 							Expect(page.Find("#login").Submit()).To(Succeed())
 						})
 
-						By("showing the user items found only on the homepage", func() {
+						By("validating the user is redirected to the home page", func() {
+							Eventually(page).Should(HaveURL(expectedHomepageURL))
 							Eventually(page.Find("#webcam")).Should(BeFound())
 						})
 
 						By("allowing the user to log out", func() {
 							Expect(page.Find("#logout").Submit()).To(Succeed())
 
-							Expect(page).To(HaveURL(expectedLoginURL))
+							Eventually(page).Should(HaveURL(expectedLoginURL))
 						})
 					})
 				})
