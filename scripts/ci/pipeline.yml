@@ -89,21 +89,15 @@ jobs:
 - name: golang-1.4
   public: false
   plan:
-  - aggregate:
-    - get: garagepi
-      trigger: true
-    - get: docker-garagepi-1.4
-      trigger: true
-      passed: [docker-garagepi-1.4]
-  - task: unit-integration-tests
-    file: garagepi/scripts/ci/golang-1.4/unit-integration-tests.yml
-    on_success:
-      put: slack-alert
-      params:
-        username: concourse
-        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-        channel: {{slack-channel}}
-        text: {{v1-4-slack-success-text}}
+  - do:
+    - aggregate:
+      - get: garagepi
+        trigger: true
+      - get: docker-garagepi-1.4
+        trigger: true
+        passed: [docker-garagepi-1.4]
+    - task: unit-integration-tests
+      file: garagepi/scripts/ci/golang-1.4/unit-integration-tests.yml
     on_failure:
       put: slack-alert
       params:
@@ -115,21 +109,15 @@ jobs:
 - name: golang-1.5
   public: false
   plan:
-  - aggregate:
-    - get: garagepi
-      trigger: true
-    - get: docker-garagepi-1.5
-      trigger: true
-      passed: [docker-garagepi-1.5]
-  - task: unit-integration-tests
-    file: garagepi/scripts/ci/golang-1.5/unit-integration-tests.yml
-    on_success:
-      put: slack-alert
-      params:
-        username: concourse
-        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-        channel: {{slack-channel}}
-        text: {{v1-5-slack-success-text}}
+  - do:
+    - aggregate:
+      - get: garagepi
+        trigger: true
+      - get: docker-garagepi-1.5
+        trigger: true
+        passed: [docker-garagepi-1.5]
+    - task: unit-integration-tests
+      file: garagepi/scripts/ci/golang-1.5/unit-integration-tests.yml
     on_failure:
       put: slack-alert
       params:
@@ -142,50 +130,73 @@ jobs:
   public: false
   serial_groups: [version]
   plan:
-  - aggregate:
-    - get: garagepi
-      trigger: true
-      passed: [golang-1.4,golang-1.5]
-    - get: version
-      params: {pre: rc}
-      trigger: true
-    - get: docker-garagepi-cross-compile
-      trigger: true
-      passed: [docker-garagepi-cross-compile]
-  - aggregate:
-    - task: create-candidate-release-arm
-      file: garagepi/scripts/ci/create-candidate-release-arm.yml
-    - task: create-candidate-release-linux
-      file: garagepi/scripts/ci/create-candidate-release-linux.yml
-  - aggregate:
-    - put: candidate-release-arm
-      params: {from: create-candidate-release-arm/garagepi-arm-(.*)}
-    - put: candidate-release-linux
-      params: {from: create-candidate-release-linux/garagepi-linux-(.*)}
-  - put: version
-    params: {file: version/number}
+  - do:
+    - aggregate:
+      - get: garagepi
+        trigger: true
+        passed: [golang-1.4,golang-1.5]
+      - get: version
+        params: {pre: rc}
+        trigger: true
+      - get: docker-garagepi-cross-compile
+        trigger: true
+        passed: [docker-garagepi-cross-compile]
+    - aggregate:
+      - task: create-candidate-release-arm
+        file: garagepi/scripts/ci/create-candidate-release-arm.yml
+      - task: create-candidate-release-linux
+        file: garagepi/scripts/ci/create-candidate-release-linux.yml
+    - aggregate:
+      - put: candidate-release-arm
+        params: {from: create-candidate-release-arm/garagepi-arm-(.*)}
+      - put: candidate-release-linux
+        params: {from: create-candidate-release-linux/garagepi-linux-(.*)}
+    - put: version
+      params: {file: version/number}
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{rc-slack-failure-text}}
 
 - name: smoke-tests
   public: false
   plan:
-  - aggregate:
-    - get: garagepi
-      trigger: true
-      passed: [rc]
-    - get: version
-      passed: [rc]
-      trigger: true
-    - get: candidate-release-arm
-      passed: [rc]
-      trigger: true
-    - get: candidate-release-linux
-      passed: [rc]
-      trigger: true
-  - task: smoke-tests-linux
-    file: garagepi/scripts/ci/candidate-release-linux-smoke-tests.yml
-  - put: tracker
-    params:
-      repos: [garagepi]
+  - do:
+    - aggregate:
+      - get: garagepi
+        trigger: true
+        passed: [rc]
+      - get: version
+        passed: [rc]
+        trigger: true
+      - get: candidate-release-arm
+        passed: [rc]
+        trigger: true
+      - get: candidate-release-linux
+        passed: [rc]
+        trigger: true
+    - task: smoke-tests-linux
+      file: garagepi/scripts/ci/candidate-release-linux-smoke-tests.yml
+    - put: tracker
+      params:
+        repos: [garagepi]
+    on_success:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{smoke-tests-slack-success-text}}
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{smoke-tests-slack-failure-text}}
 
 - name: shipit
   serial_groups: [version]
@@ -251,33 +262,57 @@ jobs:
 
 - name: docker-garagepi-1.4
   plan:
-  - get: garagepi
-    resource: garagepi-develop-docker
-    trigger: true
-  - put: docker-garagepi-1.4
-    params:
-      build: garagepi/scripts/ci/golang-1.4
-      cache: true
+  - do:
+    - get: garagepi
+      resource: garagepi-develop-docker
+      trigger: true
+    - put: docker-garagepi-1.4
+      params:
+        build: garagepi/scripts/ci/golang-1.4
+        cache: true
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{docker-1-4-slack-failure-text}}
 
 - name: docker-garagepi-1.5
   plan:
-  - get: garagepi
-    resource: garagepi-develop-docker
-    trigger: true
-  - put: docker-garagepi-1.5
-    params:
-      build: garagepi/scripts/ci/golang-1.5
-      cache: true
+  - do:
+    - get: garagepi
+      resource: garagepi-develop-docker
+      trigger: true
+    - put: docker-garagepi-1.5
+      params:
+        build: garagepi/scripts/ci/golang-1.5
+        cache: true
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{docker-1-5-slack-failure-text}}
 
 - name: docker-garagepi-cross-compile
   plan:
-  - get: garagepi
-    resource: garagepi-develop-docker
-    trigger: true
-  - put: docker-garagepi-cross-compile
-    params:
-      build: garagepi/scripts/ci/cross-compile
-      cache: true
+  - do:
+    - get: garagepi
+      resource: garagepi-develop-docker
+      trigger: true
+    - put: docker-garagepi-cross-compile
+      params:
+        build: garagepi/scripts/ci/cross-compile
+        cache: true
+    on_failure:
+      put: slack-alert
+      params:
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        channel: {{slack-channel}}
+        text: {{docker-cross-compile-slack-failure-text}}
 
 groups:
 - name: garagepi
