@@ -40,8 +40,9 @@ var (
 	enableHTTPS = flag.Bool("enableHTTPS", false, "Enable HTTPS traffic.")
 	forceHTTPS  = flag.Bool("forceHTTPS", false, "Redirect all HTTP traffic to HTTPS.")
 
-	httpPort  = flag.Uint("httpPort", 13080, "Port on which to listen for HTTP (if enabled)")
-	httpsPort = flag.Uint("httpsPort", 13433, "Port on which to listen for HTTP (if enabled)")
+	httpPort     = flag.Uint("httpPort", 13080, "Port on which to listen for HTTP (if enabled)")
+	httpsPort    = flag.Uint("httpsPort", 13433, "Port on which to listen for HTTP (if enabled)")
+	redirectPort = flag.Uint("redirectPort", 13443, "Port to which HTTP traffic is redirected (if forceHTTPS is enabled).")
 
 	certFile = flag.String("certFile", "", "A PEM encoded certificate file.")
 	keyFile  = flag.String("keyFile", "", "A PEM encoded private key file.")
@@ -184,7 +185,7 @@ func main() {
 			logger,
 			rtr,
 			*forceHTTPS,
-			*httpsPort,
+			*redirectPort,
 			*username,
 			*password,
 			cookieHandler,

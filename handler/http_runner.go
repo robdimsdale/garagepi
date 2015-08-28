@@ -23,7 +23,7 @@ func NewHTTPRunner(
 	logger lager.Logger,
 	handler http.Handler,
 	forceHTTPS bool,
-	httpsPort uint,
+	redirectPort uint,
 	username string,
 	password string,
 	cookieHandler *securecookie.SecureCookie,
@@ -31,7 +31,7 @@ func NewHTTPRunner(
 
 	var h http.Handler
 	if forceHTTPS {
-		h = newForceHTTPSHandler(handler, logger, httpsPort)
+		h = newForceHTTPSHandler(handler, logger, redirectPort)
 	} else if username != "" && password != "" {
 		h = newSessionAuthHandler(handler, logger, username, password, cookieHandler)
 	} else {

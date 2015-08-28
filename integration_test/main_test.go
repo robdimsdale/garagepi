@@ -295,24 +295,59 @@ var _ = Describe("GaragepiExecutable", func() {
 								args = append(args, "-forceHTTPS=true")
 							})
 
-							It("redirects HTTP to HTTPS", func() {
-								session = startMainWithArgs(args...)
-								Eventually(session).Should(gbytes.Say("garagepi started"))
+							Context("when redirectPort is the same as HTTPSPort", func() {
+								BeforeEach(func() {
+									args = append(args, fmt.Sprintf("-redirectPort=%d", httpsPort))
+								})
 
-								req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
-								Expect(err).NotTo(HaveOccurred())
+								It("redirects HTTP to provided redirect port", func() {
+									session = startMainWithArgs(args...)
+									Eventually(session).Should(gbytes.Say("garagepi started"))
 
-								transport := http.Transport{}
-								resp, err := transport.RoundTrip(req)
+									req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+									Expect(err).NotTo(HaveOccurred())
 
-								Expect(resp.StatusCode).To(Equal(http.StatusFound))
+									transport := http.Transport{}
+									resp, err := transport.RoundTrip(req)
 
-								expectedLocation := fmt.Sprintf("localhost:%d", httpsPort)
+									Expect(resp.StatusCode).To(Equal(http.StatusFound))
 
-								location, err := resp.Location()
-								Expect(err).NotTo(HaveOccurred())
-								Expect(location.Scheme).To(Equal("https"))
-								Expect(location.Host).To(Equal(expectedLocation))
+									expectedLocation := fmt.Sprintf("localhost:%d", httpsPort)
+
+									location, err := resp.Location()
+									Expect(err).NotTo(HaveOccurred())
+									Expect(location.Scheme).To(Equal("https"))
+									Expect(location.Host).To(Equal(expectedLocation))
+								})
+							})
+
+							Context("when redirectPort differs from HTTPSPort", func() {
+								var redirectPort int
+								BeforeEach(func() {
+									redirectPort = 34567
+									args = append(args, fmt.Sprintf("-redirectPort=%d", redirectPort))
+								})
+
+								It("redirects HTTP to provided redirect port", func() {
+									session = startMainWithArgs(args...)
+									Eventually(session).Should(gbytes.Say("garagepi started"))
+
+									req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+									Expect(err).NotTo(HaveOccurred())
+
+									transport := http.Transport{}
+									resp, err := transport.RoundTrip(req)
+
+									Expect(resp.StatusCode).To(Equal(http.StatusFound))
+
+									expectedLocation := fmt.Sprintf("localhost:%d", redirectPort)
+
+									location, err := resp.Location()
+									Expect(err).NotTo(HaveOccurred())
+									Expect(location.Scheme).To(Equal("https"))
+									Expect(location.Host).To(Equal(expectedLocation))
+								})
+
 							})
 						})
 
