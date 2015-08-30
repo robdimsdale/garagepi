@@ -41,7 +41,7 @@ var (
 	forceHTTPS  = flag.Bool("forceHTTPS", false, "Redirect all HTTP traffic to HTTPS.")
 
 	httpPort     = flag.Uint("httpPort", 13080, "Port on which to listen for HTTP (if enabled)")
-	httpsPort    = flag.Uint("httpsPort", 13433, "Port on which to listen for HTTP (if enabled)")
+	httpsPort    = flag.Uint("httpsPort", 13443, "Port on which to listen for HTTP (if enabled)")
 	redirectPort = flag.Uint("redirectPort", 13443, "Port to which HTTP traffic is redirected (if forceHTTPS is enabled).")
 
 	certFile = flag.String("certFile", "", "A PEM encoded certificate file.")
