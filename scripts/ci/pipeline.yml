@@ -96,6 +96,8 @@ jobs:
       - get: docker-garagepi-1.4
         trigger: true
         passed: [docker-garagepi-1.4]
+        params:
+          skip_download: true
     - task: unit-integration-tests
       file: garagepi/scripts/ci/golang-1.4/unit-integration-tests.yml
     on_failure:
@@ -116,6 +118,8 @@ jobs:
       - get: docker-garagepi-1.5
         trigger: true
         passed: [docker-garagepi-1.5]
+        params:
+          skip_download: true
     - task: unit-integration-tests
       file: garagepi/scripts/ci/golang-1.5/unit-integration-tests.yml
     on_failure:
@@ -141,6 +145,8 @@ jobs:
       - get: docker-garagepi-cross-compile
         trigger: true
         passed: [docker-garagepi-cross-compile]
+        params:
+          skip_download: true
     - aggregate:
       - task: create-candidate-release-arm
         file: garagepi/scripts/ci/create-candidate-release-arm.yml
