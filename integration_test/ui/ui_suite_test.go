@@ -1,4 +1,4 @@
-package main_test
+package ui_test
 
 import (
 	"time"
@@ -6,19 +6,21 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
+	"github.com/sclevine/agouti"
 
 	"testing"
 )
 
-func TestGaragepi(t *testing.T) {
+func TestGaragepiUI(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "GaragepiExecutable Suite")
+	RunSpecs(t, "Garagepi UI Suite")
 }
 
 var (
 	httpPort        uint
 	httpsPort       uint
 	garagepiBinPath string
+	agoutiDriver    *agouti.WebDriver
 )
 
 var _ = BeforeSuite(func() {
@@ -32,8 +34,12 @@ var _ = BeforeSuite(func() {
 
 	httpPort = uint(59990 + 2*GinkgoParallelNode())
 	httpsPort = uint(59991 + 2*GinkgoParallelNode())
+
+	agoutiDriver = agouti.PhantomJS()
+	Expect(agoutiDriver.Start()).To(Succeed())
 })
 
 var _ = AfterSuite(func() {
+	Expect(agoutiDriver.Stop()).To(Succeed())
 	gexec.CleanupBuildArtifacts()
 })

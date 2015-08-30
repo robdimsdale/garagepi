@@ -10,9 +10,15 @@ BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
 pushd ${BASE_DIR}
   ginkgo \
     -p \
-    -r \
     -race \
     -randomizeAllSpecs \
     "$@" \
     integration_test
+
+  ginkgo \
+    -p \
+    -r \
+    -randomizeAllSpecs \
+    "$@" \
+    integration_test/ui
 popd
