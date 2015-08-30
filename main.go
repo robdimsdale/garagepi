@@ -17,6 +17,7 @@ import (
 	"github.com/robdimsdale/garagepi/light"
 	"github.com/robdimsdale/garagepi/logger"
 	"github.com/robdimsdale/garagepi/login"
+	"github.com/robdimsdale/garagepi/loglevel"
 	gpos "github.com/robdimsdale/garagepi/os"
 	"github.com/robdimsdale/garagepi/static"
 	"github.com/robdimsdale/garagepi/webcam"
@@ -34,7 +35,7 @@ var (
 	gpioDoorPin  = flag.Uint("gpioDoorPin", 17, "Gpio pin of door.")
 	gpioLightPin = flag.Uint("gpioLightPin", 2, "Gpio pin of light.")
 
-	logLevel = flag.String("logLevel", string(logger.INFO), "log level: debug, info, error or fatal")
+	logLevel = flag.String("logLevel", string(logger.LogLevelInfo), "log level: debug, info, error or fatal")
 
 	enableHTTP  = flag.Bool("enableHTTP", true, "Enable HTTP traffic.")
 	enableHTTPS = flag.Bool("enableHTTPS", false, "Enable HTTPS traffic.")
@@ -69,7 +70,12 @@ func main() {
 
 	flag.Parse()
 
-	logger := logger.InitializeLogger(*logLevel)
+	logger, sink, err := logger.InitializeLogger(logger.LogLevel(*logLevel))
+	if err != nil {
+		fmt.Printf("Failed to initialize logger\n")
+		panic(err)
+	}
+
 	logger.Info("garagepi starting", lager.Data{"version": version})
 	logger.Debug("flags", lager.Data{
 		"enableHTTP":  enableHTTP,
@@ -144,6 +150,11 @@ func main() {
 		gpio,
 		*gpioDoorPin)
 
+	loglevelHandler := loglevel.NewServer(
+		logger,
+		sink,
+	)
+
 	staticFileServer := http.FileServer(static.FS(false))
 
 	rtr := mux.NewRouter()
@@ -154,6 +165,8 @@ func main() {
 	rtr.HandleFunc("/toggle", dh.HandleToggle).Methods("POST")
 	rtr.HandleFunc("/light", lh.HandleGet).Methods("GET")
 	rtr.HandleFunc("/light", lh.HandleSet).Methods("POST")
+	rtr.HandleFunc("/loglevel", loglevelHandler.GetMinLevel).Methods("GET")
+	rtr.HandleFunc("/loglevel", loglevelHandler.SetMinLevel).Methods("POST")
 
 	rtr.HandleFunc("/login", loginHandler.LoginGET).Methods("GET")
 	rtr.HandleFunc("/login", loginHandler.LoginPOST).Methods("POST")

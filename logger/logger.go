@@ -7,26 +7,29 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
+type LogLevel string
+
 const (
-	DEBUG = "debug"
-	INFO  = "info"
-	ERROR = "error"
-	FATAL = "fatal"
+	LogLevelInvalid LogLevel = ""
+	LogLevelDebug   LogLevel = "debug"
+	LogLevelInfo    LogLevel = "info"
+	LogLevelError   LogLevel = "error"
+	LogLevelFatal   LogLevel = "fatal"
 )
 
-func InitializeLogger(logLevel string) lager.Logger {
+func InitializeLogger(minLogLevel LogLevel) (lager.Logger, *lager.ReconfigurableSink, error) {
 	var minLagerLogLevel lager.LogLevel
-	switch logLevel {
-	case DEBUG:
+	switch minLogLevel {
+	case LogLevelDebug:
 		minLagerLogLevel = lager.DEBUG
-	case INFO:
+	case LogLevelInfo:
 		minLagerLogLevel = lager.INFO
-	case ERROR:
+	case LogLevelError:
 		minLagerLogLevel = lager.ERROR
-	case FATAL:
+	case LogLevelFatal:
 		minLagerLogLevel = lager.FATAL
 	default:
-		panic(fmt.Errorf("unknown log level: %s", logLevel))
+		return nil, nil, fmt.Errorf("unknown log level: %s", minLogLevel)
 	}
 
 	logger := lager.NewLogger("garagepi")
@@ -34,5 +37,5 @@ func InitializeLogger(logLevel string) lager.Logger {
 	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), minLagerLogLevel)
 	logger.RegisterSink(sink)
 
-	return logger
+	return logger, sink, nil
 }
