@@ -9,19 +9,19 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
-type sessionAuth struct {
+type auth struct {
 	username, password string
 	logger             lager.Logger
 	cookieHandler      *securecookie.SecureCookie
 }
 
-func NewSessionAuth(
+func NewAuth(
 	username string,
 	password string,
 	logger lager.Logger,
 	cookieHandler *securecookie.SecureCookie,
 ) Middleware {
-	return sessionAuth{
+	return auth{
 		username:      username,
 		password:      password,
 		logger:        logger,
@@ -29,7 +29,7 @@ func NewSessionAuth(
 	}
 }
 
-func (s sessionAuth) Wrap(next http.Handler) http.Handler {
+func (s auth) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		if s.unauthenticatedAccessAllowedForURL(req.URL.Path) ||
 			s.validSession(req) ||
@@ -42,7 +42,7 @@ func (s sessionAuth) Wrap(next http.Handler) http.Handler {
 	})
 }
 
-func (s sessionAuth) unauthenticatedAccessAllowedForURL(url string) bool {
+func (s auth) unauthenticatedAccessAllowedForURL(url string) bool {
 	openURLs := []string{"/login", "/static"}
 
 	for _, u := range openURLs {
@@ -55,7 +55,7 @@ func (s sessionAuth) unauthenticatedAccessAllowedForURL(url string) bool {
 	return false
 }
 
-func (s sessionAuth) validBasicAuth(request *http.Request) bool {
+func (s auth) validBasicAuth(request *http.Request) bool {
 	username, password, ok := request.BasicAuth()
 
 	validated := ok &&
@@ -71,7 +71,7 @@ func (s sessionAuth) validBasicAuth(request *http.Request) bool {
 	}
 }
 
-func (s sessionAuth) validSession(request *http.Request) bool {
+func (s auth) validSession(request *http.Request) bool {
 	var username, password string
 	if cookie, err := request.Cookie("session"); err == nil {
 		cookieValue := make(map[string]string)

@@ -294,7 +294,7 @@ func NewWebRunner(
 	if forceHTTPS {
 		m = append(m, middleware.NewHTTPSEnforcer(redirectPort))
 	} else if username != "" && password != "" {
-		m = append(m, middleware.NewSessionAuth(username, password, logger, cookieHandler))
+		m = append(m, middleware.NewAuth(username, password, logger, cookieHandler))
 	}
 
 	return &webRunner{
