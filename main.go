@@ -310,12 +310,13 @@ func (r webRunner) Run(signals <-chan os.Signal, ready chan<- struct{}) error {
 	var err error
 
 	if r.tlsConfig == nil {
-		fmt.Printf("listen for TCP on %d\n", r.port)
+		r.logger.Debug("listening for TCP", lager.Data{"port": r.port})
 		listener, err = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port))
 	} else {
-		fmt.Printf("listen for TLS on %d\n", r.port)
+		r.logger.Debug("listening for TLS", lager.Data{"port": r.port})
 		listener, err = tls.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", r.port), r.tlsConfig)
 	}
+
 	if err != nil {
 		return err
 	}

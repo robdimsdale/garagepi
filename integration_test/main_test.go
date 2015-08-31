@@ -410,6 +410,59 @@ var _ = Describe("GaragepiExecutable", func() {
 					session = startMainWithArgs(args...)
 					Eventually(session).Should(gexec.Exit(2))
 				})
+
+				Context("when username and password are provided", func() {
+					BeforeEach(func() {
+						args = append(args, "-username=some-user")
+						args = append(args, "-password=teE73F4vf0")
+					})
+
+					It("redirects unauthenticated requests", func() {
+						session = startMainWithArgs(args...)
+						Eventually(session).Should(gbytes.Say("garagepi started"))
+
+						req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+						Expect(err).NotTo(HaveOccurred())
+
+						transport := http.Transport{}
+						resp, err := transport.RoundTrip(req)
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(resp.StatusCode).To(Equal(http.StatusFound))
+					})
+
+					It("redirects unauthorized requests", func() {
+						session = startMainWithArgs(args...)
+						Eventually(session).Should(gbytes.Say("garagepi started"))
+
+						req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+						Expect(err).NotTo(HaveOccurred())
+
+						req.SetBasicAuth("baduser", "badpassword")
+
+						transport := http.Transport{}
+						resp, err := transport.RoundTrip(req)
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(resp.StatusCode).To(Equal(http.StatusFound))
+					})
+
+					It("accepts authorized requests", func() {
+						session = startMainWithArgs(args...)
+						Eventually(session).Should(gbytes.Say("garagepi started"))
+
+						req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:%d/", httpPort), nil)
+						Expect(err).NotTo(HaveOccurred())
+
+						req.SetBasicAuth("some-user", "teE73F4vf0")
+
+						client := &http.Client{}
+						resp, err := client.Do(req)
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(resp.StatusCode).To(Equal(http.StatusOK))
+					})
+				})
 			})
 		})
 

@@ -31,14 +31,9 @@ func NewSessionAuth(
 
 func (s sessionAuth) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if unauthenticatedAccessAllowedForURL(req.URL.Path) {
-			s.logger.Debug(
-				"unauthenticated access allowed for URL",
-				lager.Data{"url": req.URL.Path},
-			)
-			next.ServeHTTP(rw, req)
-		} else if s.isLoggedIn(req) {
-			s.logger.Debug("successful authorization via session")
+		if s.unauthenticatedAccessAllowedForURL(req.URL.Path) ||
+			s.validSession(req) ||
+			s.validBasicAuth(req) {
 			next.ServeHTTP(rw, req)
 		} else {
 			s.logger.Debug("not logged in - redirecting")
@@ -47,18 +42,36 @@ func (s sessionAuth) Wrap(next http.Handler) http.Handler {
 	})
 }
 
-func unauthenticatedAccessAllowedForURL(url string) bool {
+func (s sessionAuth) unauthenticatedAccessAllowedForURL(url string) bool {
 	openURLs := []string{"/login", "/static"}
 
 	for _, u := range openURLs {
 		if strings.HasPrefix(url, u) {
+			s.logger.Debug("unauthenticated access allowed for URL", lager.Data{"url": url})
 			return true
 		}
 	}
+	s.logger.Debug("authenticated access required for URL", lager.Data{"url": url})
 	return false
 }
 
-func (s sessionAuth) isLoggedIn(request *http.Request) bool {
+func (s sessionAuth) validBasicAuth(request *http.Request) bool {
+	username, password, ok := request.BasicAuth()
+
+	validated := ok &&
+		secureCompare(username, s.username) &&
+		secureCompare(password, s.password)
+
+	if validated {
+		s.logger.Debug("successfully validated via basic auth")
+		return true
+	} else {
+		s.logger.Debug("failed validation via basic auth")
+		return false
+	}
+}
+
+func (s sessionAuth) validSession(request *http.Request) bool {
 	var username, password string
 	if cookie, err := request.Cookie("session"); err == nil {
 		cookieValue := make(map[string]string)
@@ -67,7 +80,17 @@ func (s sessionAuth) isLoggedIn(request *http.Request) bool {
 			password = cookieValue["password"]
 		}
 	}
-	return secureCompare(username, s.username) && secureCompare(password, s.password)
+
+	validated := secureCompare(username, s.username) &&
+		secureCompare(password, s.password)
+
+	if validated {
+		s.logger.Debug("successfully validated via session")
+		return true
+	} else {
+		s.logger.Debug("failed validation via session")
+		return false
+	}
 }
 
 func secureCompare(a, b string) bool {
