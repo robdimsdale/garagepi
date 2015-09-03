@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -eux
+
+private_key="deployments/pipelines/garagepi/concourse.private.key"
+
+TARGET_USER="${TARGET_USER:-pi}"
+TARGET_HOST="${TARGET_HOST:?}"
+TARGET_PORT="${TARGET_PORT:-22}"
+
+ssh \
+  -i "${private_key}" \
+  -o StrictHostKeyChecking=no \
+  -p "${TARGET_PORT}" \
+  "${TARGET_USER}@${TARGET_HOST}" \
+  "sudo rm -f /tmp/garagepi"
+
+scp \
+  -i "${private_key}" \
+  -P "${TARGET_PORT}" \
+  candidate-release-arm/garagepi-arm-* \
+  "${TARGET_USER}@${TARGET_HOST}":/tmp/garagepi
+
+read -d '' redeploy_command << EOF || true
+sudo service garagepi stop && \
+cp /tmp/garagepi /go/bin/garagepi && \
+sudo rm -f /tmp/garagepi && \
+sudo service garagepi start
+EOF
+
+ssh \
+  -i "${private_key}" \
+  -p "${TARGET_PORT}" \
+  "${TARGET_USER}@${TARGET_HOST}" \
+  "${redeploy_command}"

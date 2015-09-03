@@ -14,6 +14,13 @@ resources:
     branch: master
     private_key: {{private-key}}
 
+- name: deployments
+  type: git
+  source:
+    uri: git@github.com:robdimsdale/deployments-rmd
+    branch: master
+    private_key: {{deployments-private-key}}
+
 - name: garagepi-develop-docker
   type: git
   source:
@@ -184,8 +191,17 @@ jobs:
       - get: candidate-release-linux
         passed: [rc]
         trigger: true
-    - task: smoke-tests-linux
-      file: garagepi/scripts/ci/candidate-release-linux-smoke-tests.yml
+      - get: deployments
+    - aggregate:
+      - task: smoke-tests-linux
+        file: garagepi/scripts/ci/candidate-release-linux-smoke-tests.yml
+      - task: staging-deploy
+        file: garagepi/scripts/ci/deploy-arm.yml
+        config:
+          params:
+            TARGET_HOST: {{staging-target-host}}
+            TARGET_PORT: {{staging-target-port}}
+            TARGET_USER: {{staging-target-user}}
     - put: tracker
       params:
         repos: [garagepi]

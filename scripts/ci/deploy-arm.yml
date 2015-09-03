@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image: docker:///robdimsdale/garagepi-1.5
+
+inputs:
+- name: candidate-release-arm
+- name: garagepi
+- name: deployments
+
+run:
+  path: garagepi/scripts/ci/deploy-arm
+
+params:
+  TARGET_HOST:
+  TARGET_USER:
+  TARGET_PORT:
