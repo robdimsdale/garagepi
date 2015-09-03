@@ -15,8 +15,7 @@ LOG_LEVEL=info
 USERNAME=
 PASSWORD=
 
-case "$1" in
-  start)
+start() {
     echo "Starting garagepi"
     $GARAGEPI_BINARY \
       -httpPort=$HTTP_PORT \
@@ -31,13 +30,25 @@ case "$1" in
       -username=$USERNAME \
       -password=$PASSWORD \
       1>$OUT_LOG 2>$OUT_LOG &
-    ;;
-  stop)
+}
+
+stop() {
     echo "Stopping garagepi"
     killall -w -q $GARAGEPI_BINARY
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop && start
     ;;
   *)
-    echo "Usage: /etc/init.d/garagepi {start|stop}"
+    echo "Usage: /etc/init.d/garagepi {start|stop|restart}"
     exit 1
     ;;
   esac

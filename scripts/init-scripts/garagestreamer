@@ -3,8 +3,7 @@
 
 OUT_LOG=/dev/null
 
-case "$1" in
-  start)
+start() {
     echo "Starting garagestreamer"
     export LD_LIBRARY_PATH=/root/workspace/mjpg-streamer/mjpg-streamer-experimental
     cd $LD_LIBRARY_PATH
@@ -16,14 +15,27 @@ case "$1" in
       -y 720 \
       -fps 15 \
       -ex night \
-      -rot 270" & 1> $OUT_LOG 2>$OUT_LOG &
+      -rot 270" \
+      1> $OUT_LOG 2>$OUT_LOG &
+}
+
+stop() {
+    echo "Stopping garagestreamer"
+    killall -w -q mjpg_streamer
+}
+
+case "$1" in
+  start)
+    start
      ;;
   stop)
-    echo "Stopping garagestreamer"
-    killall mjpg_streamer
+    stop
+    ;;
+  restart)
+    stop && start
     ;;
   *)
-    echo "Usage: /etc/init.d/garagestreamer {start|stop}"
+    echo "Usage: /etc/init.d/garagestreamer {start|stop|restart}"
     exit 1
     ;;
   esac
