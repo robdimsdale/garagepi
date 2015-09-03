@@ -29,7 +29,7 @@ start() {
       -logLevel=$LOG_LEVEL \
       -username=$USERNAME \
       -password=$PASSWORD \
-      1>$OUT_LOG 2>$OUT_LOG &
+      2>&1 | tee $OUT_LOG | logger -t garagepi &
 }
 
 stop() {

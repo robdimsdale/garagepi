@@ -35,7 +35,7 @@ The default location for the `garagepi` binary is `/go/bin/garagepi`. This is co
 
 ### Logging
 
-By default logs are sent to `/dev/null`. This is controlled by the `OUT_LOG` environment variable in `scripts/init-scripts/garagepi` and `scripts/init-scripts/garagestreamer`. These can either be set to the same file or different files.
+By default logs are sent to the syslog with the tag `garagepi` as well as to the file `/dev/null`. The location of the additional file is controlled by the `OUT_LOG` environment variable in `scripts/init-scripts/garagepi` and `scripts/init-scripts/garagestreamer`. These can either be set to the same file or different files.
 
 ## Performance
 
