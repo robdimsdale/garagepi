@@ -34,7 +34,7 @@ case "$1" in
     ;;
   stop)
     echo "Stopping garagepi"
-    killall garagepi
+    killall -w -q $GARAGEPI_BINARY
     ;;
   *)
     echo "Usage: /etc/init.d/garagepi {start|stop}"
