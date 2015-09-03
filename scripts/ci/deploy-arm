@@ -3,6 +3,7 @@
 set -eux
 
 private_key="deployments/pipelines/garagepi/concourse.private.key"
+chmod 600 "${private_key}"
 
 TARGET_USER="${TARGET_USER:-pi}"
 TARGET_HOST="${TARGET_HOST:?}"
