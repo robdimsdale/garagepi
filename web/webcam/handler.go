@@ -2,7 +2,10 @@ package webcam
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
+	"net/http/httputil"
+	"time"
 
 	"github.com/pivotal-golang/lager"
 )
@@ -14,44 +17,38 @@ type Handler interface {
 }
 
 type handler struct {
-	logger    lager.Logger
-	webcamURL string
+	logger lager.Logger
+	proxy  httputil.ReverseProxy
 }
 
 func NewHandler(
 	logger lager.Logger,
-	webcamURL string,
+	webcamHost string,
 ) Handler {
+	director := func(req *http.Request) {
+		req.URL.Scheme = "http"
+		req.URL.Host = webcamHost
+		req.URL.Path = "/"
+		req.URL.RawQuery = "action=stream"
+	}
+
+	flushInterval, err := time.ParseDuration("10ms")
+	if err != nil {
+		logger.Fatal("golang broke", err)
+	}
+
+	proxy := httputil.ReverseProxy{
+		Director:      director,
+		FlushInterval: flushInterval,
+		ErrorLog:      log.New(ioutil.Discard, "", 0),
+	}
 
 	return &handler{
-		logger:    logger,
-		webcamURL: webcamURL,
+		logger: logger,
+		proxy:  proxy,
 	}
 }
 
 func (h handler) Handle(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(h.webcamURL + r.Form.Get("n"))
-	if err != nil {
-		h.logger.Error("error getting image", err)
-		if resp == nil {
-			h.logger.Info("no image to return")
-			w.WriteHeader(http.StatusServiceUnavailable)
-			return
-		}
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		h.logger.Info("Bad upstream status code", lager.Data{"statusCode": resp.StatusCode})
-		w.WriteHeader(http.StatusServiceUnavailable)
-		return
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		h.logger.Error("error reading returned image", err)
-		w.WriteHeader(http.StatusServiceUnavailable)
-		return
-	}
-	w.Write(body)
+	h.proxy.ServeHTTP(w, r)
 }

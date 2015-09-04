@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -30,16 +31,21 @@ var _ = Describe("Webcam", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		webcamURL := server.URL()
+		parsedURL, err := url.Parse(webcamURL)
+		Expect(err).NotTo(HaveOccurred())
 
 		fakeLogger = lagertest.NewTestLogger("webcam test")
 		fakeResponseWriter = new(test_helpers_fakes.FakeResponseWriter)
+		fakeResponseWriter.HeaderReturns(http.Header{})
 
 		w = webcam.NewHandler(
 			fakeLogger,
-			webcamURL,
+			parsedURL.Host,
 		)
 
 		dummyRequest = new(http.Request)
+		dummyRequest.URL = &url.URL{}
+		dummyRequest.Header = http.Header{}
 	})
 
 	AfterEach(func() {
@@ -50,7 +56,7 @@ var _ = Describe("Webcam", func() {
 		It("should make a request to fetch the image", func() {
 			server.AppendHandlers(
 				ghttp.CombineHandlers(
-					ghttp.VerifyRequest("GET", "/"),
+					ghttp.VerifyRequest("GET", "/", "action=stream"),
 				),
 			)
 
@@ -94,10 +100,10 @@ var _ = Describe("Webcam", func() {
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(0))
 			})
 
-			It("Should respond with HTTP status code 503", func() {
+			It("Should respond with HTTP status code 500", func() {
 				w.Handle(fakeResponseWriter, dummyRequest)
 				Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
-				Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
+				Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusInternalServerError))
 			})
 		})
 
@@ -106,7 +112,7 @@ var _ = Describe("Webcam", func() {
 				server.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/"),
-						ghttp.RespondWith(http.StatusNotFound, nil),
+						ghttp.RespondWith(http.StatusGone, nil),
 					),
 				)
 			})
@@ -116,10 +122,10 @@ var _ = Describe("Webcam", func() {
 				Expect(fakeResponseWriter.WriteCallCount()).To(Equal(0))
 			})
 
-			It("Should respond with HTTP status code 503", func() {
+			It("Should forward the status code", func() {
 				w.Handle(fakeResponseWriter, dummyRequest)
 				Expect(fakeResponseWriter.WriteHeaderCallCount()).To(Equal(1))
-				Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusServiceUnavailable))
+				Expect(fakeResponseWriter.WriteHeaderArgsForCall(0)).To(Equal(http.StatusGone))
 			})
 		})
 	})

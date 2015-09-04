@@ -129,7 +129,7 @@ var _ = Describe("GaragepiExecutable", func() {
 
 				resp, err := http.Get(fmt.Sprintf("http://localhost:%d/webcam", httpPort))
 				Expect(err).NotTo(HaveOccurred())
-				Expect(resp.StatusCode).To(Equal(http.StatusServiceUnavailable))
+				Expect(resp.StatusCode).To(Equal(http.StatusInternalServerError))
 			})
 
 			It("Should serve static files", func() {

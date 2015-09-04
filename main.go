@@ -139,7 +139,7 @@ func main() {
 		cookieHandler,
 	)
 
-	webcamURL := fmt.Sprintf("http://%s:%d/?action=snapshot&n=", *webcamHost, *webcamPort)
+	webcamURL := fmt.Sprintf("%s:%d", *webcamHost, *webcamPort)
 	wh := webcam.NewHandler(
 		logger,
 		webcamURL,
