@@ -37,6 +37,24 @@ The default location for the `garagepi` binary is `/go/bin/garagepi`. This is co
 
 By default logs are sent to the syslog with the tag `garagepi` as well as to the file `/dev/null`. The location of the additional file is controlled by the `OUT_LOG` environment variable in `scripts/init-scripts/garagepi` and `scripts/init-scripts/garagestreamer`. These can either be set to the same file or different files.
 
+### SSL
+
+SSL requires a private key and a public certificate. The certificate should be the concatenated cert chain, e.g.:
+
+```
+-----BEGIN CERTIFICATE-----
+(Your Primary SSL certificate: your_domain_name.crt)
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+(Your Intermediate certificate: DigiCertCA.crt)
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+(Your Root certificate: TrustedRoot.crt)
+-----END CERTIFICATE-----
+```
+
+The trusted root CA is generally not required.
+
 ## Performance
 
 ### Multiple Pis

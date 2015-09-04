@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -52,7 +51,6 @@ var (
 
 	certFile = flag.String("certFile", "", "A PEM encoded certificate file.")
 	keyFile  = flag.String("keyFile", "", "A PEM encoded private key file.")
-	caFile   = flag.String("caFile", "", "A PEM encoded CA's certificate file.")
 
 	username = flag.String("username", "", "Username for HTTP authentication.")
 	password = flag.String("password", "", "Password for HTTP authentication.")
@@ -115,7 +113,7 @@ func main() {
 	var tlsConfig *tls.Config
 	if *keyFile != "" && *certFile != "" {
 		var err error
-		tlsConfig, err = createTLSConfig(*keyFile, *certFile, *caFile)
+		tlsConfig, err = createTLSConfig(*keyFile, *certFile)
 		if err != nil {
 			logger.Fatal("exiting. Failed to create tlsConfig", err)
 		}
@@ -252,7 +250,7 @@ func main() {
 	}
 }
 
-func createTLSConfig(keyFile string, certFile string, caFile string) (*tls.Config, error) {
+func createTLSConfig(keyFile string, certFile string) (*tls.Config, error) {
 	// Load client cert
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
@@ -262,18 +260,6 @@ func createTLSConfig(keyFile string, certFile string, caFile string) (*tls.Confi
 	// Setup HTTPS client
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
-	}
-
-	if caFile != "" {
-		// Load CA cert
-		caCert, err := ioutil.ReadFile(caFile)
-		if err != nil {
-			return nil, err
-		}
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		tlsConfig.RootCAs = caCertPool
 	}
 
 	tlsConfig.BuildNameToCertificate()
