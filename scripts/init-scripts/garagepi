@@ -3,6 +3,7 @@
 
 OUT_LOG=/dev/null
 GARAGEPI_BINARY=/go/bin/garagepi
+PID_FILE=/run/garagepi.pid
 HTTP_PORT=9999
 HTTPS_PORT=19999
 WEBCAM_HOST=localhost
@@ -16,8 +17,11 @@ USERNAME=
 PASSWORD=
 
 start() {
+    pid_guard
+
     echo "Starting garagepi"
     $GARAGEPI_BINARY \
+      -pidFile=$PIDFILE \
       -httpPort=$HTTP_PORT \
       -httpsPort=$HTTPS_PORT \
       -webcamHost=$WEBCAM_HOST \
@@ -32,9 +36,48 @@ start() {
       2>&1 | tee $OUT_LOG | logger -t garagepi &
 }
 
+pid_guard() {
+  if [ -f "$PID_FILE" ]; then
+    pid=$(head -1 "$PID_FILE")
+
+    if [ -n "$pid" ] && [ -e /proc/$pid ]; then
+      echo "garagepi is already running, please stop it first"
+      exit 1
+    fi
+
+    echo "Removing stale pidfile..."
+    rm $pidfile
+  fi
+}
+
 stop() {
     echo "Stopping garagepi"
-    killall -w -q $GARAGEPI_BINARY
+
+    if [ -f "$PID_FILE" ]; then
+      pid=$(head -1 "$PID_FILE")
+
+      if [ -z "$pid" ]; then
+        echo "Unable to get pid from $PID_FILE"
+        exit 1
+      fi
+
+      if [ -e /proc/$pid ]; then
+        echo "Killing $PID_FILE: $pid "
+        kill $pid
+        sleep 2
+        if [ -e /proc/$pid ]; then
+          echo "Timed Out"
+        else
+          echo "Stopped"
+        fi
+      else
+        echo "Process $pid is not running"
+      fi
+
+      rm -f $PID_FILE
+    else
+      echo "Pidfile $PID_FILE doesn't exist"
+    fi
 }
 
 case "$1" in

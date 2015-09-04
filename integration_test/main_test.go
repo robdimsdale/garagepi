@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -498,6 +499,66 @@ var _ = Describe("GaragepiExecutable", func() {
 				Eventually(session).Should(gexec.Exit())
 			})
 		})
+
+		Describe("Writing pid file", func() {
+			var (
+				tempDirPath string
+				pidFilePath string
+			)
+
+			BeforeEach(func() {
+				var err error
+				tempDirPath, err = ioutil.TempDir(os.TempDir(), "garagepi-integration-test")
+				Expect(err).NotTo(HaveOccurred())
+
+				args = append(args, "-dev")
+			})
+
+			AfterEach(func() {
+				err := os.RemoveAll(tempDirPath)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			Context("when the pidfile location is valid", func() {
+				BeforeEach(func() {
+					pidFilePath = fmt.Sprintf("%s/healthcheck.pid", tempDirPath)
+					args = append(args, fmt.Sprintf("-pidFile=%s", pidFilePath))
+				})
+
+				It("writes its pid to the provided file", func() {
+					Expect(fileExists(pidFilePath)).To(BeFalse())
+					session = startMainWithArgs(args...)
+					Eventually(session).Should(gbytes.Say("garagepi started"))
+					Expect(fileExists(pidFilePath)).To(BeTrue())
+				})
+			})
+		})
+	})
+
+	Describe("Invalid pidfile", func() {
+		var (
+			pidFilePath string
+			tempDirPath string
+		)
+
+		BeforeEach(func() {
+			var err error
+			tempDirPath, err = ioutil.TempDir(os.TempDir(), "garagepi-integration-test")
+			Expect(err).NotTo(HaveOccurred())
+
+			pidFilePath = fmt.Sprintf("%s/invalid_path/healthcheck.pid", tempDirPath)
+			args = append(args, fmt.Sprintf("-pidFile=%s", pidFilePath))
+			args = append(args, "-dev")
+		})
+
+		It("exits with error", func() {
+			session := startMainWithArgs(args...)
+
+			Eventually(session.Err).Should(gbytes.Say(pidFilePath))
+			Eventually(session).Should(gexec.Exit())
+			Expect(session.ExitCode()).ToNot(Equal(0))
+		})
+
 	})
 
 	Describe("Displaying version", func() {
@@ -539,4 +600,9 @@ var _ = Describe("GaragepiExecutable", func() {
 func getDirOfCurrentFile() string {
 	_, filename, _, _ := runtime.Caller(1)
 	return path.Dir(filename)
+}
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil
 }

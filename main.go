@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
@@ -55,6 +56,8 @@ var (
 
 	username = flag.String("username", "", "Username for HTTP authentication.")
 	password = flag.String("password", "", "Password for HTTP authentication.")
+
+	pidFile = flag.String("pidFile", "", "File to which PID is written")
 
 	dev = flag.Bool("dev", false, "Development mode; do not require username/password")
 )
@@ -231,6 +234,16 @@ func main() {
 	group := grouper.NewParallel(os.Kill, members)
 	process := ifrit.Invoke(group)
 
+	if *pidFile != "" {
+		pid := os.Getpid()
+		err = ioutil.WriteFile(*pidFile, []byte(strconv.Itoa(os.Getpid())), 0644)
+		if err != nil {
+			logger.Fatal("Failed to write pid file", err, lager.Data{
+				"pid":     pid,
+				"pidFile": *pidFile,
+			})
+		}
+	}
 	logger.Info("garagepi started")
 
 	err = <-process.Wait()
