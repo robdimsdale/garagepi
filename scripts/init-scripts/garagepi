@@ -21,7 +21,7 @@ start() {
 
     echo "Starting garagepi"
     $GARAGEPI_BINARY \
-      -pidFile=$PIDFILE \
+      -pidFile=$PID_FILE \
       -httpPort=$HTTP_PORT \
       -httpsPort=$HTTPS_PORT \
       -webcamHost=$WEBCAM_HOST \
