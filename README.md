@@ -57,9 +57,21 @@ The trusted root CA is generally not required.
 
 ## Performance
 
+### TLS
+
+The Raspberry Pi supports TLS termination, but it is relatively slow. This causes a significant decrease in the framerate of the webcam (API and web calls are essentially unaffected).
+
+If the TLS termination can happen upstream of the Pi, forwarding requests on in plain text to the Pi, the perfomance will be significantly improved.
+
+### Multiple clients
+
+The mjpg-streamer supports relatively fast streaming to a single client, but multiple clients significantly decrease the framerate of the webcam.
+
 ### Multiple Pis
 
-Performance can be improved by using multiple Pis - one for the mjpg streamer (with the camera attached) and one for the Go webserver (with the gpio attached). The responsiveness of the Go webserver is significantly improved and the framerate of the streamer improved slightly. Stability appears much better (the webserver/streamer crash more frequently when co-located on the same Pi).
+If using Raspberry Pi 2, there is no performance gained by using multiple Raspberry Pis.
+
+If using Raspberry Pi 1, performance can be improved by using multiple Pis - one for the mjpg streamer (with the camera attached) and one for the Go webserver (with the gpio attached). The responsiveness of the Go webserver is significantly improved and the framerate of the streamer improved slightly. Stability appears much better (the webserver/streamer crash more frequently when co-located on the same Pi).
 
 The gpio utility is lightweight and so it may be installed on both, but it is only required to be installed on the Pi directly attached to the relay. The streamer utility, however, requires much more resouce and therefore should only be installed on the Pi with the camera attached.
 
