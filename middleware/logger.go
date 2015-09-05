@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/pivotal-golang/lager"
 )
@@ -23,28 +24,44 @@ func NewLogger(l lager.Logger) Middleware {
 
 func (l logger) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		loggingResponseWriter := responseWriter{
-			rw,
-			[]byte{},
-			0,
-			0,
+		if l.skipLoggingForUrl(req.URL.Path) {
+			next.ServeHTTP(rw, req)
+		} else {
+			loggingResponseWriter := responseWriter{
+				rw,
+				[]byte{},
+				0,
+				0,
+			}
+			next.ServeHTTP(&loggingResponseWriter, req)
+
+			requestCopy := *req
+			requestCopy.Header["Authorization"] = nil
+
+			response := map[string]interface{}{
+				"Header":     loggingResponseWriter.Header(),
+				"StatusCode": loggingResponseWriter.statusCode,
+				"Size":       loggingResponseWriter.size,
+			}
+
+			l.logger.Debug("", lager.Data{
+				"request":  fromHTTPRequest(requestCopy),
+				"response": response,
+			})
 		}
-		next.ServeHTTP(&loggingResponseWriter, req)
-
-		requestCopy := *req
-		requestCopy.Header["Authorization"] = nil
-
-		response := map[string]interface{}{
-			"Header":     loggingResponseWriter.Header(),
-			"StatusCode": loggingResponseWriter.statusCode,
-			"Size":       loggingResponseWriter.size,
-		}
-
-		l.logger.Debug("", lager.Data{
-			"request":  fromHTTPRequest(requestCopy),
-			"response": response,
-		})
 	})
+}
+
+func (l logger) skipLoggingForUrl(url string) bool {
+	openURLs := []string{"/webcam"}
+
+	for _, u := range openURLs {
+		if strings.HasPrefix(url, u) {
+			l.logger.Debug("skiping logging for URL", lager.Data{"url": url})
+			return true
+		}
+	}
+	return false
 }
 
 type responseWriter struct {
