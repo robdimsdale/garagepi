@@ -68,6 +68,13 @@ resources:
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
 
+- name: github-release
+  type: github-release
+  source:
+    access_token: {{github-release-access-token}}
+    repository: garagepi
+    user: robdimsdale
+
 - name: docker-garagepi-1.4
   type: docker-image
   source:
@@ -252,6 +259,30 @@ jobs:
       params: {from: finalize-candidate-release-arm/garagepi-arm-(.*)}
     - put: candidate-release-linux
       params: {from: finalize-candidate-release-linux/garagepi-linux-(.*)}
+- name: github-release
+  plan:
+  - aggregate:
+    - get: candidate-release-arm
+      passed: [shipit]
+      trigger: true
+    - get: candidate-release-linux
+      passed: [shipit]
+      trigger: true
+    - get: garagepi
+      passed: [shipit]
+      trigger: true
+    - get: garagepi-master
+      passed: [shipit]
+      trigger: true
+  - task: most-recent-tag
+    file: garagepi/scripts/ci/most-recent-tag.yml
+  - put: github-release
+    params:
+      name: most-recent-tag/tagname
+      tag: most-recent-tag/tagname
+      globs:
+      - candidate-release-linux/garagepi-*
+      - candidate-release-arm/garagepi-*
 
 - name: major
   public: true
@@ -344,6 +375,7 @@ groups:
   - rc
   - smoke-tests
   - shipit
+  - github-release
   - major
   - minor
   - patch
