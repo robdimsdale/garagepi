@@ -24,7 +24,8 @@ func NewLogger(l lager.Logger) Middleware {
 
 func (l logger) Wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if l.skipLoggingForUrl(req.URL.Path) {
+		if urlInPrefixes(req.URL.Path, []string{"/webcam"}) {
+			l.logger.Debug("skipping logging for URL", lager.Data{"url": req.URL.Path})
 			next.ServeHTTP(rw, req)
 		} else {
 			loggingResponseWriter := responseWriter{
@@ -35,29 +36,27 @@ func (l logger) Wrap(next http.Handler) http.Handler {
 			}
 			next.ServeHTTP(&loggingResponseWriter, req)
 
-			requestCopy := *req
-			requestCopy.Header["Authorization"] = nil
-
-			response := map[string]interface{}{
+			loggedResponse := map[string]interface{}{
 				"Header":     loggingResponseWriter.Header(),
 				"StatusCode": loggingResponseWriter.statusCode,
 				"Size":       loggingResponseWriter.size,
 			}
 
+			if urlInPrefixes(req.URL.Path, []string{"/api"}) {
+				loggedResponse["Body"] = string(loggingResponseWriter.body)
+			}
+
 			l.logger.Debug("", lager.Data{
-				"request":  fromHTTPRequest(requestCopy),
-				"response": response,
+				"request":  loggedRequest(*req),
+				"response": loggedResponse,
 			})
 		}
 	})
 }
 
-func (l logger) skipLoggingForUrl(url string) bool {
-	openURLs := []string{"/webcam"}
-
-	for _, u := range openURLs {
+func urlInPrefixes(url string, prefixes []string) bool {
+	for _, u := range prefixes {
 		if strings.HasPrefix(url, u) {
-			l.logger.Debug("skiping logging for URL", lager.Data{"url": url})
 			return true
 		}
 	}
@@ -111,7 +110,7 @@ type LoggableHTTPRequest struct {
 	TLS              *tls.ConnectionState
 }
 
-func fromHTTPRequest(req http.Request) LoggableHTTPRequest {
+func loggedRequest(req http.Request) LoggableHTTPRequest {
 	var form, postForm url.Values
 	if req.Form != nil {
 		form = sanitizeCredentialsFromForm(req.Form)
@@ -120,6 +119,8 @@ func fromHTTPRequest(req http.Request) LoggableHTTPRequest {
 	if req.PostForm != nil {
 		postForm = sanitizeCredentialsFromForm(req.PostForm)
 	}
+
+	req.Header["Authorization"] = nil
 
 	return LoggableHTTPRequest{
 		Method:           req.Method,
