@@ -65,17 +65,18 @@ func (s auth) validBasicAuth(request *http.Request) bool {
 	if validated {
 		s.logger.Debug("successfully validated via basic auth")
 		return true
-	} else {
-		s.logger.Debug("failed validation via basic auth")
-		return false
 	}
+
+	s.logger.Debug("failed validation via basic auth")
+	return false
 }
 
 func (s auth) validSession(request *http.Request) bool {
 	var username, password string
 	if cookie, err := request.Cookie("session"); err == nil {
 		cookieValue := make(map[string]string)
-		if err = s.cookieHandler.Decode("session", cookie.Value, &cookieValue); err == nil {
+		err = s.cookieHandler.Decode("session", cookie.Value, &cookieValue)
+		if err == nil {
 			username = cookieValue["name"]
 			password = cookieValue["password"]
 		}
@@ -87,10 +88,9 @@ func (s auth) validSession(request *http.Request) bool {
 	if validated {
 		s.logger.Debug("successfully validated via session")
 		return true
-	} else {
-		s.logger.Debug("failed validation via session")
-		return false
 	}
+	s.logger.Debug("failed validation via session")
+	return false
 }
 
 func secureCompare(a, b string) bool {

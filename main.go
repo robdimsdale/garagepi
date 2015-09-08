@@ -55,6 +55,8 @@ var (
 	username = flag.String("username", "", "Username for HTTP authentication.")
 	password = flag.String("password", "", "Password for HTTP authentication.")
 
+	cookieMaxAge = flag.Int("cookieMaxAge", 3600, "Maximum age of cookie in seconds.")
+
 	pidFile = flag.String("pidFile", "", "File to which PID is written")
 
 	dev = flag.Bool("dev", false, "Development mode; do not require username/password")
@@ -135,6 +137,7 @@ func main() {
 		logger,
 		templates,
 		cookieHandler,
+		*cookieMaxAge,
 	)
 
 	webcamURL := fmt.Sprintf("%s:%d", *webcamHost, *webcamPort)

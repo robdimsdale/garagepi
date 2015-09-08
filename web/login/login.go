@@ -20,17 +20,20 @@ type handler struct {
 	logger        lager.Logger
 	templates     *template.Template
 	cookieHandler *securecookie.SecureCookie
+	cookieMaxAge  int
 }
 
 func NewHandler(
 	logger lager.Logger,
 	templates *template.Template,
 	cookieHandler *securecookie.SecureCookie,
+	cookieMaxAge int,
 ) Handler {
 	return &handler{
 		logger:        logger,
 		templates:     templates,
 		cookieHandler: cookieHandler,
+		cookieMaxAge:  cookieMaxAge,
 	}
 }
 
@@ -65,9 +68,10 @@ func (h handler) setSession(
 	encoded, err := h.cookieHandler.Encode("session", value)
 	if err == nil {
 		cookie := &http.Cookie{
-			Name:  "session",
-			Value: encoded,
-			Path:  "/",
+			Name:   "session",
+			Value:  encoded,
+			Path:   "/",
+			MaxAge: h.cookieMaxAge,
 		}
 		http.SetCookie(response, cookie)
 	}
