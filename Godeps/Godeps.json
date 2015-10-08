@@ -1,10 +1,14 @@
 {
 	"ImportPath": "github.com/robdimsdale/garagepi",
-	"GoVersion": "go1.5",
+	"GoVersion": "go1.5.1",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "3d2510a4dd961caffa2ae781669c628d82db700a"
+		},
 		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
@@ -19,13 +23,13 @@
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.1.0-32-g291f28e",
-			"Rev": "291f28e66dd277f35d3635990a7448759645c7e7"
+			"Comment": "v1.2.0-22-g39d2c24",
+			"Rev": "39d2c24f8a92c88f7e7f4d8ec6c80d3cc8f5ac65"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0-26-gdc751ce",
-			"Rev": "dc751ce5f266d83c26fae5c0a9093973b29cb61d"
+			"Comment": "v1.0-71-g2152b45",
+			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
 		},
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
