@@ -2,7 +2,9 @@
 
 set -eux
 
-ROOT="$PWD"
-VERSION="$(cat version/number)"
+root_dir="$PWD"
+version="$(cat version/number)"
 
-mv candidate-release-linux/garagepi-linux-* "${ROOT}"/garagepi-linux-"${VERSION}"
+mv \
+  candidate-release-linux/garagepi-linux-* \
+  "${root_dir}"/garagepi-linux-"${version}"

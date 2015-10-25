@@ -2,12 +2,12 @@
 
 set -eux
 
-MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # This script expects that it lives one directory below the base directory.
-BASE_DIR="$( cd ${MY_DIR}/.. && pwd )"
+base_dir="$( cd "${my_dir}/.." && pwd )"
 
-pushd ${BASE_DIR}
+pushd "${base_dir}"
   ginkgo \
     -p \
     -r \

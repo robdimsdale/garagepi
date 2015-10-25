@@ -2,17 +2,17 @@
 
 set -eux
 
-MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # This script expects that it lives three directories below the base directory.
-BASE_DIR="$( cd ${MY_DIR}/../../.. && pwd )"
+base_dir="$( cd "${my_dir}/../../.." && pwd )"
 
 # And that scripts/ lives one directory below the base directory.
-SCRIPTS_DIR="$( cd ${BASE_DIR}/scripts/ && pwd )"
+scripts_dir="$( cd "${base_dir}/scripts/" && pwd )"
 
-pushd ${BASE_DIR}
-  mkdir -p $GOPATH/src/github.com/robdimsdale
-  ln -s $PWD $GOPATH/src/github.com/robdimsdale/garagepi
+pushd "${base_dir}"
+  mkdir -p "${GOPATH}/src/github.com/robdimsdale"
+  ln -s "${PWD}" "${GOPATH}/src/github.com/robdimsdale/garagepi"
 
   go get github.com/onsi/ginkgo/ginkgo
   go get golang.org/x/tools/cmd/vet
@@ -21,11 +21,11 @@ pushd ${BASE_DIR}
   godep restore
 
   set +e
-  ${SCRIPTS_DIR}/go-vet
+  "${scripts_dir}/go-vet"
   result_code=$?
-  ${SCRIPTS_DIR}/unit-tests
+  "${scripts_dir}/unit-tests"
   result_code=$(( result_code+=$? ))
-  ${SCRIPTS_DIR}/integration-tests
+  "${scripts_dir}/integration-tests"
   result_code=$(( result_code+=$? ))
   set -e
 popd

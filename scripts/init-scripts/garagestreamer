@@ -6,7 +6,11 @@ OUT_LOG=/dev/null
 start() {
     echo "Starting garagestreamer"
     export LD_LIBRARY_PATH=/root/workspace/mjpg-streamer/mjpg-streamer-experimental
-    cd $LD_LIBRARY_PATH
+    if [ ! -d "${LD_LIBRARY_PATH}" ]; then
+      echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH} not a valid directory, exiting."
+      exit 1
+    fi
+    cd "${LD_LIBRARY_PATH}" || exit
     ./mjpg_streamer \
       -o "output_http.so \
       -w ./www" \
@@ -16,7 +20,7 @@ start() {
       -fps 15 \
       -ex night \
       -rot 270" \
-      1> $OUT_LOG 2>$OUT_LOG &
+      1> "${OUT_LOG}" 2>"${OUT_LOG}" &
 }
 
 stop() {

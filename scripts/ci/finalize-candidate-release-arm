@@ -2,7 +2,9 @@
 
 set -eux
 
-ROOT="$PWD"
-VERSION="$(cat version/number)"
+root_dir="$PWD"
+version="$(cat version/number)"
 
-mv candidate-release-arm/garagepi-arm-* "${ROOT}"/garagepi-arm-"${VERSION}"
+mv \
+  candidate-release-arm/garagepi-arm-* \
+  "${root_dir}"/garagepi-arm-"${version}"

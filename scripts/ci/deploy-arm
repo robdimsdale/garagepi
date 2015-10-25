@@ -2,35 +2,33 @@
 
 set -eux
 
-private_key="deployments/pipelines/garagepi/concourse.private.key"
-chmod 600 "${private_key}"
+PRIVATE_KEY="${PRIVATE_KEY:-deployments/pipelines/garagepi/concourse.private.key}"
+chmod 600 "${PRIVATE_KEY}"
+
+CANDIDATE_RELEASE="${CANDIDATE_RELEASE:-candidate-release-arm/garagepi-arm-*}"
 
 TARGET_USER="${TARGET_USER:-pi}"
 TARGET_HOST="${TARGET_HOST:?}"
 TARGET_PORT="${TARGET_PORT:-22}"
 
 ssh \
-  -i "${private_key}" \
+  -i "${PRIVATE_KEY}" \
   -o StrictHostKeyChecking=no \
   -p "${TARGET_PORT}" \
   "${TARGET_USER}@${TARGET_HOST}" \
   "sudo rm -f /tmp/garagepi"
 
 scp \
-  -i "${private_key}" \
+  -i "${PRIVATE_KEY}" \
   -P "${TARGET_PORT}" \
-  candidate-release-arm/garagepi-arm-* \
+  "${CANDIDATE_RELEASE}" \
   "${TARGET_USER}@${TARGET_HOST}":/tmp/garagepi
 
-read -d '' redeploy_command << EOF || true
-sudo service garagepi stop && \
-cp /tmp/garagepi /go/bin/garagepi && \
-sudo rm -f /tmp/garagepi && \
-sudo service garagepi start
-EOF
-
 ssh \
-  -i "${private_key}" \
+  -i "${PRIVATE_KEY}" \
   -p "${TARGET_PORT}" \
   "${TARGET_USER}@${TARGET_HOST}" \
-  "${redeploy_command}"
+  "sudo service garagepi stop && \
+  cp /tmp/garagepi /go/bin/garagepi && \
+  sudo rm -f /tmp/garagepi && \
+  sudo service garagepi start"

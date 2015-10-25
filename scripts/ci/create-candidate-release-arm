@@ -2,27 +2,27 @@
 
 set -eux
 
-ROOT="$PWD"
-VERSION="$(cat version/number)"
+root_dir="$PWD"
+version="$(cat version/number)"
 
-MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # This script expects that it lives two directories below the base directory.
-BASE_DIR="$( cd ${MY_DIR}/../.. && pwd )"
+base_dir="$( cd "${my_dir}/../.." && pwd )"
 
-pushd ${BASE_DIR}
-  mkdir -p $GOPATH/src/github.com/robdimsdale
-  ln -s $PWD $GOPATH/src/github.com/robdimsdale/garagepi
+pushd "${base_dir}"
+  mkdir -p "${GOPATH}/src/github.com/robdimsdale"
+  ln -s "${PWD}" "${GOPATH}/src/github.com/robdimsdale/garagepi"
 
   go get github.com/tools/godep
 
   godep restore
 
-  IFS='-' read -ra arrVERSION <<< "${VERSION}"
+  IFS='-' read -ra arrVERSION <<< "${version}"
   stripped_version="${arrVERSION[0]}"
 
   GOOS=linux GOARCH=arm go build \
-    -o "${ROOT}"/garagepi-arm-"${VERSION}" \
+    -o "${root_dir}"/garagepi-arm-"${version}" \
     -ldflags "-X main.version=${stripped_version}" \
     main.go
 popd

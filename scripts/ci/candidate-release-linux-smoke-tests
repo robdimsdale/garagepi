@@ -2,20 +2,21 @@
 
 set -eux
 
-ROOT="$PWD"
-export GARAGEPI_BIN_PATH="$(ls ${ROOT}/candidate-release-linux/garagepi-*)"
-chmod +x "${GARAGEPI_BIN_PATH}"
+root_dir="$PWD"
+garagepi_bin_path="$(ls "${root_dir}/candidate-release-linux/garagepi-*")"
+export garagepi_bin_path
+chmod +x "${garagepi_bin_path}"
 
-MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # This script expects that it lives two directories below the base directory.
-BASE_DIR="$( cd ${MY_DIR}/../.. && pwd )"
+base_dir="$( cd "${my_dir}/../.." && pwd )"
 
 # And that scripts/ lives one directory below the base directory.
-SCRIPTS_DIR="$( cd ${BASE_DIR}/scripts/ && pwd )"
+scripts_dir="$( cd "${base_dir}/scripts/" && pwd )"
 
 go get \
   github.com/onsi/ginkgo/ginkgo \
   github.com/onsi/gomega
 
-"${SCRIPTS_DIR}"/smoke-tests
+"${scripts_dir}"/smoke-tests

@@ -20,63 +20,63 @@ start() {
     pid_guard
 
     echo "Starting garagepi"
-    $GARAGEPI_BINARY \
-      -pidFile=$PID_FILE \
-      -httpPort=$HTTP_PORT \
-      -httpsPort=$HTTPS_PORT \
-      -webcamHost=$WEBCAM_HOST \
-      -webcamPort=$WEBCAM_PORT \
-      -enableHTTPS=$ENABLE_HTTPS \
-      -forceHTTPS=$FORCE_HTTPS \
-      -keyFile=$KEY_FILE \
-      -certFile=$CERT_FILE \
-      -logLevel=$LOG_LEVEL \
-      -username=$USERNAME \
-      -password=$PASSWORD \
-      2>&1 | tee $OUT_LOG | logger -t garagepi &
+    "${GARAGEPI_BINARY}" \
+      -pidFile="${PID_FILE}" \
+      -httpPort="${HTTP_PORT}" \
+      -httpsPort="${HTTPS_PORT}" \
+      -webcamHost="${WEBCAM_HOST}" \
+      -webcamPort="${WEBCAM_PORT}" \
+      -enableHTTPS="${ENABLE_HTTPS}" \
+      -forceHTTPS="${FORCE_HTTPS}" \
+      -keyFile="${KEY_FILE}" \
+      -certFile="${CERT_FILE}" \
+      -logLevel="${LOG_LEVEL}" \
+      -username="${USERNAME}" \
+      -password="${PASSWORD}" \
+      2>&1 | tee "${OUT_LOG}" | logger -t garagepi &
 }
 
 pid_guard() {
-  if [ -f "$PID_FILE" ]; then
-    pid=$(head -1 "$PID_FILE")
+  if [ -f "${PID_FILE}" ]; then
+    pid=$(head -1 "${PID_FILE}")
 
-    if [ -n "$pid" ] && [ -e /proc/$pid ]; then
+    if [ -n "${pid}" ] && [ -e "/proc/${pid}" ]; then
       echo "garagepi is already running, please stop it first"
       exit 1
     fi
 
     echo "Removing stale pidfile..."
-    rm $pidfile
+    rm "${PID_FILE}"
   fi
 }
 
 stop() {
     echo "Stopping garagepi"
 
-    if [ -f "$PID_FILE" ]; then
-      pid=$(head -1 "$PID_FILE")
+    if [ -f "${PID_FILE}" ]; then
+      pid=$(head -1 "${PID_FILE}")
 
       if [ -z "$pid" ]; then
-        echo "Unable to get pid from $PID_FILE"
+        echo "Unable to get pid from ${PID_FILE}"
         exit 1
       fi
 
-      if [ -e /proc/$pid ]; then
-        echo "Killing $PID_FILE: $pid "
-        kill $pid
+      if [ -e "/proc/${pid}" ]; then
+        echo "Killing ${PID_FILE}: ${pid} "
+        kill "${pid}"
         sleep 2
-        if [ -e /proc/$pid ]; then
+        if [ -e "/proc/${pid}" ]; then
           echo "Timed Out"
         else
           echo "Stopped"
         fi
       else
-        echo "Process $pid is not running"
+        echo "Process ${pid} is not running"
       fi
 
-      rm -f $PID_FILE
+      rm -f "${PID_FILE}"
     else
-      echo "Pidfile $PID_FILE doesn't exist"
+      echo "Pidfile ${PID_FILE} doesn't exist"
     fi
 }
 
