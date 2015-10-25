@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -eux
+
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives one directory below the base directory.
+base_dir="$( cd "${my_dir}/.." && pwd )"
+
+pushd "${base_dir}"
+  grep --exclude-dir=.git -r -e 'bin/.*sh' -l . | xargs shellcheck
+popd
