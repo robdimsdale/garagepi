@@ -3,9 +3,11 @@
 set -eux
 
 root_dir="$PWD"
-garagepi_bin_path="$(ls "${root_dir}"/candidate-release-linux/garagepi-*)"
-export garagepi_bin_path
-chmod +x "${garagepi_bin_path}"
+
+# This environment variable is used by the tests so it is case-sensitive.
+GARAGEPI_BIN_PATH="$(ls "${root_dir}"/candidate-release-linux/garagepi-*)"
+export GARAGEPI_BIN_PATH
+chmod +x "${GARAGEPI_BIN_PATH}"
 
 my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
