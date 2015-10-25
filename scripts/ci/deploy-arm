@@ -2,10 +2,11 @@
 
 set -eux
 
+root_dir="$PWD"
 PRIVATE_KEY="${PRIVATE_KEY:-deployments/pipelines/garagepi/concourse.private.key}"
 chmod 600 "${PRIVATE_KEY}"
 
-CANDIDATE_RELEASE="${CANDIDATE_RELEASE:-candidate-release-arm/garagepi-arm-*}"
+CANDIDATE_RELEASE="${CANDIDATE_RELEASE:-$(ls "${root_dir}"/candidate-release-arm/garagepi-arm-*)}"
 
 TARGET_USER="${TARGET_USER:-pi}"
 TARGET_HOST="${TARGET_HOST:?}"

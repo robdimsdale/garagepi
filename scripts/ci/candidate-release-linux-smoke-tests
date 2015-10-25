@@ -3,7 +3,7 @@
 set -eux
 
 root_dir="$PWD"
-garagepi_bin_path="$(ls "${root_dir}/candidate-release-linux/garagepi-*")"
+garagepi_bin_path="$(ls "${root_dir}"/candidate-release-linux/garagepi-*)"
 export garagepi_bin_path
 chmod +x "${garagepi_bin_path}"
 
