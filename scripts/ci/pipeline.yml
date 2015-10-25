@@ -101,7 +101,7 @@ resources:
 
 jobs:
 - name: golang-1.4
-  public: false
+  public: true
   plan:
   - do:
     - aggregate:
@@ -124,7 +124,7 @@ jobs:
         text: {{v1-4-slack-failure-text}}
 
 - name: golang-1.5
-  public: false
+  public: true
   plan:
   - do:
     - aggregate:
@@ -147,7 +147,7 @@ jobs:
         text: {{v1-5-slack-failure-text}}
 
 - name: rc
-  public: false
+  public: true
   serial_groups: [version]
   plan:
   - do:
@@ -185,7 +185,7 @@ jobs:
         text: {{rc-slack-failure-text}}
 
 - name: smoke-tests
-  public: false
+  public: true
   plan:
   - do:
     - aggregate:
@@ -234,7 +234,7 @@ jobs:
 
 - name: shipit
   serial_groups: [version]
-  public: false
+  public: true
   plan:
   - aggregate:
     - get: garagepi
