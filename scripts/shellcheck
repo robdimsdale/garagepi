@@ -8,5 +8,12 @@ my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 base_dir="$( cd "${my_dir}/.." && pwd )"
 
 pushd "${base_dir}"
-  grep --exclude-dir=.git -r -e 'bin/.*sh' -l . | xargs shellcheck
+  grep \
+    --exclude-dir=Godeps \
+    --exclude-dir=.git \
+    -r \
+    -e 'bin/.*sh' \
+    -l \
+    . \
+    | xargs shellcheck
 popd
