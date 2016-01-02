@@ -6,7 +6,7 @@ A webserver written in golang to display output of Raspberry Pi camera module an
 
 A typical use would be to view the interior of a garage and trigger the garage door opener via gpio (and a relay).
 
-Copyright © 2014-2015, Robert Dimsdale. Licensed under the [MIT License](https://github.com/robdimsdale/garagepi/raw/master/LICENSE).
+Copyright © 2014-2016, Robert Dimsdale. Licensed under the [MIT License](https://github.com/robdimsdale/garagepi/raw/master/LICENSE).
 
 ## Getting started
 
