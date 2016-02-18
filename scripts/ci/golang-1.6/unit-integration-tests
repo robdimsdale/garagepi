@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -eux
+
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# This script expects that it lives three directories below the base directory.
+base_dir="$( cd "${my_dir}/../../.." && pwd )"
+
+# And that scripts/ lives one directory below the base directory.
+scripts_dir="$( cd "${base_dir}/scripts/" && pwd )"
+
+pushd "${base_dir}"
+  mkdir -p "${GOPATH}/src/github.com/robdimsdale"
+  ln -s "${PWD}" "${GOPATH}/src/github.com/robdimsdale/garagepi"
+
+  go get github.com/onsi/ginkgo/ginkgo
+  go get golang.org/x/tools/cmd/vet
+  go get github.com/tools/godep
+
+  godep restore
+
+  set +e
+  "${scripts_dir}/go-vet"
+  result_code=$?
+  "${scripts_dir}/unit-tests"
+  result_code=$(( result_code+=$? ))
+  "${scripts_dir}/integration-tests"
+  result_code=$(( result_code+=$? ))
+  set -e
+popd
+
+exit $result_code
