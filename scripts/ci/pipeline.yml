@@ -202,9 +202,9 @@ jobs:
         file: garagepi/scripts/ci/create-candidate-release-linux.yml
     - aggregate:
       - put: candidate-release-arm
-        params: {from: create-candidate-release-arm/garagepi-arm-(.*)}
+        params: {from: rc-arm/garagepi-arm-(.*)}
       - put: candidate-release-linux
-        params: {from: create-candidate-release-linux/garagepi-linux-(.*)}
+        params: {from: rc-linux/garagepi-linux-(.*)}
     - put: version
       params: {file: version/number}
     on_failure:
@@ -293,9 +293,9 @@ jobs:
         tag: version/number
         tag_prefix: v
     - put: candidate-release-arm
-      params: {from: finalize-candidate-release-arm/garagepi-arm-(.*)}
+      params: {from: finalized-release-arm/garagepi-arm-(.*)}
     - put: candidate-release-linux
-      params: {from: finalize-candidate-release-linux/garagepi-linux-(.*)}
+      params: {from: finalized-release-linux/garagepi-linux-(.*)}
 - name: github-release
   plan:
   - aggregate:
