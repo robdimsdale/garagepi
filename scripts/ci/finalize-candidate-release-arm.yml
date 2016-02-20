@@ -9,7 +9,7 @@ inputs:
 - name: garagepi
 
 outputs:
-- finalized-release-arm
+- name: finalized-release-arm
 
 run:
   path: garagepi/scripts/ci/finalize-candidate-release-arm

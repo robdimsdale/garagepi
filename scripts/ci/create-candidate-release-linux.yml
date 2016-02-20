@@ -8,7 +8,7 @@ inputs:
 - name: version
 
 outputs:
-- rc-linux
+- name: rc-linux
 
 run:
   path: garagepi/scripts/ci/create-candidate-release-linux

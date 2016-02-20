@@ -8,7 +8,7 @@ inputs:
 - name: version
 
 outputs:
-- rc-arm
+- name: rc-arm
 
 run:
   path: garagepi/scripts/ci/create-candidate-release-arm

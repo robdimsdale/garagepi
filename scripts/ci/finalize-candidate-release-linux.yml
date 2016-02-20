@@ -9,7 +9,7 @@ inputs:
 - name: garagepi
 
 outputs:
-- finalized-release-linux
+- name: finalized-release-linux
 
 run:
   path: garagepi/scripts/ci/finalize-candidate-release-linux
