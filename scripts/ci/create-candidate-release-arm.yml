@@ -7,5 +7,11 @@ inputs:
 - name: garagepi
 - name: version
 
+outputs:
+- candidate-release-arm
+
 run:
   path: garagepi/scripts/ci/create-candidate-release-arm
+
+params:
+  CANDIDATE_RELEASE_DIR: candidate-release-arm

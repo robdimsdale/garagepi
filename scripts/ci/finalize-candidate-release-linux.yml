@@ -8,5 +8,11 @@ inputs:
 - name: version
 - name: garagepi
 
+outputs:
+- finalized-release-linux
+
 run:
   path: garagepi/scripts/ci/finalize-candidate-release-linux
+
+params:
+  FINALIZED_RELEASE_DIR: finalized-release-linux

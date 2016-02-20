@@ -3,6 +3,10 @@
 set -eux
 
 root_dir="$PWD"
+
+# Outputs
+CANDIDATE_RELEASE_DIR="${root_dir}/${CANDIDATE_RELEASE_DIR:?"\$CANDIDATE_RELEASE_DIR not set"}"
+
 version="$(cat version/number)"
 
 my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -22,7 +26,7 @@ pushd "${base_dir}"
   stripped_version="${arrVERSION[0]}"
 
   GOOS=linux GOARCH=arm go build \
-    -o "${root_dir}"/garagepi-arm-"${version}" \
+    -o "${CANDIDATE_RELEASE_DIR}"/garagepi-arm-"${version}" \
     -ldflags "-X main.version=${stripped_version}" \
     main.go
 popd

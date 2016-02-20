@@ -3,8 +3,12 @@
 set -eux
 
 root_dir="$PWD"
+
+# Outputs
+CANDIDATE_RELEASE_DIR="${root_dir}/${CANDIDATE_RELEASE_DIR:?"\$CANDIDATE_RELEASE_DIR not set"}"
+
 version="$(cat version/number)"
 
 mv \
   candidate-release-arm/garagepi-arm-* \
-  "${root_dir}"/garagepi-arm-"${version}"
+  "${CANDIDATE_RELEASE_DIR}"/garagepi-arm-"${version}"
