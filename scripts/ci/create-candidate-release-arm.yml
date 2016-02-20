@@ -8,10 +8,10 @@ inputs:
 - name: version
 
 outputs:
-- candidate-release-arm
+- rc-arm
 
 run:
   path: garagepi/scripts/ci/create-candidate-release-arm
 
 params:
-  CANDIDATE_RELEASE_DIR: candidate-release-arm
+  CANDIDATE_RELEASE_DIR: rc-arm

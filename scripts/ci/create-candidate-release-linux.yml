@@ -8,10 +8,10 @@ inputs:
 - name: version
 
 outputs:
-- candidate-release-linux
+- rc-linux
 
 run:
   path: garagepi/scripts/ci/create-candidate-release-linux
 
 params:
-  CANDIDATE_RELEASE_DIR: candidate-release-linux
+  CANDIDATE_RELEASE_DIR: rc-linux
